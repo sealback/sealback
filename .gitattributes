@@ -1,0 +1,9 @@
+# Check out text files with LF on every platform (shell scripts, and
+# deterministic output that CI compares byte for byte).
+* text=auto eol=lf
+
+# age files can be binary even if they start with a text header.
+*.age binary
+
+# Generated third-party files are compared byte for byte in CI.
+third_party/** -text

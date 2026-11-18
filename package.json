@@ -1,0 +1,22 @@
+{
+  "name": "sealback",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Send a secret back in encrypted form — a static, backend-free web tool based on age",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p jsconfig.json",
+    "test": "node --test",
+    "update-third-party": "sh scripts/update-third-party.sh",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "age-encryption": "0.3.1",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  }
+}
