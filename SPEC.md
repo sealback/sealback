@@ -114,7 +114,7 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 
 ### 6.2 Layout
 
-All views share one layout: a header across the full width (logo left, tabs next to it for the recipient's views, language toggle right), a large card, and a footer (short privacy note left, link to the source code right).
+All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens) and, for the recipient's views, the tabs centred below it; a large card; and a footer with a short privacy note on the left and, on the right, the link to the source code and the language drop-down.
 
 On wide screens, the card spans most of the window width (up to ~90rem) and has two columns: an introduction on the left (heading, short explanation, "How it works" steps or the "How does this work?" section) and the task on the right (form, results). Below ~56rem the columns stack, introduction first.
 
@@ -268,9 +268,9 @@ Supported recipient types:
 - Light and dark mode via `prefers-color-scheme`.
 - Usable on mobile screens.
 - Accessible: proper labels for all inputs, visible focus states, sufficient contrast, status and error messages announced via `aria-live`.
-- Languages: English and German. Default from `navigator.language`, with a visible language drop-down in the header (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
+- Languages: English and German. Default from `navigator.language`, with a visible language drop-down in the footer (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
 - Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label); such details appear only in the "How does this work?" section.
-- **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, 145 × 40 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
+- **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, centred, 232 × 64 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
 - **Drop-downs** (language, encryption type) are native `<select>` elements. Where the browser supports customizable selects (`appearance: base-select`), the opened menu is styled to match the page; other browsers show their native menu.
 
 ## 9. Testing

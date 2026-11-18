@@ -22,19 +22,12 @@
     <div class="brand">
       <picture>
         <source srcset="img/sealback-lockup-dark.svg" media="(prefers-color-scheme: dark)">
-        <img src="img/sealback-lockup.svg" alt="Sealback" width="145" height="40">
+        <img src="img/sealback-lockup.svg" alt="Sealback" width="232" height="64">
       </picture>
     </div>
     <div id="tabs" class="tabs" role="tablist" aria-label="Mode" data-i18n-attr="aria-label:tabs.label" hidden>
       <button type="button" role="tab" id="tab-receive" aria-controls="panel-receive" aria-selected="true" data-tab="receive" data-i18n="tab.receive">Receive</button>
       <button type="button" role="tab" id="tab-decrypt" aria-controls="panel-decrypt" aria-selected="false" tabindex="-1" data-tab="decrypt" data-i18n="tab.decrypt">Decrypt</button>
-    </div>
-    <div class="lang">
-      <label for="lang" class="sr-only" data-i18n="lang.label">Language</label>
-      <select id="lang">
-        <option value="en" lang="en">English</option>
-        <option value="de" lang="de">Deutsch</option>
-      </select>
     </div>
   </header>
 
@@ -299,7 +292,16 @@
 
   <footer class="site-footer">
     <p data-i18n="footer.about">Sealback encrypts in your browser and sends nothing to any server.</p>
-    <a href="https://github.com/sealback/sealback" data-i18n="footer.source">Source code</a>
+    <div class="footer-links">
+      <a href="https://github.com/sealback/sealback" data-i18n="footer.source">Source code</a>
+      <div class="lang">
+        <label for="lang" class="sr-only" data-i18n="lang.label">Language</label>
+        <select id="lang">
+          <option value="en" lang="en">English</option>
+          <option value="de" lang="de">Deutsch</option>
+        </select>
+      </div>
+    </div>
   </footer>
 </body>
 </html>
