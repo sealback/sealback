@@ -131,7 +131,19 @@ a {
   padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 0.5rem;
 }
 
-/* Logo lockup at its native size, 232 × 64 px (aspect ratio 3.62 : 1). */
+/* Logo lockup at its native size, 232 × 64 px (aspect ratio 3.62 : 1),
+   linking to the start page. */
+.brand {
+  display: block;
+  border-radius: var(--radius);
+}
+
+.slogan {
+  margin: -0.75rem 0 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
 .brand img {
   display: block;
   width: auto;
@@ -411,8 +423,7 @@ textarea[readonly] {
 .check {
   display: flex;
   gap: 0.6rem;
-  margin: 1rem 0 0.5rem;
-  font-weight: normal;
+  margin: 0 0 0.75rem;
   cursor: pointer;
 }
 
@@ -649,8 +660,14 @@ textarea:focus-visible {
   color: var(--fg);
 }
 
-.recipient {
-  font-size: 1.1rem;
+.request-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.15rem;
+}
+
+.request-title-label {
+  font-weight: 600;
+  color: var(--muted);
 }
 
 details {

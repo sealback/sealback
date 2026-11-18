@@ -75,7 +75,7 @@ test("secret fields disable spellcheck and autocorrection", () => {
       assert.ok(tag.includes(attr), `${id} lacks ${attr}`);
     }
   }
-  for (const id of ["receive-pass", "receive-pass2", "decrypt-pass"]) {
+  for (const id of ["request-pass", "request-pass2", "decrypt-pass"]) {
     const tag = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0] ?? "";
     assert.ok(tag.includes('type="password"'), id);
     assert.ok(tag.includes('spellcheck="false"'), id);

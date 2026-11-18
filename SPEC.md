@@ -2,11 +2,11 @@
 
 ## 1. Purpose
 
-Sealback is a static web tool that lets a non-technical person send a secret (password, API key, short text) back to someone in encrypted form, without installing software, creating an account, or using a backend.
+Sealback is a static web tool that lets a non-technical person send confidential information (password, access data, API key, short text) back to someone in encrypted form, without installing software, creating an account, or using a backend.
 
 The recipient generates an age key pair, sends the sender a link containing the public key, and receives the encrypted result by ordinary email. Only the holder of the private key can decrypt it. Encryption and decryption happen entirely in the browser.
 
-The recipient chooses between classical encryption (X25519) and post-quantum hybrid encryption (ML-KEM-768 + X25519) depending on how long the secret must stay protected.
+The recipient chooses between elliptic-curve encryption (X25519) and quantum-safe hybrid encryption (ML-KEM-768 + X25519) depending on how long the secret must stay protected.
 
 Hosted at `https://sealback.org`, source in the GitHub organization `sealback`, licensed under Apache-2.0.
 
@@ -65,7 +65,7 @@ Repository: `github.com/sealback/sealback`.
 │   ├── i18n.js         String tables (en, de) and language selection
 │   ├── ui.js           Shared DOM helpers: copy, download, mailto, status messages
 │   ├── view-send.js    DOM logic for the send view
-│   ├── view-receive.js DOM logic for the receive view
+│   ├── view-request.js DOM logic for the request view
 │   └── view-decrypt.js DOM logic for the decrypt view
 ├── third_party/
 │   ├── age-encryption.js    Bundled typage (deployed)
@@ -106,15 +106,15 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 | `#pubkey=…` (invalid or truncated) | Sender page with an error explaining that the link may have been damaged, and the manual key input (6.4), no tabs |
 | `#send` | Sender page with the manual key input, no tabs |
 | `#decrypt` | Tabs, "Decrypt" active |
-| `#receive`, empty, or anything else | Tabs, "Receive" active |
+| `#request`, empty, or anything else | Tabs, "Request" active |
 
-- The **sender page** (send view) shows nothing but the sender's task. Senders only ever arrive through a link: the share link (`#pubkey=…`) or the fallback address `https://sealback.org/#send`, which the recipient gives out when a link does not survive email. A link "Create your own key" navigates to `#receive`.
-- The **recipient** uses two tabs in the header: "Receive" and "Decrypt". There is no "Send" tab, so the recipient's interface stays focused on the recipient's tasks. The active tab is reflected in the fragment, so each tab can be bookmarked and linked.
+- The **sender page** (send view) shows nothing but the sender's task. Senders only ever arrive through a link: the share link (`#pubkey=…`) or the fallback address `https://sealback.org/#send`, which the recipient gives out when a link does not survive email. A link "Request information yourself" navigates to `#request`.
+- The **recipient** uses two tabs in the header: "Request" (preparing to receive information: creating the key and the link) and "Decrypt". There is no "Send" tab, so the recipient's interface stays focused on the recipient's tasks. The active tab is reflected in the fragment, so each tab can be bookmarked and linked.
 - Changing the fragment (`hashchange`) re-evaluates the view. Tabs are accessible tab controls (`role="tablist"`, `role="tab"`, `role="tabpanel"`, arrow-key navigation). Leaving a view clears all its secret-bearing fields.
 
 ### 6.2 Layout
 
-All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens) and, for the recipient's views, the tabs centred below it; a large card; and a footer with a short privacy note on the left and, on the right, the link to the source code and the language drop-down.
+All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens; a link to the start page `./`, whose full page load discards all state), the slogan below it and, for the recipient's views, the tabs centred below it; a large card; and a footer with a short privacy note on the left and, on the right, the link to the source code and the language drop-down.
 
 On wide screens, the card spans most of the window width (up to ~90rem) and has two columns: an introduction on the left (heading, short explanation, "How it works" steps or the "How does this work?" section) and the task on the right (form, results). Below ~56rem the columns stack, introduction first.
 
@@ -143,20 +143,22 @@ Encrypted text — safe to send by normal email:
 * only shown if the content fits into a mailto: link
 ```
 
-The left column shows "Send a secret", "Recipient: Martin (as stated in the link)" (link with name only), a one-sentence explanation, the "How does this work?" section and "Create your own key →".
+Above the security code, the right column shows "Request: Martin – access data (as stated in the link)" if the link has a title. The left column only explains: "Send confidential information", a one-sentence explanation, the "How does this work?" section and "Request information yourself →".
 
-### 6.3 Receive view (generate key)
+### 6.3 Request view (generate key)
 
-1. Explain in two or three sentences what will happen: a key file is created on this computer, and a link is created to send to the person who should send a secret.
-2. Optional label field ("Your name"), included in the link for display only.
-3. Encryption type selection (drop-down labelled "Encryption"), **post-quantum selected by default**. The options name the actual algorithms; below the drop-down, only the description of the selected option is shown:
-   - "ML-KEM-768 + X25519 (post-quantum, recommended)": hybrid, age type `mlkem768x25519`. Description: for long-lived or highly sensitive data; also protects against future quantum computers; the link is about 2,000 characters long.
-   - "X25519 (classical, shorter link)": age type X25519. Description: secure today, but archived messages could become readable to future quantum computers; suitable for secrets that are changed soon after the handover; the link is about 100 characters long.
+The recipient prepares to receive information: a key pair and a share link are created.
+
+1. Explain in two or three sentences what will happen: a key file is saved on the user's computer ("your computer", not "this computer", since users don't think of a website as running on their computer), and a link is created to send to the person who has the information.
+2. Optional title field ("Title"), included in the link for display only. It tells the sender what the request is about (e.g. "Martin – access data for the web server"). The hint warns that anyone who sees the link can read it, so nothing confidential belongs there.
+3. Encryption type selection (drop-down labelled "Encryption"), **quantum-safe selected by default**. Each option names the category first and the exact algorithm in parentheses; below the drop-down, only the description of the selected option is shown:
+   - "Quantum Safe (ML-KEM-768 + X25519)": hybrid, age type `mlkem768x25519`. Description: recommended; stays secure even against future quantum computers, so it suits long-lived or highly sensitive information; the link is about 2,000 characters long. "Quantum Safe" is used in German as well.
+   - "Elliptic curve (X25519)" ("Elliptische Kurven"): age type X25519. Description: shorter link (about 100 characters); secure today, but archived messages could become readable to future quantum computers; suitable for information that is changed soon after the handover.
    - The word "standard" is deliberately not used: it is ambiguous for readers who know cryptography, and would wrongly suggest the default.
-4. Passphrase protection of the key file, **enabled by default**:
+4. Passphrase protection of the key file: a checkbox "Protect the key file with a passphrase", **checked by default**, above the passphrase fields:
    - Passphrase entered twice; minimum length 12 characters; a short hint recommends a few random words.
-   - A checkbox "Don't protect the key file with a passphrase" disables it, showing a warning that anyone who obtains the file can read the secret.
-   - A note that a forgotten passphrase makes the received secret unrecoverable, and that the passphrase only needs to be kept until the secret has arrived.
+   - Unchecking hides the fields and shows a warning that anyone who obtains the key file can read the information.
+   - A note that a forgotten passphrase makes the information unrecoverable, and that the passphrase only needs to be kept until the information has arrived.
 5. Button "Create key". On click:
    - Generate an identity of the selected type with typage.
    - Derive the recipient (public key) and its fingerprint.
@@ -168,7 +170,7 @@ The left column shows "Send a secret", "Recipient: Martin (as stated in the link
    - The fingerprint ("Security code").
    - A collapsible "If the link doesn't work" section with the bare public key, a "Copy public key" button, a "Download public key" button (`sealback-pubkey-<first 4 fingerprint characters>.txt`, containing only the recipient string and a trailing newline), and the instruction that the sender can open `https://sealback.org/#send` and paste or load the key there.
    - Instructions: send the link; when the sender reads out the security code, compare it; keep the key file and passphrase until the secret arrives; delete the key file after decryption.
-   - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the receive view stays active; leaving the tab or the page discards them and hides the button. The link and security code are not secret and stay visible.
+   - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and security code are not secret and stay visible.
    - A "Create another key" button that returns to the empty form.
 8. Encourage one key per exchange in the UI text.
 
@@ -177,7 +179,7 @@ The left column shows "Send a secret", "Recipient: Martin (as stated in the link
 1. Determine the recipient:
    - From the share link's fragment (6.6).
    - At `#send`, or for a damaged share link: from a manual input that accepts pasted text or a loaded text file. The input accepts either a bare public key or a complete Sealback link; `keys.js` normalizes it (section 6.7). Invalid input shows a specific error (not a key, damaged key / checksum mismatch, unsupported key type).
-2. Detect the key type automatically (6.7) and display it as "Protection: Post-quantum" or "Protection: Classical". The sender never chooses the type.
+2. Detect the key type automatically (6.7) and display it as "Protection: Quantum Safe" or "Protection: Elliptic curve". The sender never chooses the type.
 3. Display the recipient label (share link only, marked as "as stated in the link") and the fingerprint as "Security code", with the instruction to confirm it with the recipient by phone or another channel before sending sensitive data.
 4. A textarea for the secret with `autocomplete="off"`, `autocorrect="off"`, `autocapitalize="off"` and `spellcheck="false"`.
 5. Button "Encrypt". On click:
@@ -209,14 +211,14 @@ Version 1 supports text only. File encryption is a possible later extension.
 ### 6.6 Share link format
 
 ```
-https://sealback.org/#pubkey=<age recipient>&name=<URL-encoded label>
+https://sealback.org/#pubkey=<age recipient>&title=<URL-encoded title>
 ```
 
 - Parameters are carried in the fragment only, so they never reach the server, its logs, or intermediate proxies.
 - `pubkey` is required for a share link. The parameter name makes clear to technical readers that the value is a public, non-secret key.
-- `name` is optional, rendered as text only (never as HTML). After decoding, control and formatting characters (including bidirectional overrides) are removed, whitespace is collapsed, and the result is cut to 80 code points.
-- Other fragments: `#send`, `#receive`, `#decrypt` (section 6.1).
-- `link.js` provides `buildLink(baseUrl, recipient, name)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, name }`, `{ mode: "link", error }`, `{ mode: "view", view: "receive" | "send" | "decrypt" }`.
+- `title` is optional, rendered as text only (never as HTML). After decoding, control and formatting characters (including bidirectional overrides) are removed, whitespace is collapsed, and the result is cut to 80 code points.
+- Other fragments: `#send`, `#request`, `#decrypt` (section 6.1).
+- `link.js` provides `buildLink(baseUrl, recipient, title)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, type, title }`, `{ mode: "link", error }`, `{ mode: "view", view: "request" | "send" | "decrypt" }`.
 
 ### 6.7 Key types and normalization
 
@@ -224,8 +226,8 @@ Supported recipient types:
 
 | Type (code) | UI label | Recipient prefix | Identity prefix |
 |---|---|---|---|
-| `x25519` | Classical | `age1` (Bech32 HRP `age`) | `AGE-SECRET-KEY-1` |
-| `mlkem768x25519` | Post-quantum | `age1pq1` (Bech32 HRP `age1pq`) | `AGE-SECRET-KEY-PQ-1` |
+| `x25519` | Elliptic curve | `age1` (Bech32 HRP `age`) | `AGE-SECRET-KEY-1` |
+| `mlkem768x25519` | Quantum Safe | `age1pq1` (Bech32 HRP `age1pq`) | `AGE-SECRET-KEY-PQ-1` |
 
 (Prefixes verified against typage 0.3.1 and `age` 1.3.)
 
@@ -271,6 +273,8 @@ Supported recipient types:
 - Languages: English and German. Default from `navigator.language`, with a visible language drop-down in the footer (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
 - Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label); such details appear only in the "How does this work?" section.
 - **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, centred, 232 × 64 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
+- **Slogan:** "Sealed on the way back" (German: "Versiegelt auf dem Rückweg"), shown below the logo and in the page title ("Sealback – sealed on the way back"), both localized. It plays on the name: the information travels back to the person who requested it, sealed.
+- **Wording:** the UI speaks of "confidential information" ("vertrauliche Informationen"), not "secret", to cover passwords, access data and similar.
 - **Drop-downs** (language, encryption type) are native `<select>` elements. Where the browser supports customizable selects (`appearance: base-select`), the opened menu is styled to match the page; other browsers show their native menu.
 
 ## 9. Testing
@@ -281,9 +285,9 @@ Supported recipient types:
 - Passphrase-protected identity files for both key types: create, then decrypt with correct and incorrect passphrase.
 - Decryption with the wrong identity fails with the expected error category, including an X25519 identity against an ML-KEM-768 + X25519 ciphertext and vice versa.
 - Key type detection: X25519, ML-KEM-768 + X25519, other age recipient types rejected, strings that merely begin with `age1` but have a different HRP.
-- Normalization: bare key, key with whitespace and line breaks inserted, uppercase key, full Sealback link (with and without `name`), truncated key (checksum error), empty input.
+- Normalization: bare key, key with whitespace and line breaks inserted, uppercase key, full Sealback link (with and without `title`), truncated key (checksum error), empty input.
 - Fingerprint: known test vectors for both key types, stability, leading zeros preserved (16 characters), grouping. Test vectors are computed independently of `fingerprint.js` (e.g. with `sha256sum` and a short script whose command is recorded in the test file).
-- Fragment parsing: `#pubkey=` with and without `name`, invalid or truncated `pubkey`, `#send`, `#receive`, `#decrypt`, empty fragment, unknown fragment, overlong `name`, URL-encoding of special characters.
+- Fragment parsing: `#pubkey=` with and without `title`, invalid or truncated `pubkey`, `#send`, `#request`, `#decrypt`, empty fragment, unknown fragment, overlong `title`, URL-encoding of special characters.
 - Interoperability: fixtures created with the `age` CLI (≥ 1.3.0) for both key types, plain and passphrase-protected key files, armored and binary ciphertext, decrypt in tests; `test/fixtures/README.md` records the commands and `age` version. The README documents how to verify the reverse direction manually.
 - i18n: the `en` and `de` tables have identical key sets, and every `data-i18n` key used in `index.html` exists.
 - Security scan as described in section 7.

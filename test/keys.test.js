@@ -85,11 +85,11 @@ test("normalizes uppercase keys", () => {
 test("extracts the key from a Sealback link", () => {
   const expected = { recipient: PQ, type: "mlkem768x25519" };
   assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}`), expected);
-  assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}&name=Martin%20J.`), expected);
-  assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#name=Martin&pubkey=${PQ}`), expected);
+  assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}&title=Martin%20J.`), expected);
+  assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#title=Martin&pubkey=${PQ}`), expected);
   assert.deepEqual(normalizeRecipientInput(`#pubkey=${PQ}`), expected);
   // Wrapped by an email client, and in angle brackets.
-  const link = `https://sealback.org/#pubkey=${PQ}&name=Martin`;
+  const link = `https://sealback.org/#pubkey=${PQ}&title=Martin`;
   assert.deepEqual(normalizeRecipientInput(`<${link.replace(/(.{70})/g, "$1\n")}>`), expected);
 });
 

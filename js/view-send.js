@@ -21,7 +21,7 @@ function elements() {
     keyError: byId("send-key-error", HTMLParagraphElement),
     recipient: byId("send-recipient", HTMLDivElement),
     to: byId("send-to", HTMLParagraphElement),
-    name: byId("send-name", HTMLElement),
+    topic: byId("send-topic", HTMLElement),
     protection: byId("send-protection", HTMLElement),
     code: byId("send-code", HTMLElement),
     secret: byId("send-secret", HTMLTextAreaElement),
@@ -77,7 +77,7 @@ export function showLink(route) {
   } else {
     show(e.linkError, false);
     show(e.manual, false);
-    void setRecipient({ recipient: route.recipient, type: route.type }, route.name);
+    void setRecipient({ recipient: route.recipient, type: route.type }, route.title);
   }
 }
 
@@ -117,9 +117,9 @@ async function loadKeyFile() {
 
 /**
  * @param {{ recipient: string, type: KeyType } | null} key
- * @param {string | null} name label from the link, link mode only
+ * @param {string | null} title title from the share link, if any
  */
-async function setRecipient(key, name) {
+async function setRecipient(key, title) {
   const gen = ++generation;
   current = key;
   clearResult();
@@ -129,8 +129,8 @@ async function setRecipient(key, name) {
   }
   const code = await fingerprint(key.recipient);
   if (gen !== generation) return;
-  e.name.textContent = name ?? "";
-  show(e.to, name !== null);
+  e.topic.textContent = title ?? "";
+  show(e.to, title !== null);
   setText(e.protection, `send.protection.${key.type}`);
   e.code.textContent = formatFingerprint(code);
   show(e.recipient, true);

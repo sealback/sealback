@@ -2,7 +2,7 @@
 //
 // Entry point: language, fragment routing, tabs.
 //
-// The receiver uses two tabs, "Receive" and "Decrypt". The send view is the
+// The recipient uses two tabs, "Request" and "Decrypt". The send view is the
 // sender's page: it is reached only through a link (#pubkey=…) or the
 // fallback address #send, and is shown without tabs.
 
@@ -10,16 +10,16 @@ import { LANGS, applyTranslations, detectLanguage, getLanguage, setLanguage } fr
 import { VIEWS, parseFragment } from "./link.js";
 import { byId, show } from "./ui.js";
 import * as decrypt from "./view-decrypt.js";
-import * as receive from "./view-receive.js";
+import * as request from "./view-request.js";
 import * as send from "./view-send.js";
 
 /** @typedef {import("./link.js").View} View */
-/** @typedef {"receive" | "decrypt"} Tab */
+/** @typedef {"request" | "decrypt"} Tab */
 
-const views = { receive, send, decrypt };
+const views = { request, send, decrypt };
 
 /** @type {readonly Tab[]} */
-const TABS = ["receive", "decrypt"];
+const TABS = ["request", "decrypt"];
 
 /** @type {View | null} */
 let active = null;
@@ -104,7 +104,7 @@ for (const type of ["dragover", "drop"]) {
   window.addEventListener(type, (ev) => ev.preventDefault());
 }
 
-receive.init();
+request.init();
 send.init();
 decrypt.init();
 initTabs();

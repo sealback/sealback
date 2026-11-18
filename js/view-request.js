@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// DOM logic for the receive view: generate a key pair, download the key file,
+// DOM logic for the request view: generate a key pair, download the key file,
 // show the share link.
 
 import { createKeyFile, generateKey } from "./crypto.js";
@@ -15,33 +15,33 @@ const MIN_PASSPHRASE_LENGTH = 12;
 
 function elements() {
   return {
-    form: byId("receive-form", HTMLDivElement),
-    name: byId("receive-name", HTMLInputElement),
-    type: byId("receive-type", HTMLSelectElement),
-    typeHint: byId("receive-type-hint", HTMLParagraphElement),
-    passFields: byId("receive-pass-fields", HTMLDivElement),
-    pass: byId("receive-pass", HTMLInputElement),
-    pass2: byId("receive-pass2", HTMLInputElement),
-    noPass: byId("receive-nopass", HTMLInputElement),
-    noPassWarning: byId("receive-nopass-warning", HTMLParagraphElement),
-    create: byId("receive-create", HTMLButtonElement),
-    status: byId("receive-status", HTMLParagraphElement),
-    error: byId("receive-error", HTMLParagraphElement),
-    result: byId("receive-result", HTMLDivElement),
-    doneTitle: byId("receive-done-title", HTMLHeadingElement),
-    file: byId("receive-file", HTMLParagraphElement),
-    downloadAgain: byId("receive-download-again", HTMLButtonElement),
-    link: byId("receive-link", HTMLTextAreaElement),
-    copyLink: byId("receive-copy-link", HTMLButtonElement),
-    mail: byId("receive-mail", HTMLAnchorElement),
-    mailTooLong: byId("receive-mail-too-long", HTMLParagraphElement),
-    copyStatus: byId("receive-copy-status", HTMLParagraphElement),
-    code: byId("receive-code", HTMLElement),
-    fallbackText: byId("receive-fallback-text", HTMLParagraphElement),
-    pubkey: byId("receive-pubkey", HTMLTextAreaElement),
-    copyPubkey: byId("receive-copy-pubkey", HTMLButtonElement),
-    downloadPubkey: byId("receive-download-pubkey", HTMLButtonElement),
-    newKey: byId("receive-new", HTMLButtonElement),
+    form: byId("request-form", HTMLDivElement),
+    topic: byId("request-topic", HTMLInputElement),
+    type: byId("request-type", HTMLSelectElement),
+    typeHint: byId("request-type-hint", HTMLParagraphElement),
+    passFields: byId("request-pass-fields", HTMLDivElement),
+    pass: byId("request-pass", HTMLInputElement),
+    pass2: byId("request-pass2", HTMLInputElement),
+    protect: byId("request-protect", HTMLInputElement),
+    noPassWarning: byId("request-nopass-warning", HTMLParagraphElement),
+    create: byId("request-create", HTMLButtonElement),
+    status: byId("request-status", HTMLParagraphElement),
+    error: byId("request-error", HTMLParagraphElement),
+    result: byId("request-result", HTMLDivElement),
+    doneTitle: byId("request-done-title", HTMLHeadingElement),
+    file: byId("request-file", HTMLParagraphElement),
+    downloadAgain: byId("request-download-again", HTMLButtonElement),
+    link: byId("request-link", HTMLTextAreaElement),
+    copyLink: byId("request-copy-link", HTMLButtonElement),
+    mail: byId("request-mail", HTMLAnchorElement),
+    mailTooLong: byId("request-mail-too-long", HTMLParagraphElement),
+    copyStatus: byId("request-copy-status", HTMLParagraphElement),
+    code: byId("request-code", HTMLElement),
+    fallbackText: byId("request-fallback-text", HTMLParagraphElement),
+    pubkey: byId("request-pubkey", HTMLTextAreaElement),
+    copyPubkey: byId("request-copy-pubkey", HTMLButtonElement),
+    downloadPubkey: byId("request-download-pubkey", HTMLButtonElement),
+    newKey: byId("request-new", HTMLButtonElement),
   };
 }
 
@@ -62,11 +62,8 @@ export function init() {
   e = elements();
   e.type.addEventListener("change", showTypeHint);
   showTypeHint(); // the browser may restore a previous selection on reload
-  e.noPass.addEventListener("change", () => {
-    show(e.passFields, !e.noPass.checked);
-    show(e.noPassWarning, e.noPass.checked);
-    if (e.noPass.checked) clearPassphrases();
-  });
+  e.protect.addEventListener("change", showPassphraseFields);
+  showPassphraseFields(); // the browser may restore the checkbox state on reload
   e.create.addEventListener("click", () => void createKey());
   e.downloadAgain.addEventListener("click", () => {
     if (keyFile) download(keyFile.bytes, keyFile.name, keyFile.type);
@@ -78,18 +75,25 @@ export function init() {
   });
   e.newKey.addEventListener("click", () => {
     reset();
-    e.name.focus();
+    e.topic.focus();
   });
 }
 
 /** Shows the description of the selected encryption type only. */
 function showTypeHint() {
-  setText(e.typeHint, `receive.type.${selectedType()}.hint`);
+  setText(e.typeHint, `request.type.${selectedType()}.hint`);
 }
 
 /** @returns {KeyType} */
 function selectedType() {
   return e.type.value === "x25519" ? "x25519" : "mlkem768x25519";
+}
+
+/** Shows the passphrase fields, or the warning if protection is turned off. */
+function showPassphraseFields() {
+  show(e.passFields, e.protect.checked);
+  show(e.noPassWarning, !e.protect.checked);
+  if (!e.protect.checked) clearPassphrases();
 }
 
 function clearPassphrases() {
@@ -99,15 +103,15 @@ function clearPassphrases() {
 
 /** @returns {string | null | undefined} passphrase, null for none, undefined if invalid */
 function readPassphrase() {
-  if (e.noPass.checked) return null;
+  if (!e.protect.checked) return null;
   const pass = e.pass.value;
   if ([...pass].length < MIN_PASSPHRASE_LENGTH) {
-    message(e.error, "receive.error.passShort");
+    message(e.error, "request.error.passShort");
     e.pass.focus();
     return undefined;
   }
   if (pass !== e.pass2.value) {
-    message(e.error, "receive.error.passMismatch");
+    message(e.error, "request.error.passMismatch");
     e.pass2.focus();
     return undefined;
   }
@@ -120,7 +124,7 @@ async function createKey() {
   if (passphrase === undefined) return;
   const type = selectedType();
   try {
-    await busy(e.create, e.status, "receive.working", async () => {
+    await busy(e.create, e.status, "request.working", async () => {
       const key = await generateKey(type);
       const code = await fingerprint(key.recipient);
       const bytes = await createKeyFile(key, passphrase);
@@ -133,7 +137,7 @@ async function createKey() {
       created = { recipient: key.recipient, code };
     });
   } catch {
-    message(e.error, "receive.error.failed");
+    message(e.error, "request.error.failed");
     return;
   } finally {
     clearPassphrases();
@@ -144,10 +148,10 @@ async function createKey() {
 }
 
 function showResult() {
-  e.link.value = buildLink(baseUrl(), created.recipient, e.name.value);
+  e.link.value = buildLink(baseUrl(), created.recipient, e.topic.value);
   e.pubkey.value = created.recipient;
   e.code.textContent = formatFingerprint(created.code);
-  setText(e.file, "receive.done.file", { file: keyFile?.name ?? "" });
+  setText(e.file, "request.done.file", { file: keyFile?.name ?? "" });
   show(e.downloadAgain, keyFile !== null);
   message(e.copyStatus, null);
   show(e.form, false);
@@ -159,8 +163,8 @@ function showResult() {
 /** Re-renders language-dependent values (mailto texts, URLs). */
 export function refresh() {
   if (e.result.hidden) return;
-  setText(e.fallbackText, "receive.fallback.text", { url: `${baseUrl()}#send` });
-  const url = mailtoUrl(t("receive.mail.subject"), t("receive.mail.body", { link: e.link.value }));
+  setText(e.fallbackText, "request.fallback.text", { url: `${baseUrl()}#send` });
+  const url = mailtoUrl(t("request.mail.subject"), t("request.mail.body", { link: e.link.value }));
   if (url !== null) e.mail.href = url;
   show(e.mail, url !== null);
   show(e.mailTooLong, url === null);
@@ -169,10 +173,10 @@ export function refresh() {
 /** Returns the view to the empty form. */
 function reset() {
   clear();
-  e.name.value = "";
+  e.topic.value = "";
   e.type.value = "mlkem768x25519";
   showTypeHint();
-  e.noPass.checked = false;
+  e.protect.checked = true;
   show(e.passFields, true);
   show(e.noPassWarning, false);
   e.link.value = "";

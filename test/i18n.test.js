@@ -45,7 +45,7 @@ test("every key used in index.html exists", () => {
 
 test("every literal key used in js/ exists", () => {
   // Every string literal that looks like a translation key, in any call.
-  const used = [...js.matchAll(/"((?:app|lang|tabs|tab|footer|receive|send|decrypt|common|error)\.[\w.-]+)"/g)]
+  const used = [...js.matchAll(/"((?:app|lang|tabs|tab|footer|request|send|decrypt|common|error)\.[\w.-]+)"/g)]
     .map((m) => m[1])
     // Prefixes completed at runtime, e.g. `error.key.${code}`, are tested below.
     .filter((key) => !key?.endsWith("."));
@@ -73,8 +73,8 @@ test("language detection", () => {
 
 test("translation with placeholders", () => {
   setLanguage("de");
-  assert.equal(t("receive.done.file", { file: "x.age" }), "Dateiname: x.age");
+  assert.equal(t("request.done.file", { file: "x.age" }), "Dateiname: x.age");
   setLanguage("en");
-  assert.equal(t("receive.done.file", { file: "x.age" }), "File name: x.age");
+  assert.equal(t("request.done.file", { file: "x.age" }), "File name: x.age");
   assert.equal(t("no.such.key"), "no.such.key");
 });
