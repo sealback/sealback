@@ -41,4 +41,5 @@ test("different keys give different codes", async () => {
 test("groups as 4-4-4-4", () => {
   assert.equal(formatFingerprint("63PE7JM1BY1ASMNM"), "63PE 7JM1 BY1A SMNM");
   assert.equal(formatFingerprint("00jp1xrh1zanznvp"), "00JP 1XRH 1ZAN ZNVP");
+  assert.equal(formatFingerprint("63PE7JM1BY1ASMNM", "-"), "63PE-7JM1-BY1A-SMNM");
 });

@@ -7,7 +7,7 @@ import { createKeyFile, generateKey } from "./crypto.js";
 import { fingerprint, formatFingerprint } from "./fingerprint.js";
 import { setText, t } from "./i18n.js";
 import { buildLink } from "./link.js";
-import { baseUrl, busy, byId, copyWithStatus, download, localDate, mailtoUrl, message, show } from "./ui.js";
+import { baseUrl, busy, byId, copyWithStatus, download, mailtoUrl, message, show } from "./ui.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 
@@ -16,7 +16,6 @@ const MIN_PASSPHRASE_LENGTH = 12;
 function elements() {
   return {
     form: byId("request-form", HTMLDivElement),
-    topic: byId("request-topic", HTMLInputElement),
     type: byId("request-type", HTMLSelectElement),
     typeHint: byId("request-type-hint", HTMLParagraphElement),
     passFields: byId("request-pass-fields", HTMLDivElement),
@@ -55,8 +54,8 @@ let e;
  */
 let keyFile = null;
 
-/** The recipient and its fingerprint of the last created key. */
-let created = { recipient: "", code: "" };
+/** The public key shown in the result, and its fingerprint. */
+let shown = { recipient: "", code: "" };
 
 export function init() {
   e = elements();
@@ -71,11 +70,11 @@ export function init() {
   e.copyLink.addEventListener("click", () => void copyWithStatus(e.link.value, e.link, e.copyStatus));
   e.copyPubkey.addEventListener("click", () => void copyWithStatus(e.pubkey.value, e.pubkey, e.copyStatus));
   e.downloadPubkey.addEventListener("click", () => {
-    download(`${created.recipient}\n`, `sealback-pubkey-${created.code.slice(0, 4)}.txt`, "text/plain");
+    download(`${shown.recipient}\n`, `sealback-pubkey-${formatFingerprint(shown.code, "-")}.txt`, "text/plain");
   });
   e.newKey.addEventListener("click", () => {
     reset();
-    e.topic.focus();
+    e.type.focus();
   });
 }
 
@@ -131,10 +130,10 @@ async function createKey() {
       const ext = passphrase === null ? "txt" : "age";
       keyFile = {
         bytes,
-        name: `sealback-key-${localDate()}-${code.slice(0, 4)}.${ext}`,
+        name: `sealback-key-${formatFingerprint(code, "-")}.${ext}`,
         type: passphrase === null ? "text/plain" : "application/octet-stream",
       };
-      created = { recipient: key.recipient, code };
+      shown = { recipient: key.recipient, code };
     });
   } catch {
     message(e.error, "request.error.failed");
@@ -144,14 +143,15 @@ async function createKey() {
   }
   if (!keyFile) return;
   download(keyFile.bytes, keyFile.name, keyFile.type);
+  setText(e.doneTitle, "request.done.title");
+  setText(e.file, "request.done.file", { file: keyFile.name });
   showResult();
 }
 
 function showResult() {
-  e.link.value = buildLink(baseUrl(), created.recipient, e.topic.value);
-  e.pubkey.value = created.recipient;
-  e.code.textContent = formatFingerprint(created.code);
-  setText(e.file, "request.done.file", { file: keyFile?.name ?? "" });
+  e.link.value = buildLink(baseUrl(), shown.recipient);
+  e.pubkey.value = shown.recipient;
+  e.code.textContent = formatFingerprint(shown.code);
   show(e.downloadAgain, keyFile !== null);
   message(e.copyStatus, null);
   show(e.form, false);
@@ -173,29 +173,27 @@ export function refresh() {
 /** Returns the view to the empty form. */
 function reset() {
   clear();
-  e.topic.value = "";
   e.type.value = "mlkem768x25519";
   showTypeHint();
   e.protect.checked = true;
-  show(e.passFields, true);
-  show(e.noPassWarning, false);
+  showPassphraseFields();
   e.link.value = "";
   e.pubkey.value = "";
   e.code.textContent = "";
-  created = { recipient: "", code: "" };
+  shown = { recipient: "", code: "" };
   show(e.result, false);
   show(e.form, true);
 }
 
 /**
- * Clears secret-bearing state: passphrases and the key file. The link and
- * security code are not secret and stay visible.
+ * Clears secret-bearing state: passphrases and the key file. The link and the
+ * key fingerprint are not secret and stay visible.
  */
 export function clear() {
   clearPassphrases();
   keyFile = null;
   show(e.downloadAgain, false);
-  message(e.error, null);
-  message(e.status, null);
-  message(e.copyStatus, null);
+  for (const el of [e.error, e.status, e.copyStatus]) {
+    message(el, null);
+  }
 }

@@ -26,7 +26,7 @@ In scope:
 - "Harvest now, decrypt later" attacks by a future quantum computer on archived links and ciphertext (mitigated: post-quantum hybrid key type, selectable by the recipient and offered as default).
 - Substitution of the public key in the link (mitigated: fingerprint shown on both sides, users instructed to compare it over another channel such as phone).
 - Theft of the key file (mitigated: passphrase encryption by default).
-- Later compromise of the private key (mitigated by procedure: one key pair per exchange, key file deleted after decryption).
+- Later compromise of the private key (mitigated by passphrase protection and by procedure: the UI explains that a new key per request limits the damage to one message, and that a key file should be deleted once no more information is expected with it). Keys may be reused for recurring exchanges; this trades damage limitation for convenience, see section 6.3.
 - Accidental leakage via browser features or server logs (mitigated: no persistence, link data only in the URL fragment, spellcheck and autocomplete disabled on secret fields, no referrer).
 
 Out of scope:
@@ -122,7 +122,7 @@ Sender page (right column):
 
 ```
 ┌────────────────────────────────────────────┐
-│ Security code:              [Post-quantum] │
+│ Key fingerprint:            [Quantum Safe] │
 │ 7KQ9 M2XR T8N5 4HCW                        │
 │ Confirm this code with the recipient by    │
 │ phone before sending sensitive data.       │
@@ -143,14 +143,14 @@ Encrypted text — safe to send by normal email:
 * only shown if the content fits into a mailto: link
 ```
 
-Above the security code, the right column shows "Request: Martin – access data (as stated in the link)" if the link has a title. The left column only explains: "Send confidential information", a one-sentence explanation, the "How does this work?" section and "Request information yourself →".
+The left column only explains: "Send confidential information", a one-sentence explanation, the "How does this work?" section and "Request information yourself →". After encryption, the right column also shows a tip to bookmark the page (see 6.4).
 
 ### 6.3 Request view (generate key)
 
 The recipient prepares to receive information: a key pair and a share link are created.
 
 1. Explain in two or three sentences what will happen: a key file is saved on the user's computer ("your computer", not "this computer", since users don't think of a website as running on their computer), and a link is created to send to the person who has the information.
-2. Optional title field ("Title"), included in the link for display only. It tells the sender what the request is about (e.g. "Martin – access data for the web server"). The hint warns that anyone who sees the link can read it, so nothing confidential belongs there.
+2. (No title or name field: the link carries only the key, see 6.6.)
 3. Encryption type selection (drop-down labelled "Encryption"), **quantum-safe selected by default**. Each option names the category first and the exact algorithm in parentheses; below the drop-down, only the description of the selected option is shown:
    - "Quantum Safe (ML-KEM-768 + X25519)": hybrid, age type `mlkem768x25519`. Description: recommended; stays secure even against future quantum computers, so it suits long-lived or highly sensitive information; the link is about 2,000 characters long. "Quantum Safe" is used in German as well.
    - "Elliptic curve (X25519)" ("Elliptische Kurven"): age type X25519. Description: shorter link (about 100 characters); secure today, but archived messages could become readable to future quantum computers; suitable for information that is changed soon after the handover.
@@ -163,16 +163,16 @@ The recipient prepares to receive information: a key pair and a share link are c
    - Generate an identity of the selected type with typage.
    - Derive the recipient (public key) and its fingerprint.
    - Produce the key file. Its plaintext content follows `age-keygen` output: `# created: <ISO 8601 timestamp>`, `# public key: <recipient>`, then the identity line, each followed by a newline. By default this content is encrypted with age's scrypt passphrase mode (decryptable by `age -d -i <file>`), using typage's default work factor; without passphrase, the plaintext content is the key file.
-6. Trigger the download of the key file named `sealback-key-<YYYY-MM-DD>-<first 4 fingerprint characters>.age` (passphrase-protected) or `.txt` (plain).
+6. Trigger the download of the key file named `sealback-key-<fingerprint>.age` (passphrase-protected) or `.txt` (plain), with the full fingerprint grouped by dashes, e.g. `sealback-key-7KQ9-M2XR-T8N5-4HCW.age`. The file name identifies the key, which matters once keys are reused; the creation date is inside the key file (`# created:`).
 7. Show the following only after the download was triggered:
    - The share link with a "Copy link" button.
    - A "Compose email" button (`mailto:` with prefilled subject and localized body containing the link and short instructions for the sender), only if the complete `mailto:` URL is at most 1,800 characters. Otherwise a note that the link must be copied into an email manually.
-   - The fingerprint ("Security code").
-   - A collapsible "If the link doesn't work" section with the bare public key, a "Copy public key" button, a "Download public key" button (`sealback-pubkey-<first 4 fingerprint characters>.txt`, containing only the recipient string and a trailing newline), and the instruction that the sender can open `https://sealback.org/#send` and paste or load the key there.
-   - Instructions: send the link; when the sender reads out the security code, compare it; keep the key file and passphrase until the secret arrives; delete the key file after decryption.
-   - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and security code are not secret and stay visible.
+   - The key fingerprint ("Key fingerprint" / "Schlüssel-Fingerabdruck").
+   - A collapsible "If the link doesn't work" section with the bare public key, a "Copy public key" button, a "Download public key" button (`sealback-pubkey-<fingerprint>.txt`, containing only the recipient string and a trailing newline), and the instruction that the sender can open `https://sealback.org/#send` and paste or load the key there.
+   - Instructions: send the link; when the sender reads out the key fingerprint, compare it; keep the key file and passphrase, and open "Decrypt" when the information arrives; delete the key file when no more information is expected with it.
+   - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and key fingerprint are not secret and stay visible.
    - A "Create another key" button that returns to the empty form.
-8. Encourage one key per exchange in the UI text.
+8. Key reuse: the UI says that a new key per request is safest, and that for recurring exchanges with the same person the key can be kept and used again. Trade-off: reuse saves the repeated phone check, but a later compromise of the key file exposes every message ever encrypted to it, and the passphrase must be remembered for as long as the key is used. There is no revocation.
 
 ### 6.4 Send view (encrypt)
 
@@ -180,7 +180,7 @@ The recipient prepares to receive information: a key pair and a share link are c
    - From the share link's fragment (6.6).
    - At `#send`, or for a damaged share link: from a manual input that accepts pasted text or a loaded text file. The input accepts either a bare public key or a complete Sealback link; `keys.js` normalizes it (section 6.7). Invalid input shows a specific error (not a key, damaged key / checksum mismatch, unsupported key type).
 2. Detect the key type automatically (6.7) and display it as "Protection: Quantum Safe" or "Protection: Elliptic curve". The sender never chooses the type.
-3. Display the recipient label (share link only, marked as "as stated in the link") and the fingerprint as "Security code", with the instruction to confirm it with the recipient by phone or another channel before sending sensitive data.
+3. Display the key fingerprint ("Key fingerprint"), with the instruction to confirm it with the recipient by phone or another channel before sending sensitive information.
 4. A textarea for the secret with `autocomplete="off"`, `autocorrect="off"`, `autocapitalize="off"` and `spellcheck="false"`.
 5. Button "Encrypt". On click:
    - Encrypt the UTF-8 text to the recipient with typage.
@@ -188,8 +188,9 @@ The recipient prepares to receive information: a key pair and a share link are c
    - Clear the secret textarea.
 6. Show the armored ciphertext in a read-only field with:
    - "Copy" button (Clipboard API, with a fallback that selects the text). This is the primary action.
-   - "Download as file" button producing `sealback-<YYYY-MM-DD>.age` (binary age format).
-   - "Send by email" button: a `mailto:` link with subject and body containing the armored ciphertext, without a preset recipient address. Only shown if the complete `mailto:` URL is at most 1,800 characters (in practice mainly for short secrets with X25519 keys).
+   - "Download as file" button producing `sealback-message-<fingerprint>.age` (binary age format), so the recipient can see which key file it needs.
+   - "Send by email" button: a `mailto:` link with subject and body containing the armored ciphertext, without a preset recipient address. Only shown if the complete `mailto:` URL is at most 1,800 characters (in practice mainly for short information with X25519 keys).
+   - If the key came from a share link (not from the manual input at `#send`): a tip to bookmark the page after confirming the fingerprint. The bookmark keeps the verified key, so the sender can send to the same recipient again later without a new check; Sealback itself stores nothing.
 7. A note that the encrypted text is safe to send by normal email, either pasted into the message or as the downloaded file attached.
 8. A collapsible "How does this work?" section with a short technical explanation (age, key types, nothing leaves the browser except what the user sends).
 
@@ -200,7 +201,7 @@ Version 1 supports text only. File encryption is a possible later extension.
 1. Key file input (file picker and drag and drop). Supports both key types, plain or passphrase-protected; the type is detected from the file content. If the file is passphrase-protected, ask for the passphrase.
 2. Ciphertext input: a textarea for armored text, or a file picker for a `.age` file.
 3. Button "Decrypt". Decrypt locally and show the plaintext in a read-only field with a "Copy" button and a "Hide" button that clears it.
-4. After successful decryption, show the reminder: store the secret where it belongs (e.g. a password manager), then delete the key file and the email, and rotate the secret if possible.
+4. After successful decryption, show the reminder: store the information where it belongs (e.g. a password manager), delete the email, change the information if possible (e.g. the password), and delete the key file when no more information is expected with it.
 5. Error messages must distinguish: invalid key file, wrong passphrase, ciphertext not encrypted for this key, malformed ciphertext.
    - typage throws generic errors, so `crypto.js` must not classify them by message text. Instead:
      - Key file: `crypto.js` reads the age header itself (version line and `-> <type>` stanza lines, after removing armor if present). A header with a single `scrypt` stanza means passphrase-protected; plain text containing exactly one `AGE-SECRET-KEY-1…` or `AGE-SECRET-KEY-PQ-1…` line (besides comments and blank lines) means plain; anything else is an invalid key file.
@@ -211,14 +212,14 @@ Version 1 supports text only. File encryption is a possible later extension.
 ### 6.6 Share link format
 
 ```
-https://sealback.org/#pubkey=<age recipient>&title=<URL-encoded title>
+https://sealback.org/#pubkey=<age recipient>
 ```
 
 - Parameters are carried in the fragment only, so they never reach the server, its logs, or intermediate proxies.
 - `pubkey` is required for a share link. The parameter name makes clear to technical readers that the value is a public, non-secret key.
-- `title` is optional, rendered as text only (never as HTML). After decoding, control and formatting characters (including bidirectional overrides) are removed, whitespace is collapsed, and the result is cut to 80 code points.
+- The link carries nothing but the key. There is no name or title parameter: anyone can create a link with any label, so a label would suggest an authenticity that only the key fingerprint provides. Context comes from the message that carries the link. Other parameters are ignored.
 - Other fragments: `#send`, `#request`, `#decrypt` (section 6.1).
-- `link.js` provides `buildLink(baseUrl, recipient, title)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, type, title }`, `{ mode: "link", error }`, `{ mode: "view", view: "request" | "send" | "decrypt" }`.
+- `link.js` provides `buildLink(baseUrl, recipient)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, type }`, `{ mode: "link", error }`, `{ mode: "view", view: "request" | "send" | "decrypt" }`.
 
 ### 6.7 Key types and normalization
 
@@ -238,13 +239,14 @@ Supported recipient types:
 - `keys.js` exports `normalizeRecipientInput(text)`: trims the input, removes all whitespace and line breaks (email clients wrap long strings), extracts the `pubkey` parameter if the input is a Sealback link, lowercases the result, and validates it including the Bech32 checksum. Returns `{ recipient, type }` or `{ error }` with one of: `empty`, `invalid` (not an age public key), `damaged` (checksum or length wrong, e.g. a truncated link), `unsupported` (another key type), `secret-key` (a private key was pasted; the UI warns that it must never be shared).
 - `keys.js` exports `detectRecipientType(recipient)` returning `"x25519"` or `"mlkem768x25519"` (the age type names).
 
-### 6.8 Fingerprint ("Security code")
+### 6.8 Key fingerprint
 
 - Input: the normalized recipient string (lowercase).
 - Compute SHA-256 over its UTF-8 bytes using the Web Crypto API.
 - Take the first 10 bytes (80 bits) of the hash and encode them with Crockford base32 (alphabet `0123456789ABCDEFGHJKMNPQRSTVWXYZ`) as exactly 16 characters, 5 bits per character, most significant bit first. 80 bits divide evenly into 16 characters, so no padding is needed and every character carries the full 5 bits.
-- Display in uppercase, grouped as 4-4-4-4 (e.g. `7KQ9 M2XR T8N5 4HCW`). `fingerprint.js` also exports `formatFingerprint(code): string` for the grouping.
-- No key stretching is used, to keep the derivation simple and free of parameters. Rationale for the length: substituting the key requires an attacker to find a different valid key whose code matches the victim's code, at a cost of about 2^80 SHA-256 computations (millions of GPU-years), and to do so after seeing the victim's link and before the sender opens it. Since keys are per exchange, nothing can be precomputed.
+- Display in uppercase, grouped as 4-4-4-4 (e.g. `7KQ9 M2XR T8N5 4HCW`); in file names grouped with dashes (`7KQ9-M2XR-T8N5-4HCW`). `fingerprint.js` also exports `formatFingerprint(code, separator = " "): string` for the grouping.
+- UI label: "Key fingerprint" ("Schlüssel-Fingerabdruck"). "Fingerprint" is the established term (SSH, PGP); the word "key" avoids confusion with biometric fingerprints. "Security code" was not used because it suggests a card verification or 2FA code.
+- No key stretching is used, to keep the derivation simple and free of parameters. Rationale for the length: substituting the key requires an attacker to find a different valid key whose code matches the victim's code, at a cost of about 2^80 SHA-256 computations (millions of GPU-years), Since keys can be reused for a long time, the length is chosen so that this stays infeasible even without any time limit.
 - Crockford base32 is used because it is compact, case-insensitive and avoids ambiguous characters, which suits reading the code aloud over the phone.
 - The same derivation applies to both key types.
 - `fingerprint.js` exports `fingerprint(recipient): Promise<string>`.
@@ -285,9 +287,9 @@ Supported recipient types:
 - Passphrase-protected identity files for both key types: create, then decrypt with correct and incorrect passphrase.
 - Decryption with the wrong identity fails with the expected error category, including an X25519 identity against an ML-KEM-768 + X25519 ciphertext and vice versa.
 - Key type detection: X25519, ML-KEM-768 + X25519, other age recipient types rejected, strings that merely begin with `age1` but have a different HRP.
-- Normalization: bare key, key with whitespace and line breaks inserted, uppercase key, full Sealback link (with and without `title`), truncated key (checksum error), empty input.
+- Normalization: bare key, key with whitespace and line breaks inserted, uppercase key, full Sealback link (also with additional parameters), truncated key (checksum error), empty input.
 - Fingerprint: known test vectors for both key types, stability, leading zeros preserved (16 characters), grouping. Test vectors are computed independently of `fingerprint.js` (e.g. with `sha256sum` and a short script whose command is recorded in the test file).
-- Fragment parsing: `#pubkey=` with and without `title`, invalid or truncated `pubkey`, `#send`, `#request`, `#decrypt`, empty fragment, unknown fragment, overlong `title`, URL-encoding of special characters.
+- Fragment parsing: `#pubkey=` with and without other parameters, invalid or truncated `pubkey`, `#send`, `#request`, `#decrypt`, empty fragment, unknown fragment, URL-encoded keys.
 - Interoperability: fixtures created with the `age` CLI (≥ 1.3.0) for both key types, plain and passphrase-protected key files, armored and binary ciphertext, decrypt in tests; `test/fixtures/README.md` records the commands and `age` version. The README documents how to verify the reverse direction manually.
 - i18n: the `en` and `de` tables have identical key sets, and every `data-i18n` key used in `index.html` exists.
 - Security scan as described in section 7.

@@ -52,17 +52,11 @@
           <li data-i18n="request.how.2">Send the link to the person who has the information.</li>
           <li data-i18n="request.how.3">They encrypt the information and email it to you. You decrypt it here.</li>
         </ol>
-        <p class="hint" data-i18n="request.oneKey">Create a new key for each request and delete it afterwards.</p>
+        <p class="hint" data-i18n="request.oneKey">A new key for each request is safest. For recurring exchanges, you can keep the key and use it again.</p>
       </div>
 
       <div class="work">
         <div id="request-form">
-          <div class="field">
-            <label for="request-topic" data-i18n="request.topic.label">Title (optional)</label>
-            <input id="request-topic" type="text" maxlength="80" autocomplete="off" aria-describedby="request-topic-hint">
-            <p id="request-topic-hint" class="hint" data-i18n="request.topic.hint">Tells the sender what this is about. Don't enter anything confidential here.</p>
-          </div>
-
           <div class="field">
             <label for="request-type" data-i18n="request.type.label">Encryption</label>
             <select id="request-type" aria-describedby="request-type-hint">
@@ -90,7 +84,7 @@
                 </div>
               </div>
               <p id="request-pass-hint" class="hint" data-i18n="request.pass.hint">At least 12 characters.</p>
-              <p class="hint" data-i18n="request.pass.note">If you forget the passphrase, the information cannot be recovered.</p>
+              <p class="hint" data-i18n="request.pass.note">If you forget the passphrase, information sent to this key cannot be recovered.</p>
             </div>
             <p id="request-nopass-warning" class="alert warning" data-i18n="request.nopass.warning" hidden>Without a passphrase, anyone who gets hold of the key file can read the information.</p>
           </div>
@@ -121,16 +115,16 @@
           <p id="request-copy-status" class="status" role="status" aria-live="polite" hidden></p>
 
           <div class="code-box">
-            <span class="code-label" data-i18n="request.code.label">Security code</span>
+            <span class="code-label" data-i18n="request.code.label">Key fingerprint</span>
             <strong id="request-code" class="code"></strong>
           </div>
 
           <h2 data-i18n="request.steps.title">Next steps</h2>
           <ol class="steps">
             <li data-i18n="request.step1">Send the link to the person who should send you the information.</li>
-            <li data-i18n="request.step2">When they read the security code to you, compare it with the code above.</li>
-            <li data-i18n="request.step3">Keep the key file and the passphrase until the information has arrived.</li>
-            <li data-i18n="request.step4">After decrypting, delete the key file.</li>
+            <li data-i18n="request.step2">When they read the key fingerprint to you, compare it with the one above.</li>
+            <li data-i18n="request.step3">Keep the key file and the passphrase. When the information arrives, open “Decrypt”.</li>
+            <li data-i18n="request.step4">Delete the key file when you no longer expect information with it.</li>
           </ol>
 
           <details>
@@ -168,12 +162,6 @@
       </div>
 
       <div class="work">
-        <p id="send-to" class="request-title" hidden>
-          <span class="request-title-label" data-i18n="send.to">Request:</span>
-          <strong id="send-topic"></strong>
-          <span class="hint" data-i18n="send.asStated">(as stated in the link)</span>
-        </p>
-
         <div id="send-link-error" class="alert error" role="alert" hidden>
           <p><strong data-i18n="send.linkError.title">This link seems to be damaged.</strong></p>
           <p data-i18n="send.linkError.text">Ask the recipient to send the link again, or paste the complete link or key below.</p>
@@ -197,14 +185,14 @@
         <div id="send-recipient" hidden>
           <div class="code-box">
             <div class="code-head">
-              <span class="code-label" data-i18n="send.code.label">Security code:</span>
+              <span class="code-label" data-i18n="send.code.label">Key fingerprint:</span>
               <span class="badge">
                 <span class="sr-only" data-i18n="send.protection">Protection:</span>
                 <span id="send-protection"></span>
               </span>
             </div>
             <strong id="send-code" class="code"></strong>
-            <p class="hint" data-i18n="send.code.hint">Confirm this code with the recipient by phone before sending sensitive data.</p>
+            <p class="hint" data-i18n="send.code.hint">Confirm this fingerprint with the recipient by phone before sending sensitive information.</p>
           </div>
 
           <div class="field">
@@ -230,6 +218,7 @@
           </div>
           <p id="send-copy-status" class="status" role="status" aria-live="polite" hidden></p>
           <p class="hint" data-i18n="send.result.note">Paste the encrypted text into an email, or attach the downloaded file.</p>
+          <p id="send-bookmark" class="alert info" data-i18n="send.bookmark" hidden>Tip: once you have confirmed the key fingerprint, bookmark this page.</p>
         </div>
       </div>
     </section>

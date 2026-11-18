@@ -7,7 +7,7 @@ import { encryptText } from "./crypto.js";
 import { fingerprint, formatFingerprint } from "./fingerprint.js";
 import { setText, t } from "./i18n.js";
 import { normalizeRecipientInput } from "./keys.js";
-import { baseUrl, busy, byId, copyWithStatus, download, localDate, mailtoUrl, message, readFile, show } from "./ui.js";
+import { baseUrl, busy, byId, copyWithStatus, download, mailtoUrl, message, readFile, show } from "./ui.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 /** @typedef {import("./link.js").Route} Route */
@@ -20,8 +20,7 @@ function elements() {
     keyFile: byId("send-key-file", HTMLInputElement),
     keyError: byId("send-key-error", HTMLParagraphElement),
     recipient: byId("send-recipient", HTMLDivElement),
-    to: byId("send-to", HTMLParagraphElement),
-    topic: byId("send-topic", HTMLElement),
+    bookmark: byId("send-bookmark", HTMLParagraphElement),
     protection: byId("send-protection", HTMLElement),
     code: byId("send-code", HTMLElement),
     secret: byId("send-secret", HTMLTextAreaElement),
@@ -40,7 +39,7 @@ function elements() {
 /** @type {ReturnType<typeof elements>} */
 let e;
 
-/** @type {{ recipient: string, type: KeyType } | null} */
+/** @type {{ recipient: string, type: KeyType, code: string } | null} */
 let current = null;
 
 /** Binary ciphertext for "Download as file". */
@@ -57,7 +56,8 @@ export function init() {
   e.encrypt.addEventListener("click", () => void encrypt());
   e.copy.addEventListener("click", () => void copyWithStatus(e.output.value, e.output, e.copyStatus));
   e.download.addEventListener("click", () => {
-    if (ciphertext) download(ciphertext, `sealback-${localDate()}.age`, "application/octet-stream");
+    if (!ciphertext || !current) return;
+    download(ciphertext, `sealback-message-${formatFingerprint(current.code, "-")}.age`, "application/octet-stream");
   });
 }
 
@@ -73,11 +73,11 @@ export function showLink(route) {
     show(e.manual, true);
     e.key.value = "";
     message(e.keyError, null);
-    void setRecipient(null, null);
+    void setRecipient(null, false);
   } else {
     show(e.linkError, false);
     show(e.manual, false);
-    void setRecipient({ recipient: route.recipient, type: route.type }, route.title);
+    void setRecipient({ recipient: route.recipient, type: route.type }, true);
   }
 }
 
@@ -95,10 +95,10 @@ async function checkManualKey(reportEmpty) {
   if ("error" in result) {
     const quiet = result.error === "empty" && !reportEmpty;
     message(e.keyError, quiet ? null : `error.key.${result.error}`);
-    await setRecipient(null, null);
+    await setRecipient(null, false);
   } else {
     message(e.keyError, null);
-    if (current?.recipient !== result.recipient) await setRecipient(result, null);
+    if (current?.recipient !== result.recipient) await setRecipient(result, false);
   }
 }
 
@@ -117,11 +117,12 @@ async function loadKeyFile() {
 
 /**
  * @param {{ recipient: string, type: KeyType } | null} key
- * @param {string | null} title title from the share link, if any
+ * @param {boolean} fromLink the key came from the share link (the URL), so a
+ *   bookmark of this page keeps the verified key
  */
-async function setRecipient(key, title) {
+async function setRecipient(key, fromLink) {
   const gen = ++generation;
-  current = key;
+  current = null;
   clearResult();
   if (key === null) {
     show(e.recipient, false);
@@ -129,8 +130,8 @@ async function setRecipient(key, title) {
   }
   const code = await fingerprint(key.recipient);
   if (gen !== generation) return;
-  e.topic.textContent = title ?? "";
-  show(e.to, title !== null);
+  current = { ...key, code };
+  show(e.bookmark, fromLink);
   setText(e.protection, `send.protection.${key.type}`);
   e.code.textContent = formatFingerprint(code);
   show(e.recipient, true);

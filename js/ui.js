@@ -117,17 +117,6 @@ export function mailtoUrl(subject, body) {
 }
 
 /**
- * Local date as YYYY-MM-DD, for file names.
- *
- * @param {Date} [date]
- * @returns {string}
- */
-export function localDate(date = new Date()) {
-  const pad = (/** @type {number} */ n) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-/**
  * The address of this page without fragment, e.g. "https://sealback.org/".
  *
  * @returns {string}
