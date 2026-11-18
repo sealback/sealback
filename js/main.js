@@ -80,24 +80,22 @@ function initTabs() {
   });
 }
 
+const langSelect = byId("lang", HTMLSelectElement);
+
 function updateLanguage() {
   applyTranslations(document);
-  for (const button of document.querySelectorAll("[data-lang]")) {
-    button.setAttribute("aria-pressed", String(button.getAttribute("data-lang") === getLanguage()));
-  }
+  langSelect.value = getLanguage();
   for (const view of Object.values(views)) view.refresh();
 }
 
 function initLanguage() {
   setLanguage(detectLanguage(navigator.languages.length > 0 ? navigator.languages : [navigator.language]));
-  for (const button of document.querySelectorAll("[data-lang]")) {
-    button.addEventListener("click", () => {
-      const lang = LANGS.find((l) => l === button.getAttribute("data-lang"));
-      if (lang === undefined) return;
-      setLanguage(lang);
-      updateLanguage();
-    });
-  }
+  langSelect.addEventListener("change", () => {
+    const lang = LANGS.find((l) => l === langSelect.value);
+    if (lang === undefined) return;
+    setLanguage(lang);
+    updateLanguage();
+  });
   updateLanguage();
 }
 

@@ -17,7 +17,8 @@ function elements() {
   return {
     form: byId("receive-form", HTMLDivElement),
     name: byId("receive-name", HTMLInputElement),
-    typePq: byId("receive-type-pq", HTMLInputElement),
+    type: byId("receive-type", HTMLSelectElement),
+    typeHint: byId("receive-type-hint", HTMLParagraphElement),
     passFields: byId("receive-pass-fields", HTMLDivElement),
     pass: byId("receive-pass", HTMLInputElement),
     pass2: byId("receive-pass2", HTMLInputElement),
@@ -59,6 +60,8 @@ let created = { recipient: "", code: "" };
 
 export function init() {
   e = elements();
+  e.type.addEventListener("change", showTypeHint);
+  showTypeHint(); // the browser may restore a previous selection on reload
   e.noPass.addEventListener("change", () => {
     show(e.passFields, !e.noPass.checked);
     show(e.noPassWarning, e.noPass.checked);
@@ -77,6 +80,16 @@ export function init() {
     reset();
     e.name.focus();
   });
+}
+
+/** Shows the description of the selected encryption type only. */
+function showTypeHint() {
+  setText(e.typeHint, `receive.type.${selectedType()}.hint`);
+}
+
+/** @returns {KeyType} */
+function selectedType() {
+  return e.type.value === "x25519" ? "x25519" : "mlkem768x25519";
 }
 
 function clearPassphrases() {
@@ -105,8 +118,7 @@ async function createKey() {
   message(e.error, null);
   const passphrase = readPassphrase();
   if (passphrase === undefined) return;
-  /** @type {KeyType} */
-  const type = e.typePq.checked ? "pq" : "standard";
+  const type = selectedType();
   try {
     await busy(e.create, e.status, "receive.working", async () => {
       const key = await generateKey(type);
@@ -158,7 +170,8 @@ export function refresh() {
 function reset() {
   clear();
   e.name.value = "";
-  e.typePq.checked = true;
+  e.type.value = "mlkem768x25519";
+  showTypeHint();
   e.noPass.checked = false;
   show(e.passFields, true);
   show(e.noPassWarning, false);

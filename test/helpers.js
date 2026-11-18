@@ -25,7 +25,7 @@ export function fixtureText(name) {
 /**
  * The recipient of a plain fixture key file, from its "# public key:" line.
  *
- * @param {"standard" | "pq"} type
+ * @param {import("../js/keys.js").KeyType} type
  * @returns {string}
  */
 export function fixtureRecipient(type) {

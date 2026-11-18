@@ -6,7 +6,7 @@ Sealback is a static web tool that lets a non-technical person send a secret (pa
 
 The recipient generates an age key pair, sends the sender a link containing the public key, and receives the encrypted result by ordinary email. Only the holder of the private key can decrypt it. Encryption and decryption happen entirely in the browser.
 
-The recipient chooses between standard encryption (X25519) and post-quantum hybrid encryption (ML-KEM-768 + X25519) depending on how long the secret must stay protected.
+The recipient chooses between classical encryption (X25519) and post-quantum hybrid encryption (ML-KEM-768 + X25519) depending on how long the secret must stay protected.
 
 Hosted at `https://sealback.org`, source in the GitHub organization `sealback`, licensed under Apache-2.0.
 
@@ -145,9 +145,10 @@ The left column shows "Send a secret", "Recipient: Martin (as stated in the link
 
 1. Explain in two or three sentences what will happen: a key file is created on this computer, and a link is created to send to the person who should send a secret.
 2. Optional label field ("Your name"), included in the link for display only.
-3. Encryption type selection (radio buttons), **post-quantum selected by default**:
-   - "Post-quantum (recommended for long-lived or highly sensitive data)": hybrid ML-KEM-768 + X25519, age type `mlkem768x25519`. Note: the link is about 2,000 characters long.
-   - "Standard (shorter link)": X25519. Note: secure today, but archived messages could become readable to future quantum computers; suitable for secrets that are rotated soon after handover.
+3. Encryption type selection (drop-down labelled "Encryption"), **post-quantum selected by default**. The options name the actual algorithms; below the drop-down, only the description of the selected option is shown:
+   - "ML-KEM-768 + X25519 (post-quantum, recommended)": hybrid, age type `mlkem768x25519`. Description: for long-lived or highly sensitive data; also protects against future quantum computers; the link is about 2,000 characters long.
+   - "X25519 (classical, shorter link)": age type X25519. Description: secure today, but archived messages could become readable to future quantum computers; suitable for secrets that are changed soon after the handover; the link is about 100 characters long.
+   - The word "standard" is deliberately not used: it is ambiguous for readers who know cryptography, and would wrongly suggest the default.
 4. Passphrase protection of the key file, **enabled by default**:
    - Passphrase entered twice; minimum length 12 characters; a short hint recommends a few random words.
    - A checkbox "Don't protect the key file with a passphrase" disables it, showing a warning that anyone who obtains the file can read the secret.
@@ -172,7 +173,7 @@ The left column shows "Send a secret", "Recipient: Martin (as stated in the link
 1. Determine the recipient:
    - From the share link's fragment (6.6).
    - At `#send`, or for a damaged share link: from a manual input that accepts pasted text or a loaded text file. The input accepts either a bare public key or a complete Sealback link; `keys.js` normalizes it (section 6.7). Invalid input shows a specific error (not a key, damaged key / checksum mismatch, unsupported key type).
-2. Detect the key type automatically (6.7) and display it as "Protection: Post-quantum" or "Protection: Standard". The sender never chooses the type.
+2. Detect the key type automatically (6.7) and display it as "Protection: Post-quantum" or "Protection: Classical". The sender never chooses the type.
 3. Display the recipient label (share link only, marked as "as stated in the link") and the fingerprint as "Security code", with the instruction to confirm it with the recipient by phone or another channel before sending sensitive data.
 4. A textarea for the secret with `autocomplete="off"`, `autocorrect="off"`, `autocapitalize="off"` and `spellcheck="false"`.
 5. Button "Encrypt". On click:
@@ -182,7 +183,7 @@ The left column shows "Send a secret", "Recipient: Martin (as stated in the link
 6. Show the armored ciphertext in a read-only field with:
    - "Copy" button (Clipboard API, with a fallback that selects the text). This is the primary action.
    - "Download as file" button producing `sealback-<YYYY-MM-DD>.age` (binary age format).
-   - "Send by email" button: a `mailto:` link with subject and body containing the armored ciphertext, without a preset recipient address. Only shown if the complete `mailto:` URL is at most 1,800 characters (in practice mainly for short secrets with standard keys).
+   - "Send by email" button: a `mailto:` link with subject and body containing the armored ciphertext, without a preset recipient address. Only shown if the complete `mailto:` URL is at most 1,800 characters (in practice mainly for short secrets with X25519 keys).
 7. A note that the encrypted text is safe to send by normal email, either pasted into the message or as the downloaded file attached.
 8. A collapsible "How does this work?" section with a short technical explanation (age, key types, nothing leaves the browser except what the user sends).
 
@@ -217,10 +218,10 @@ https://sealback.org/#pubkey=<age recipient>&name=<URL-encoded label>
 
 Supported recipient types:
 
-| Type | age name | Recipient prefix | Identity prefix |
+| Type (code) | UI label | Recipient prefix | Identity prefix |
 |---|---|---|---|
-| Standard | X25519 | `age1` (Bech32 HRP `age`) | `AGE-SECRET-KEY-1` |
-| Post-quantum | `mlkem768x25519` | `age1pq1` (Bech32 HRP `age1pq`) | `AGE-SECRET-KEY-PQ-1` |
+| `x25519` | Classical | `age1` (Bech32 HRP `age`) | `AGE-SECRET-KEY-1` |
+| `mlkem768x25519` | Post-quantum | `age1pq1` (Bech32 HRP `age1pq`) | `AGE-SECRET-KEY-PQ-1` |
 
 (Prefixes verified against typage 0.3.1 and `age` 1.3.)
 
@@ -229,7 +230,7 @@ Supported recipient types:
 - After decoding, the payload length is checked per type (32 bytes for X25519, 1,216 bytes for `mlkem768x25519`).
 - Recipient types other than these two are rejected, e.g. `age1tag1…`, plugin recipients such as `age1yubikey1…`, and SSH public keys.
 - `keys.js` exports `normalizeRecipientInput(text)`: trims the input, removes all whitespace and line breaks (email clients wrap long strings), extracts the `pubkey` parameter if the input is a Sealback link, lowercases the result, and validates it including the Bech32 checksum. Returns `{ recipient, type }` or `{ error }` with one of: `empty`, `invalid` (not an age public key), `damaged` (checksum or length wrong, e.g. a truncated link), `unsupported` (another key type), `secret-key` (a private key was pasted; the UI warns that it must never be shared).
-- `keys.js` exports `detectRecipientType(recipient)` returning `"standard"` or `"pq"`.
+- `keys.js` exports `detectRecipientType(recipient)` returning `"x25519"` or `"mlkem768x25519"` (the age type names).
 
 ### 6.8 Fingerprint ("Security code")
 
@@ -258,12 +259,12 @@ Supported recipient types:
 
 ## 8. User interface
 
-- Clean, modern look in the style of typical Tailwind CSS pages (gray scale with one blue accent, rounded cards with soft shadows, focus rings, radio choices as selectable cards), written by hand without a CSS framework. Layout as in section 6.2, using the full window width on desktop. System font stack, large readable form controls.
+- Clean, modern look in the style of typical Tailwind CSS pages (gray scale with one blue accent, rounded cards with soft shadows, focus rings), written by hand without a CSS framework. Layout as in section 6.2, using the full window width on desktop. System font stack, large readable form controls.
 - Long values (links, public keys, ciphertext) are shown in read-only fields with `word-break: break-all`, never as running text.
 - Light and dark mode via `prefers-color-scheme`.
 - Usable on mobile screens.
 - Accessible: proper labels for all inputs, visible focus states, sufficient contrast, status and error messages announced via `aria-live`.
-- Languages: English and German. Default from `navigator.language`, with a visible language toggle. All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
+- Languages: English and German. Default from `navigator.language`, with a visible language drop-down in the header (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
 - Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label); such details appear only in the "How does this work?" section.
 - **Logo brief:** a seal (the animal) seen from behind, looking into the screen, optionally wearing a hat. Simple flat SVG, recognizable at favicon size (32×32), works in light and dark mode. Implementation may use a simple placeholder; the final logo is designed separately.
 
@@ -273,8 +274,8 @@ Supported recipient types:
 
 - Round trip for both key types: generate identity → encrypt text → armor → dearmor → decrypt, including non-ASCII text.
 - Passphrase-protected identity files for both key types: create, then decrypt with correct and incorrect passphrase.
-- Decryption with the wrong identity fails with the expected error category, including a standard identity against a post-quantum ciphertext and vice versa.
-- Key type detection: standard, post-quantum, other age recipient types rejected, strings that merely begin with `age1` but have a different HRP.
+- Decryption with the wrong identity fails with the expected error category, including an X25519 identity against an ML-KEM-768 + X25519 ciphertext and vice versa.
+- Key type detection: X25519, ML-KEM-768 + X25519, other age recipient types rejected, strings that merely begin with `age1` but have a different HRP.
 - Normalization: bare key, key with whitespace and line breaks inserted, uppercase key, full Sealback link (with and without `name`), truncated key (checksum error), empty input.
 - Fingerprint: known test vectors for both key types, stability, leading zeros preserved (16 characters), grouping. Test vectors are computed independently of `fingerprint.js` (e.g. with `sha256sum` and a short script whose command is recorded in the test file).
 - Fragment parsing: `#pubkey=` with and without `name`, invalid or truncated `pubkey`, `#send`, `#receive`, `#decrypt`, empty fragment, unknown fragment, overlong `name`, URL-encoding of special characters.

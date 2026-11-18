@@ -23,9 +23,12 @@
       <button type="button" role="tab" id="tab-receive" aria-controls="panel-receive" aria-selected="true" data-tab="receive" data-i18n="tab.receive">Receive</button>
       <button type="button" role="tab" id="tab-decrypt" aria-controls="panel-decrypt" aria-selected="false" tabindex="-1" data-tab="decrypt" data-i18n="tab.decrypt">Decrypt</button>
     </div>
-    <div class="lang" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.label">
-      <button type="button" data-lang="de" lang="de" aria-pressed="false">DE</button>
-      <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+    <div class="lang">
+      <label for="lang" class="sr-only" data-i18n="lang.label">Language</label>
+      <select id="lang">
+        <option value="en" lang="en">English</option>
+        <option value="de" lang="de">Deutsch</option>
+      </select>
     </div>
   </header>
 
@@ -59,28 +62,15 @@
             <p id="receive-name-hint" class="hint" data-i18n="receive.name.hint">Shown to the sender.</p>
           </div>
 
-          <fieldset class="field">
-            <legend data-i18n="receive.type.legend">Protection</legend>
-            <div class="options">
-              <label class="option">
-                <input id="receive-type-pq" type="radio" name="receive-type" value="pq" checked aria-describedby="receive-type-pq-hint">
-                <span class="option-body">
-                  <span class="option-title">
-                    <span data-i18n="receive.type.pq">Post-quantum</span>
-                    <span class="badge" data-i18n="receive.type.recommended">Recommended</span>
-                  </span>
-                  <span id="receive-type-pq-hint" class="option-hint" data-i18n="receive.type.pq.hint">For long-lived or highly sensitive data.</span>
-                </span>
-              </label>
-              <label class="option">
-                <input id="receive-type-standard" type="radio" name="receive-type" value="standard" aria-describedby="receive-type-standard-hint">
-                <span class="option-body">
-                  <span class="option-title" data-i18n="receive.type.standard">Standard</span>
-                  <span id="receive-type-standard-hint" class="option-hint" data-i18n="receive.type.standard.hint">Shorter link.</span>
-                </span>
-              </label>
-            </div>
-          </fieldset>
+          <div class="field">
+            <label for="receive-type" data-i18n="receive.type.label">Encryption</label>
+            <select id="receive-type" aria-describedby="receive-type-hint">
+              <option value="mlkem768x25519" selected data-i18n="receive.type.mlkem768x25519">ML-KEM-768 + X25519 (post-quantum, recommended)</option>
+              <option value="x25519" data-i18n="receive.type.x25519">X25519 (classical, shorter link)</option>
+            </select>
+            <p id="receive-type-hint" class="hint" data-i18n="receive.type.mlkem768x25519.hint">For long-lived or highly sensitive data.</p>
+          </div>
+
 
           <fieldset class="field">
             <legend data-i18n="receive.pass.legend">Protect the key file</legend>
@@ -176,7 +166,7 @@
         <details>
           <summary data-i18n="send.howto.summary">How does this work?</summary>
           <p data-i18n="send.howto.p1">Sealback uses age, an open and widely used encryption format.</p>
-          <p data-i18n="send.howto.p2">Standard keys use X25519. Post-quantum keys combine ML-KEM-768 with X25519.</p>
+          <p data-i18n="send.howto.p2">Classical keys use X25519. Post-quantum keys combine ML-KEM-768 with X25519.</p>
           <p data-i18n="send.howto.p3">Nothing you enter is sent anywhere.</p>
         </details>
         <p class="own-key"><a href="#receive" data-i18n="send.ownKey">Create your own key →</a></p>

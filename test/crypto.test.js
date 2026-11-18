@@ -19,10 +19,10 @@ import { detectRecipientType } from "../js/keys.js";
 const FAST = { scryptWorkFactor: 10 };
 const TEXT = "Grüße aus Hamburg! 🦭\nP@ssw0rd: «ñ» 日本語\n";
 
-/** @type {Record<"standard" | "pq", import("../js/crypto.js").KeyPair>} */
+/** @type {Record<"x25519" | "mlkem768x25519", import("../js/crypto.js").KeyPair>} */
 const keys = {
-  standard: await generateKey("standard"),
-  pq: await generateKey("pq"),
+  x25519: await generateKey("x25519"),
+  mlkem768x25519: await generateKey("mlkem768x25519"),
 };
 
 /**
@@ -37,12 +37,12 @@ function ok(result) {
   return /** @type {T} */ (result);
 }
 
-for (const type of /** @type {const} */ (["standard", "pq"])) {
+for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
   test(`${type}: generated key has the right format`, () => {
     const k = keys[type];
     assert.equal(k.type, type);
     assert.equal(detectRecipientType(k.recipient), type);
-    assert.match(k.identity, type === "pq" ? /^AGE-SECRET-KEY-PQ-1/ : /^AGE-SECRET-KEY-1/);
+    assert.match(k.identity, type === "mlkem768x25519" ? /^AGE-SECRET-KEY-PQ-1/ : /^AGE-SECRET-KEY-1/);
   });
 
   test(`${type}: round trip encrypt → armor → dearmor → decrypt`, async () => {
@@ -51,7 +51,7 @@ for (const type of /** @type {const} */ (["standard", "pq"])) {
     assert.match(armored, /^-----BEGIN AGE ENCRYPTED FILE-----\n/);
     assert.match(armored, /\n-----END AGE ENCRYPTED FILE-----\n$/);
     assert.deepEqual(toAgeBytes(armored), binary);
-    assert.deepEqual(stanzaTypes(binary), [type === "pq" ? "mlkem768x25519" : "X25519"]);
+    assert.deepEqual(stanzaTypes(binary), [type === "mlkem768x25519" ? "mlkem768x25519" : "X25519"]);
     assert.equal(ok(await decryptText(k.identity, armored)).text, TEXT);
     assert.equal(ok(await decryptText(k.identity, binary)).text, TEXT);
   });
@@ -78,27 +78,27 @@ for (const type of /** @type {const} */ (["standard", "pq"])) {
 }
 
 test("wrong identity: same type", async () => {
-  for (const type of /** @type {const} */ (["standard", "pq"])) {
+  for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     const other = await generateKey(type);
     const { armored } = await encryptText(keys[type].recipient, TEXT);
     assert.deepEqual(await decryptText(other.identity, armored), { error: "wrong-key" });
   }
 });
 
-test("wrong identity: standard identity against post-quantum ciphertext and vice versa", async () => {
-  const toPq = await encryptText(keys.pq.recipient, TEXT);
-  const toStandard = await encryptText(keys.standard.recipient, TEXT);
-  assert.deepEqual(await decryptText(keys.standard.identity, toPq.armored), { error: "wrong-key" });
-  assert.deepEqual(await decryptText(keys.pq.identity, toStandard.armored), { error: "wrong-key" });
+test("wrong identity: X25519 identity against ML-KEM-768 + X25519 ciphertext and vice versa", async () => {
+  const toPq = await encryptText(keys.mlkem768x25519.recipient, TEXT);
+  const toX25519 = await encryptText(keys.x25519.recipient, TEXT);
+  assert.deepEqual(await decryptText(keys.x25519.identity, toPq.armored), { error: "wrong-key" });
+  assert.deepEqual(await decryptText(keys.mlkem768x25519.identity, toX25519.armored), { error: "wrong-key" });
 });
 
 test("passphrase-encrypted message counts as not for this key", async () => {
-  const file = await createKeyFile(keys.standard, "some passphrase", FAST);
-  assert.deepEqual(await decryptText(keys.standard.identity, file), { error: "wrong-key" });
+  const file = await createKeyFile(keys.x25519, "some passphrase", FAST);
+  assert.deepEqual(await decryptText(keys.x25519.identity, file), { error: "wrong-key" });
 });
 
 test("malformed ciphertext", async () => {
-  const k = keys.standard;
+  const k = keys.x25519;
   const { armored, binary } = await encryptText(k.recipient, TEXT);
   const cases = [
     "",
@@ -120,7 +120,7 @@ test("malformed ciphertext", async () => {
 });
 
 test("armored text survives what email clients do to it", async () => {
-  const k = keys.pq;
+  const k = keys.mlkem768x25519;
   const { armored } = await encryptText(k.recipient, TEXT);
   const quoted = armored.split("\n").map((l) => `> ${l}  `).join("\r\n");
   const rewrapped = armored.replace(/\n(?!-----END)/g, (m, offset) => (offset % 3 === 0 ? "" : m));
@@ -133,12 +133,12 @@ test("armored text survives what email clients do to it", async () => {
 
 test("invalid key files", async () => {
   const enc = new TextEncoder();
-  const k = keys.standard;
+  const k = keys.x25519;
   const cases = [
     "",
     "hello",
     `# public key: ${k.recipient}\n`,
-    `${k.identity}\n${keys.pq.identity}\n`, // more than one identity
+    `${k.identity}\n${keys.mlkem768x25519.identity}\n`, // more than one identity
     k.identity.slice(0, -1), // checksum error
     k.recipient,
   ];
@@ -154,11 +154,11 @@ test("invalid key files", async () => {
 });
 
 test("key file with CRLF, BOM and extra comments", async () => {
-  const k = keys.pq;
+  const k = keys.mlkem768x25519;
   const text = `﻿# created: x\r\n# public key: ${k.recipient}\r\n\r\n  ${k.identity}  \r\n# trailing\r\n`;
   assert.deepEqual(await readKeyFile(new TextEncoder().encode(text)), {
     kind: "plain",
     identity: k.identity,
-    type: "pq",
+    type: "mlkem768x25519",
   });
 });

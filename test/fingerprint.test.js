@@ -13,17 +13,17 @@ import { fixtureRecipient } from "./helpers.js";
 //       n = int.from_bytes(hashlib.sha256(s.encode()).digest()[:10], "big")
 //       return "".join(A[(n >> (75 - 5 * i)) & 31] for i in range(16))
 const VECTORS = {
-  standard: "63PE7JM1BY1ASMNM",
-  pq: "PFHM7TCPM85R7GHD",
+  x25519: "63PE7JM1BY1ASMNM",
+  mlkem768x25519: "PFHM7TCPM85R7GHD",
 };
 
 test("known vectors for both key types", async () => {
-  assert.equal(await fingerprint(fixtureRecipient("standard")), VECTORS.standard);
-  assert.equal(await fingerprint(fixtureRecipient("pq")), VECTORS.pq);
+  assert.equal(await fingerprint(fixtureRecipient("x25519")), VECTORS.x25519);
+  assert.equal(await fingerprint(fixtureRecipient("mlkem768x25519")), VECTORS.mlkem768x25519);
 });
 
 test("is stable and 16 Crockford base32 characters", async () => {
-  const r = fixtureRecipient("pq");
+  const r = fixtureRecipient("mlkem768x25519");
   const a = await fingerprint(r);
   assert.equal(await fingerprint(r), a);
   assert.match(a, /^[0-9A-HJKMNP-TV-Z]{16}$/);
@@ -35,7 +35,7 @@ test("keeps leading zeros", async () => {
 });
 
 test("different keys give different codes", async () => {
-  assert.notEqual(await fingerprint(fixtureRecipient("standard")), await fingerprint(fixtureRecipient("pq")));
+  assert.notEqual(await fingerprint(fixtureRecipient("x25519")), await fingerprint(fixtureRecipient("mlkem768x25519")));
 });
 
 test("groups as 4-4-4-4", () => {

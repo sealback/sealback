@@ -6,7 +6,7 @@
 // recipients are about 1,960 characters long, so this decoder deliberately
 // does not apply Bech32's 90-character limit.
 
-/** @typedef {"standard" | "pq"} KeyType */
+/** @typedef {"x25519" | "mlkem768x25519"} KeyType */
 
 /**
  * Error codes of normalizeRecipientInput:
@@ -26,9 +26,9 @@ const GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
 
 /** Bech32 HRP and payload length in bytes per supported key type. */
 const TYPES = /** @type {const} */ ([
-  { type: "standard", hrp: "age", length: 32 },
+  { type: "x25519", hrp: "age", length: 32 },
   // ML-KEM-768 encapsulation key (1,184 bytes) followed by X25519 key (32 bytes).
-  { type: "pq", hrp: "age1pq", length: 1216 },
+  { type: "mlkem768x25519", hrp: "age1pq", length: 1216 },
 ]);
 
 /**

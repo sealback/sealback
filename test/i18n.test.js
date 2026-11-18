@@ -60,7 +60,7 @@ test("keys built from error codes exist", () => {
   for (const code of ["invalid-key-file", "wrong-passphrase", "wrong-key", "malformed"]) {
     assert.ok(`error.crypto.${code}` in STRINGS.en, code);
   }
-  for (const type of ["pq", "standard"]) assert.ok(`send.protection.${type}` in STRINGS.en, type);
+  for (const type of ["mlkem768x25519", "x25519"]) assert.ok(`send.protection.${type}` in STRINGS.en, type);
 });
 
 test("language detection", () => {

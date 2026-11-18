@@ -7,8 +7,8 @@ import { bech32 } from "@scure/base";
 import { decodeBech32, detectRecipientType, normalizeRecipientInput } from "../js/keys.js";
 import { fixtureRecipient } from "./helpers.js";
 
-const STANDARD = fixtureRecipient("standard");
-const PQ = fixtureRecipient("pq");
+const X25519 = fixtureRecipient("x25519");
+const PQ = fixtureRecipient("mlkem768x25519");
 
 /**
  * @param {string} hrp
@@ -20,26 +20,26 @@ function encode(hrp, length) {
 }
 
 test("fixture keys have the expected shape", () => {
-  assert.match(STANDARD, /^age1[a-z0-9]{58}$/);
+  assert.match(X25519, /^age1[a-z0-9]{58}$/);
   assert.match(PQ, /^age1pq1[a-z0-9]+$/);
   assert.equal(PQ.length, 1959);
 });
 
-test("detects standard and post-quantum keys", () => {
-  assert.equal(detectRecipientType(STANDARD), "standard");
-  assert.equal(detectRecipientType(PQ), "pq");
-  assert.deepEqual(normalizeRecipientInput(STANDARD), { recipient: STANDARD, type: "standard" });
-  assert.deepEqual(normalizeRecipientInput(PQ), { recipient: PQ, type: "pq" });
+test("detects X25519 and ML-KEM-768 + X25519 keys", () => {
+  assert.equal(detectRecipientType(X25519), "x25519");
+  assert.equal(detectRecipientType(PQ), "mlkem768x25519");
+  assert.deepEqual(normalizeRecipientInput(X25519), { recipient: X25519, type: "x25519" });
+  assert.deepEqual(normalizeRecipientInput(PQ), { recipient: PQ, type: "mlkem768x25519" });
 });
 
 test("detection uses the decoded HRP, not the string prefix", () => {
-  // A standard key whose data part happens to start with "pq" is still standard.
-  const decoded = decodeBech32(STANDARD);
+  // An X25519 key whose data part happens to start with "mlkem768x25519" is still X25519.
+  const decoded = decodeBech32(X25519);
   assert.equal(decoded?.hrp, "age");
   assert.equal(decodeBech32(PQ)?.hrp, "age1pq");
   // Synthetic keys built independently.
-  assert.equal(detectRecipientType(encode("age", 32)), "standard");
-  assert.equal(detectRecipientType(encode("age1pq", 1216)), "pq");
+  assert.equal(detectRecipientType(encode("age", 32)), "x25519");
+  assert.equal(detectRecipientType(encode("age1pq", 1216)), "mlkem768x25519");
 });
 
 test("rejects other age recipient types", () => {
@@ -70,20 +70,20 @@ test("rejects private keys with a specific error", () => {
 test("normalizes whitespace and line breaks", () => {
   const wrapped = PQ.replace(/(.{76})/g, "$1\r\n  ");
   assert.notEqual(wrapped, PQ);
-  assert.deepEqual(normalizeRecipientInput(`  ${wrapped}\n`), { recipient: PQ, type: "pq" });
-  assert.deepEqual(normalizeRecipientInput(STANDARD.replace(/(.{10})/g, "$1 \t")), {
-    recipient: STANDARD,
-    type: "standard",
+  assert.deepEqual(normalizeRecipientInput(`  ${wrapped}\n`), { recipient: PQ, type: "mlkem768x25519" });
+  assert.deepEqual(normalizeRecipientInput(X25519.replace(/(.{10})/g, "$1 \t")), {
+    recipient: X25519,
+    type: "x25519",
   });
 });
 
 test("normalizes uppercase keys", () => {
-  assert.deepEqual(normalizeRecipientInput(STANDARD.toUpperCase()), { recipient: STANDARD, type: "standard" });
-  assert.deepEqual(normalizeRecipientInput(PQ.toUpperCase()), { recipient: PQ, type: "pq" });
+  assert.deepEqual(normalizeRecipientInput(X25519.toUpperCase()), { recipient: X25519, type: "x25519" });
+  assert.deepEqual(normalizeRecipientInput(PQ.toUpperCase()), { recipient: PQ, type: "mlkem768x25519" });
 });
 
 test("extracts the key from a Sealback link", () => {
-  const expected = { recipient: PQ, type: "pq" };
+  const expected = { recipient: PQ, type: "mlkem768x25519" };
   assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}`), expected);
   assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}&name=Martin%20J.`), expected);
   assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#name=Martin&pubkey=${PQ}`), expected);
@@ -94,13 +94,13 @@ test("extracts the key from a Sealback link", () => {
 });
 
 test("reports truncated keys as damaged", () => {
-  assert.deepEqual(normalizeRecipientInput(STANDARD.slice(0, -1)), { error: "damaged" });
+  assert.deepEqual(normalizeRecipientInput(X25519.slice(0, -1)), { error: "damaged" });
   assert.deepEqual(normalizeRecipientInput(PQ.slice(0, 1000)), { error: "damaged" });
   assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ.slice(0, 1500)}`), {
     error: "damaged",
   });
   // Single changed character.
-  const altered = STANDARD.slice(0, 20) + (STANDARD[20] === "q" ? "p" : "q") + STANDARD.slice(21);
+  const altered = X25519.slice(0, 20) + (X25519[20] === "q" ? "p" : "q") + X25519.slice(21);
   assert.deepEqual(normalizeRecipientInput(altered), { error: "damaged" });
 });
 

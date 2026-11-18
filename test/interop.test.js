@@ -11,7 +11,7 @@ import { fixtureBytes, fixtureText } from "./helpers.js";
 const PLAINTEXT = fixtureText("plaintext.txt");
 const PASSPHRASE = "correct horse battery staple";
 
-for (const type of /** @type {const} */ (["standard", "pq"])) {
+for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
   test(`${type}: plain key file from age-keygen decrypts age CLI messages`, async () => {
     const key = await readKeyFile(fixtureBytes(`${type}-key.txt`));
     assert.ok("kind" in key && key.kind === "plain");

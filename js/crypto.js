@@ -39,7 +39,7 @@ const encoder = new TextEncoder();
  * @returns {Promise<KeyPair>}
  */
 export async function generateKey(type) {
-  const identity = type === "pq" ? await generateHybridIdentity() : await generateX25519Identity();
+  const identity = type === "mlkem768x25519" ? await generateHybridIdentity() : await generateX25519Identity();
   const recipient = await identityToRecipient(identity);
   return { identity, recipient, type };
 }
@@ -175,7 +175,7 @@ async function parsePlainKeyFile(text) {
   } catch {
     return null;
   }
-  return { identity, type: identity.startsWith("AGE-SECRET-KEY-PQ-1") ? "pq" : "standard" };
+  return { identity, type: identity.startsWith("AGE-SECRET-KEY-PQ-1") ? "mlkem768x25519" : "x25519" };
 }
 
 /**
