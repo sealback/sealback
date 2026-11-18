@@ -39,9 +39,9 @@ Out of scope:
 
 - Plain HTML, CSS and JavaScript (ES modules), no bundling of application code.
 - Type checking via JSDoc annotations and `tsc --checkJs --noEmit` (development only).
-- typage vendored as a single self-contained ESM file at `vendor/age-encryption.js`, produced by esbuild from the pinned npm version and committed. The file starts with a comment stating the package name, version, the command used to generate it, and the license notices of typage and all bundled dependencies (`@noble/ciphers`, `@noble/curves`, `@noble/hashes`, `@noble/post-quantum`, `@scure/base` as of 0.3.1). The bundle is not minified, so it stays reviewable. Generation must be deterministic (no timestamps, fixed order of license blocks) so CI can compare it byte for byte.
+- typage is included as a single self-contained ESM file at `third_party/age-encryption.js`, produced by esbuild from the pinned npm version and committed. The file starts with a comment stating the package name, version, the command used to generate it, and the license notices of typage and all bundled dependencies (`@noble/ciphers`, `@noble/curves`, `@noble/hashes`, `@noble/post-quantum`, `@scure/base` as of 0.3.1). The bundle is not minified, so it stays reviewable. Generation must be deterministic (no timestamps, fixed order of license blocks) so CI can compare it byte for byte.
 - Pinned typage version: `age-encryption@0.3.1`. Its API used by Sealback: `generateX25519Identity()`, `generateHybridIdentity()`, `identityToRecipient()`, `Encrypter` (`addRecipient`, `setPassphrase`, `setScryptWorkFactor`, `encrypt`), `Decrypter` (`addIdentity`, `addPassphrase`, `decrypt`), `armor.encode`, `armor.decode`. Note that `generateIdentity()` produces an X25519 identity; Sealback always calls the type-specific functions explicitly.
-- Type information for the vendored file comes from `vendor/age-encryption.d.ts`, a one-line re-export of `node_modules/age-encryption/dist/index.d.ts`. It is written by `scripts/vendor.sh` together with the bundle, so it always follows the pinned version and needs no manual updates. It is used only for type checking and is not deployed.
+- Type information for the bundled file comes from `third_party/age-encryption.d.ts`, a one-line re-export of `node_modules/age-encryption/dist/index.d.ts`. It is written by `scripts/update-third-party.sh` together with the bundle, so it always follows the pinned version and needs no manual updates. It is used only for type checking and is not deployed.
 - Tests with Node's built-in `node:test`. Node.js 24 LTS or later.
 - Development dependencies, all pinned to exact versions: `typescript`, `esbuild`, `age-encryption`. Install with `npm ci --ignore-scripts`.
 - Interoperability reference: the `age` CLI, version 1.3.0 or later (first version with post-quantum keys, `age-keygen -pq`).
@@ -67,19 +67,19 @@ Repository: `github.com/sealback/sealback`.
 │   ├── view-send.js    DOM logic for the send view
 │   ├── view-receive.js DOM logic for the receive view
 │   └── view-decrypt.js DOM logic for the decrypt view
-├── vendor/
+├── third_party/
 │   ├── age-encryption.js    Bundled typage (deployed)
 │   └── age-encryption.d.ts  Type re-export for tsc (generated, not deployed)
 ├── img/
 │   └── logo.svg        Placeholder logo (see section 8), also used as favicon
 ├── scripts/
-│   └── vendor.sh       Regenerates both files in vendor/
+│   └── update-third-party.sh  Regenerates both files in third_party/
 ├── test/
 │   ├── *.test.js       node:test suites (see section 9)
 │   └── fixtures/       Key files and ciphertexts created with the age CLI,
 │                       plus README.md listing the exact commands and age version
 ├── .github/workflows/
-│   ├── ci.yml          Type check, tests, vendored-file check
+│   ├── ci.yml          Type check, tests, third-party file check
 │   └── deploy.yml      Deploy to GitHub Pages on release tag
 ├── package.json
 ├── package-lock.json
@@ -202,9 +202,10 @@ Version 1 supports text only. File encryption is a possible later extension.
 3. Button "Decrypt". Decrypt locally and show the plaintext in a read-only field with a "Copy" button and a "Hide" button that clears it.
 4. After successful decryption, show the reminder: store the secret where it belongs (e.g. a password manager), then delete the key file and the email, and rotate the secret if possible.
 5. Error messages must distinguish: invalid key file, wrong passphrase, ciphertext not encrypted for this key, malformed ciphertext.
-   - typage throws generic errors, so `crypto.js` must not classify them by message text. Instead it reads the age header itself (version line and `-> <type>` stanza lines, after removing armor if present):
-     - Key file: a header with a single `scrypt` stanza means passphrase-protected; plain text containing exactly one `AGE-SECRET-KEY-1…` or `AGE-SECRET-KEY-PQ-1…` line means plain; anything else is an invalid key file. A protected file that fails to decrypt means a wrong passphrase.
-     - Ciphertext: missing version line, broken armor or unparsable header means malformed ciphertext. No stanza of the identity's type (`X25519` or `mlkem768x25519`), or a failed decryption with a well-formed header, means not encrypted for this key.
+   - typage throws generic errors, so `crypto.js` must not classify them by message text. Instead:
+     - Key file: `crypto.js` reads the age header itself (version line and `-> <type>` stanza lines, after removing armor if present). A header with a single `scrypt` stanza means passphrase-protected; plain text containing exactly one `AGE-SECRET-KEY-1…` or `AGE-SECRET-KEY-PQ-1…` line (besides comments and blank lines) means plain; anything else is an invalid key file.
+     - Decryption: after the real identity (or passphrase), a "sentinel" identity is added through typage's public `Identity` interface. It never matches and only records that it was called. typage tries identities in order and stops at the first match, so a failed decryption that reached the sentinel means the key did not match (not encrypted for this key, or wrong passphrase for a key file). A failure without reaching the sentinel means the file is damaged (malformed ciphertext, or invalid key file). Missing armor, broken armor or an unparsable header is reported as malformed before decrypting.
+   - Pasted armored text is accepted with surrounding text, indentation, `>` quoting and re-wrapped lines, as email clients produce them.
    - `crypto.js` returns these categories as error codes; the view maps them to localized messages.
 
 ### 6.6 Share link format
@@ -215,7 +216,7 @@ https://sealback.org/#pubkey=<age recipient>&name=<URL-encoded label>
 
 - Parameters are carried in the fragment only, so they never reach the server, its logs, or intermediate proxies.
 - `pubkey` is required for link mode. The parameter name makes clear to technical readers that the value is a public, non-secret key.
-- `name` is optional, limited to 80 characters after decoding, rendered as text only (never as HTML).
+- `name` is optional, rendered as text only (never as HTML). After decoding, control and formatting characters (including bidirectional overrides) are removed, whitespace is collapsed, and the result is cut to 80 code points.
 - Other fragments: `#send`, `#receive`, `#decrypt` (section 6.1).
 - `link.js` provides `buildLink(baseUrl, recipient, name)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, name }`, `{ mode: "link", error }`, `{ mode: "tab", tab: "send" | "receive" | "decrypt" }`.
 
@@ -234,7 +235,7 @@ Supported recipient types:
 - `keys.js` contains its own small Bech32 decoder. It must not apply Bech32's 90-character length limit, because post-quantum recipients are about 1,950 characters long. Mixed-case input is rejected by Bech32 rules; normalization lowercases first.
 - After decoding, the payload length is checked per type (32 bytes for X25519, 1,216 bytes for `mlkem768x25519`).
 - Recipient types other than these two are rejected, e.g. `age1tag1…`, plugin recipients such as `age1yubikey1…`, and SSH public keys.
-- `keys.js` exports `normalizeRecipientInput(text)`: trims the input, removes all whitespace and line breaks (email clients wrap long strings), extracts the `pubkey` parameter if the input is a Sealback link, lowercases the result, and validates it including the Bech32 checksum. Returns `{ recipient, type }` or a specific error.
+- `keys.js` exports `normalizeRecipientInput(text)`: trims the input, removes all whitespace and line breaks (email clients wrap long strings), extracts the `pubkey` parameter if the input is a Sealback link, lowercases the result, and validates it including the Bech32 checksum. Returns `{ recipient, type }` or `{ error }` with one of: `empty`, `invalid` (not an age public key), `damaged` (checksum or length wrong, e.g. a truncated link), `unsupported` (another key type), `secret-key` (a private key was pasted; the UI warns that it must never be shared).
 - `keys.js` exports `detectRecipientType(recipient)` returning `"standard"` or `"pq"`.
 
 ### 6.8 Fingerprint ("Security code")
@@ -293,15 +294,15 @@ Supported recipient types:
 
 - GitHub Pages with custom domain `sealback.org` (`CNAME` file in the deployed content), "Enforce HTTPS" enabled.
 - Domain verified in the `sealback` organization's GitHub settings to prevent takeover by other accounts. Recommended at the registrar: CAA record and DNSSEC.
-- `ci.yml` on every push and pull request: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `node --test`, and regeneration of both files in `vendor/` with a check that they match the committed files byte for byte (`git diff --exit-code vendor/`).
-- `deploy.yml`: deploys `index.html`, `CNAME`, `css/`, `js/`, `vendor/age-encryption.js` and `img/` to GitHub Pages when a version tag `v*` is pushed (`actions/upload-pages-artifact`, `actions/deploy-pages`). The workflow computes SHA-256 hashes of all deployed files into `SHA256SUMS` and attaches it to the GitHub release.
+- `ci.yml` on every push and pull request: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`).
+- `deploy.yml`: deploys `index.html`, `CNAME`, `css/`, `js/`, `third_party/age-encryption.js` and `img/` to GitHub Pages when a version tag `v*` is pushed (`actions/upload-pages-artifact`, `actions/deploy-pages`). The workflow computes SHA-256 hashes of all deployed files into `SHA256SUMS` and attaches it to the GitHub release.
 - All third-party actions in both workflows are pinned to full commit SHAs.
 - Repository settings (documented in README, not enforced by code): branch protection on `main`, required signed commits, 2FA required for all organization members.
 
 ## 11. License
 
 - Sealback is licensed under Apache-2.0 (`LICENSE` file, SPDX header `// SPDX-License-Identifier: Apache-2.0` in every source file).
-- The vendored file keeps the original license notices of typage and its bundled dependencies; the README lists them under "Third-party licenses".
+- The bundled file keeps the original license notices of typage and its bundled dependencies; the README lists them under "Third-party licenses".
 
 ## 12. README contents
 
@@ -309,7 +310,7 @@ Supported recipient types:
 - How to use it as recipient and as sender, including the `#send` fallback when a link is damaged.
 - How to decrypt with the `age` CLI instead of the browser (`age -d -i key.age message.age`), with the minimum `age` version that supports post-quantum keys (1.3.0).
 - How to verify that the deployed site matches a release (compare published hashes).
-- How to update the vendored typage file: bump the exact version in `package.json`, `npm install --ignore-scripts`, run `scripts/vendor.sh`, review the diff of `vendor/`, check that the API listed in section 4 is unchanged, and run the tests.
+- How to update the bundled typage file: bump the exact version in `package.json`, `npm install --ignore-scripts`, run `scripts/update-third-party.sh`, review the diff of `third_party/`, check that the API listed in section 4 is unchanged, and run the tests.
 - Comparison with link-based secret tools (e.g. Yopass, PrivateBin): those store ciphertext on a server and put the key in the link; Sealback stores nothing and only the recipient's private key can decrypt.
 - Third-party licenses.
 
@@ -321,7 +322,7 @@ Supported recipient types:
 - For both key types and both passphrase settings: a secret encrypted in the send view decrypts in the decrypt view and with the `age` CLI; a message encrypted with the `age` CLI to a Sealback key decrypts in the decrypt view.
 - A post-quantum link pasted into the manual key input with line breaks inserted is accepted and yields the same fingerprint as the original.
 - Both language versions are complete.
-- CI passes, including the vendored-file reproducibility check.
+- CI passes, including the third-party file reproducibility check.
 
 ## 14. Open decisions
 
