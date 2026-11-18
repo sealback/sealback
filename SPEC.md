@@ -70,8 +70,12 @@ Repository: `github.com/sealback/sealback`.
 ├── third_party/
 │   ├── age-encryption.js    Bundled typage (deployed)
 │   └── age-encryption.d.ts  Type re-export for tsc (generated, not deployed)
-├── img/
-│   └── logo.svg        Placeholder logo (see section 8), also used as favicon
+├── img/                Logo and icons, copied from the logo kit (section 8)
+│   ├── sealback-lockup.svg       Header logo, light backgrounds
+│   ├── sealback-lockup-dark.svg  Header logo, dark mode
+│   ├── favicon.svg               Adaptive favicon (switches colours in dark mode)
+│   ├── favicon.ico               Favicon 16/32/48 px
+│   └── apple-touch-icon.png      180 px
 ├── scripts/
 │   └── update-third-party.sh  Regenerates both files in third_party/
 ├── test/
@@ -259,14 +263,15 @@ Supported recipient types:
 
 ## 8. User interface
 
-- Clean, modern look in the style of typical Tailwind CSS pages (gray scale with one blue accent, rounded cards with soft shadows, focus rings), written by hand without a CSS framework. Layout as in section 6.2, using the full window width on desktop. System font stack, large readable form controls.
+- Clean, modern look in the style of typical Tailwind CSS pages (rounded cards with soft shadows, focus rings, pill-shaped tabs), written by hand without a CSS framework, in the brand colours of the logo kit (paper background, ink text, teal accent, tint for info boxes; dark mode with ink background). Layout as in section 6.2, using the full window width on desktop. System font stack, large readable form controls. The brand typeface Manrope is not used, because the page loads no fonts; the logo's wordmark is outlined and does not need it.
 - Long values (links, public keys, ciphertext) are shown in read-only fields with `word-break: break-all`, never as running text.
 - Light and dark mode via `prefers-color-scheme`.
 - Usable on mobile screens.
 - Accessible: proper labels for all inputs, visible focus states, sufficient contrast, status and error messages announced via `aria-live`.
 - Languages: English and German. Default from `navigator.language`, with a visible language drop-down in the header (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
 - Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label); such details appear only in the "How does this work?" section.
-- **Logo brief:** a seal (the animal) seen from behind, looking into the screen, optionally wearing a hat. Simple flat SVG, recognizable at favicon size (32×32), works in light and dark mode. Implementation may use a simple placeholder; the final logo is designed separately.
+- **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, 145 × 40 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
+- **Drop-downs** (language, encryption type) are native `<select>` elements. Where the browser supports customizable selects (`appearance: base-select`), the opened menu is styled to match the page; other browsers show their native menu.
 
 ## 9. Testing
 
@@ -320,4 +325,4 @@ Supported recipient types:
 
 ## 14. Open decisions
 
-- Final logo (see brief in section 8).
+None.

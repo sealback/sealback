@@ -9,15 +9,21 @@
   <title>Sealback</title>
   <meta name="description" content="Send a secret back in encrypted form, without software, account or server." data-i18n-attr="content:app.description">
   <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#10293A" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="brand">
-      <img src="img/logo.svg" alt="" width="44" height="44">
-      <span>Sealback</span>
+      <picture>
+        <source srcset="img/sealback-lockup-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="img/sealback-lockup.svg" alt="Sealback" width="145" height="40">
+      </picture>
     </div>
     <div id="tabs" class="tabs" role="tablist" aria-label="Mode" data-i18n-attr="aria-label:tabs.label" hidden>
       <button type="button" role="tab" id="tab-receive" aria-controls="panel-receive" aria-selected="true" data-tab="receive" data-i18n="tab.receive">Receive</button>
