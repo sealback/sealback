@@ -1,19 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Entry point: language, fragment routing, tabs.
+//
+// The receiver uses two tabs, "Receive" and "Decrypt". The send view is the
+// sender's page: it is reached only through a link (#pubkey=…) or the
+// fallback address #send, and is shown without tabs.
 
 import { LANGS, applyTranslations, detectLanguage, getLanguage, setLanguage } from "./i18n.js";
-import { TABS, parseFragment } from "./link.js";
+import { VIEWS, parseFragment } from "./link.js";
 import { byId, show } from "./ui.js";
 import * as decrypt from "./view-decrypt.js";
 import * as receive from "./view-receive.js";
 import * as send from "./view-send.js";
 
-/** @typedef {import("./link.js").Tab} Tab */
+/** @typedef {import("./link.js").View} View */
+/** @typedef {"receive" | "decrypt"} Tab */
 
 const views = { receive, send, decrypt };
 
-/** @type {{ panel: Tab, link: boolean } | null} */
+/** @type {readonly Tab[]} */
+const TABS = ["receive", "decrypt"];
+
+/** @type {View | null} */
 let active = null;
 
 const tablist = byId("tabs", HTMLDivElement);
@@ -24,34 +32,31 @@ function tabButton(tab) {
 }
 
 /**
- * Shows a panel and clears the secrets of the one being left.
+ * Shows a view and clears the secrets of the one being left.
  *
- * @param {Tab} panel
- * @param {boolean} link link mode (send view without tabs)
+ * @param {View} view
  */
-function activate(panel, link) {
-  if (active !== null && (active.panel !== panel || active.link !== link)) {
-    views[active.panel].clear();
-  }
-  active = { panel, link };
-  show(tablist, !link);
+function activate(view) {
+  if (active !== null && active !== view) views[active].clear();
+  active = view;
+  show(tablist, view !== "send");
   for (const tab of TABS) {
-    const selected = tab === panel;
+    const selected = tab === view;
     const button = tabButton(tab);
     button.setAttribute("aria-selected", String(selected));
     button.tabIndex = selected ? 0 : -1;
-    show(byId(`panel-${tab}`, HTMLElement), selected);
   }
+  for (const v of VIEWS) show(byId(`panel-${v}`, HTMLElement), v === view);
 }
 
 function route() {
   const r = parseFragment(location.hash);
   if (r.mode === "link") {
-    activate("send", true);
+    activate("send");
     send.showLink(r);
   } else {
-    activate(r.tab, false);
-    if (r.tab === "send") send.showTab();
+    activate(r.view);
+    if (r.view === "send") send.showManual();
   }
 }
 

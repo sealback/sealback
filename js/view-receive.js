@@ -27,6 +27,7 @@ function elements() {
     status: byId("receive-status", HTMLParagraphElement),
     error: byId("receive-error", HTMLParagraphElement),
     result: byId("receive-result", HTMLDivElement),
+    doneTitle: byId("receive-done-title", HTMLHeadingElement),
     file: byId("receive-file", HTMLParagraphElement),
     downloadAgain: byId("receive-download-again", HTMLButtonElement),
     link: byId("receive-link", HTMLTextAreaElement),
@@ -140,8 +141,7 @@ function showResult() {
   show(e.form, false);
   show(e.result, true);
   refresh();
-  e.result.querySelector("h2")?.setAttribute("tabindex", "-1");
-  e.result.querySelector("h2")?.focus();
+  e.doneTitle.focus();
 }
 
 /** Re-renders language-dependent values (mailto texts, URLs). */

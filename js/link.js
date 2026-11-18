@@ -9,19 +9,19 @@ import { normalizeRecipientInput } from "./keys.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 /** @typedef {import("./keys.js").KeyError} KeyError */
-/** @typedef {"send" | "receive" | "decrypt"} Tab */
+/** @typedef {"receive" | "send" | "decrypt"} View */
 
 /**
  * @typedef {{ mode: "link", recipient: string, type: KeyType, name: string | null }
  *   | { mode: "link", error: KeyError }
- *   | { mode: "tab", tab: Tab }} Route
+ *   | { mode: "view", view: View }} Route
  */
 
 /** Maximum length of the name label, in Unicode code points. */
 export const MAX_NAME_LENGTH = 80;
 
-/** @type {readonly Tab[]} */
-export const TABS = ["receive", "send", "decrypt"];
+/** @type {readonly View[]} */
+export const VIEWS = ["receive", "send", "decrypt"];
 
 /**
  * Normalizes a name label: removes control and formatting characters (which
@@ -59,12 +59,12 @@ export function buildLink(baseUrl, recipient, name) {
  */
 export function parseFragment(hash) {
   const fragment = hash.startsWith("#") ? hash.slice(1) : hash;
-  const tab = TABS.find((t) => t === fragment);
-  if (tab !== undefined) return { mode: "tab", tab };
+  const view = VIEWS.find((v) => v === fragment);
+  if (view !== undefined) return { mode: "view", view };
 
   const params = new URLSearchParams(fragment);
   const pubkey = params.get("pubkey");
-  if (pubkey === null) return { mode: "tab", tab: "receive" };
+  if (pubkey === null) return { mode: "view", view: "receive" };
 
   const key = normalizeRecipientInput(pubkey);
   if ("error" in key) return { mode: "link", error: key.error };

@@ -59,16 +59,16 @@ test("invalid or truncated pubkey gives a link-mode error", () => {
   assert.deepEqual(parseFragment("#pubkey=hello"), { mode: "link", error: "invalid" });
 });
 
-test("tab fragments", () => {
-  assert.deepEqual(parseFragment("#send"), { mode: "tab", tab: "send" });
-  assert.deepEqual(parseFragment("#receive"), { mode: "tab", tab: "receive" });
-  assert.deepEqual(parseFragment("#decrypt"), { mode: "tab", tab: "decrypt" });
-  assert.deepEqual(parseFragment("decrypt"), { mode: "tab", tab: "decrypt" });
+test("view fragments", () => {
+  assert.deepEqual(parseFragment("#send"), { mode: "view", view: "send" });
+  assert.deepEqual(parseFragment("#receive"), { mode: "view", view: "receive" });
+  assert.deepEqual(parseFragment("#decrypt"), { mode: "view", view: "decrypt" });
+  assert.deepEqual(parseFragment("decrypt"), { mode: "view", view: "decrypt" });
 });
 
-test("empty and unknown fragments open the receive tab", () => {
+test("empty and unknown fragments open the receive view", () => {
   for (const hash of ["", "#", "#foo", "#Send", "#send&x=1", "#name=Martin", "#%%%"]) {
-    assert.deepEqual(parseFragment(hash), { mode: "tab", tab: "receive" }, hash);
+    assert.deepEqual(parseFragment(hash), { mode: "view", view: "receive" }, hash);
   }
 });
 

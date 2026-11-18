@@ -55,7 +55,7 @@ Repository: `github.com/sealback/sealback`.
 ├── index.html          The single application page
 ├── CNAME               "sealback.org"
 ├── css/
-│   └── style.css       Hand-written stylesheet (~150–250 lines)
+│   └── style.css       Hand-written stylesheet (Tailwind-like look, no framework)
 ├── js/
 │   ├── main.js         Entry point: reads the fragment, selects mode/tab, wires views
 │   ├── crypto.js       Pure functions wrapping typage (no DOM access)
@@ -94,61 +94,52 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 
 ### 6.1 Page structure and modes
 
-`index.html` contains all views. `main.js` selects the mode from the URL fragment:
+`index.html` contains all views. `main.js` selects the view from the URL fragment:
 
-| Fragment | Mode | Shown |
-|---|---|---|
-| `#pubkey=…` (valid) | Link mode | Send view with the key preset, no tabs |
-| `#pubkey=…` (invalid or truncated) | Link mode | Send view with an error explaining that the link may have been damaged, and the manual key input (6.4) |
-| `#send` | Tab mode | Tabs, "Send" active, manual key input |
-| `#decrypt` | Tab mode | Tabs, "Decrypt" active |
-| `#receive`, empty, or anything else | Tab mode | Tabs, "Receive" active |
+| Fragment | Shown |
+|---|---|
+| `#pubkey=…` (valid) | Sender page with the key preset, no tabs |
+| `#pubkey=…` (invalid or truncated) | Sender page with an error explaining that the link may have been damaged, and the manual key input (6.4), no tabs |
+| `#send` | Sender page with the manual key input, no tabs |
+| `#decrypt` | Tabs, "Decrypt" active |
+| `#receive`, empty, or anything else | Tabs, "Receive" active |
 
-- **Link mode** shows nothing but the sender's task. At the bottom, a small link "Create your own key" navigates to `https://sealback.org/#receive`.
-- **Tab mode** shows a header with three tabs: "Receive", "Send", "Decrypt". The active tab is reflected in the fragment, so each tab can be bookmarked and linked (e.g. `https://sealback.org/#send` as the fallback address for senders).
-- Changing the fragment (`hashchange`) re-evaluates the mode. Tabs are accessible tab controls (`role="tablist"`, `role="tab"`, `role="tabpanel"`, arrow-key navigation). Switching tabs clears all secret-bearing fields of the tab being left.
+- The **sender page** (send view) shows nothing but the sender's task. Senders only ever arrive through a link: the share link (`#pubkey=…`) or the fallback address `https://sealback.org/#send`, which the recipient gives out when a link does not survive email. A link "Create your own key" navigates to `#receive`.
+- The **recipient** uses two tabs in the header: "Receive" and "Decrypt". There is no "Send" tab, so the recipient's interface stays focused on the recipient's tasks. The active tab is reflected in the fragment, so each tab can be bookmarked and linked.
+- Changing the fragment (`hashchange`) re-evaluates the view. Tabs are accessible tab controls (`role="tablist"`, `role="tab"`, `role="tabpanel"`, arrow-key navigation). Leaving a view clears all its secret-bearing fields.
 
-### 6.2 Layout sketch
+### 6.2 Layout
 
-Link mode:
+All views share one layout: a header across the full width (logo left, tabs next to it for the recipient's views, language toggle right), a large card, and a footer (short privacy note left, link to the source code right).
+
+On wide screens, the card spans most of the window width (up to ~90rem) and has two columns: an introduction on the left (heading, short explanation, "How it works" steps or the "How does this work?" section) and the task on the right (form, results). Below ~56rem the columns stack, introduction first.
+
+Sender page (right column):
 
 ```
-[logo] Sealback                                   [DE|EN]
-──────────────────────────────────────────────────────────
-Send a secret to: Martin (as stated in the link)
-Protection: Post-quantum
-Security code: 7KQ9 M2XR T8N5 4HCW
-  Confirm this code with the recipient by phone before
-  sending sensitive data.
-
-Your secret:
-┌──────────────────────────────────────────────────────┐
-│                                                      │
-└──────────────────────────────────────────────────────┘
-                                           [ Encrypt ]
+┌────────────────────────────────────────────┐
+│ Security code:              [Post-quantum] │
+│ 7KQ9 M2XR T8N5 4HCW                        │
+│ Confirm this code with the recipient by    │
+│ phone before sending sensitive data.       │
+└────────────────────────────────────────────┘
+Your secret
+┌────────────────────────────────────────────┐
+│                                            │
+└────────────────────────────────────────────┘
+[ Encrypt ]
 
 (after encryption)
 Encrypted text — safe to send by normal email:
-┌──────────────────────────────────────────────────────┐
-│ -----BEGIN AGE ENCRYPTED FILE-----                   │
-└──────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│ -----BEGIN AGE ENCRYPTED FILE-----         │
+└────────────────────────────────────────────┘
 [ Copy ]  [ Download as file ]  [ Send by email ]*
-
-▸ How does this work?
-                                  Create your own key →
 
 * only shown if the content fits into a mailto: link
 ```
 
-Tab mode:
-
-```
-[logo] Sealback                                   [DE|EN]
-──────────────────────────────────────────────────────────
-  [ Receive ]  [ Send ]  [ Decrypt ]
-──────────────────────────────────────────────────────────
-(content of the active tab)
-```
+The left column shows "Send a secret", "Recipient: Martin (as stated in the link)" (link with name only), a one-sentence explanation, the "How does this work?" section and "Create your own key →".
 
 ### 6.3 Receive view (generate key)
 
@@ -179,10 +170,10 @@ Tab mode:
 ### 6.4 Send view (encrypt)
 
 1. Determine the recipient:
-   - In link mode, from the fragment (6.6).
-   - In tab mode, or in link mode with an invalid key: from a manual input that accepts pasted text or a loaded text file. The input accepts either a bare public key or a complete Sealback link; `keys.js` normalizes it (section 6.7). Invalid input shows a specific error (not a key, damaged key / checksum mismatch, unsupported key type).
+   - From the share link's fragment (6.6).
+   - At `#send`, or for a damaged share link: from a manual input that accepts pasted text or a loaded text file. The input accepts either a bare public key or a complete Sealback link; `keys.js` normalizes it (section 6.7). Invalid input shows a specific error (not a key, damaged key / checksum mismatch, unsupported key type).
 2. Detect the key type automatically (6.7) and display it as "Protection: Post-quantum" or "Protection: Standard". The sender never chooses the type.
-3. Display the recipient label (link mode only, marked as "as stated in the link") and the fingerprint as "Security code", with the instruction to confirm it with the recipient by phone or another channel before sending sensitive data.
+3. Display the recipient label (share link only, marked as "as stated in the link") and the fingerprint as "Security code", with the instruction to confirm it with the recipient by phone or another channel before sending sensitive data.
 4. A textarea for the secret with `autocomplete="off"`, `autocorrect="off"`, `autocapitalize="off"` and `spellcheck="false"`.
 5. Button "Encrypt". On click:
    - Encrypt the UTF-8 text to the recipient with typage.
@@ -217,10 +208,10 @@ https://sealback.org/#pubkey=<age recipient>&name=<URL-encoded label>
 ```
 
 - Parameters are carried in the fragment only, so they never reach the server, its logs, or intermediate proxies.
-- `pubkey` is required for link mode. The parameter name makes clear to technical readers that the value is a public, non-secret key.
+- `pubkey` is required for a share link. The parameter name makes clear to technical readers that the value is a public, non-secret key.
 - `name` is optional, rendered as text only (never as HTML). After decoding, control and formatting characters (including bidirectional overrides) are removed, whitespace is collapsed, and the result is cut to 80 code points.
 - Other fragments: `#send`, `#receive`, `#decrypt` (section 6.1).
-- `link.js` provides `buildLink(baseUrl, recipient, name)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, name }`, `{ mode: "link", error }`, `{ mode: "tab", tab: "send" | "receive" | "decrypt" }`.
+- `link.js` provides `buildLink(baseUrl, recipient, name)` and `parseFragment(hash)` returning one of `{ mode: "link", recipient, name }`, `{ mode: "link", error }`, `{ mode: "view", view: "receive" | "send" | "decrypt" }`.
 
 ### 6.7 Key types and normalization
 
@@ -267,7 +258,7 @@ Supported recipient types:
 
 ## 8. User interface
 
-- Single centered column, max width ~40rem, system font stack, large readable form controls.
+- Clean, modern look in the style of typical Tailwind CSS pages (gray scale with one blue accent, rounded cards with soft shadows, focus rings, radio choices as selectable cards), written by hand without a CSS framework. Layout as in section 6.2, using the full window width on desktop. System font stack, large readable form controls.
 - Long values (links, public keys, ciphertext) are shown in read-only fields with `word-break: break-all`, never as running text.
 - Light and dark mode via `prefers-color-scheme`.
 - Usable on mobile screens.

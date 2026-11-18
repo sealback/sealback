@@ -34,7 +34,6 @@ function elements() {
     download: byId("send-download", HTMLButtonElement),
     mail: byId("send-mail", HTMLAnchorElement),
     copyStatus: byId("send-copy-status", HTMLParagraphElement),
-    ownKey: byId("send-own-key", HTMLParagraphElement),
   };
 }
 
@@ -69,7 +68,6 @@ export function init() {
  */
 export function showLink(route) {
   clear();
-  show(e.ownKey, true);
   if ("error" in route) {
     show(e.linkError, true);
     show(e.manual, true);
@@ -83,9 +81,9 @@ export function showLink(route) {
   }
 }
 
-/** Tab mode: manual key input. */
-export function showTab() {
-  show(e.ownKey, false);
+/** #send: manual key input (fallback when a link is damaged or too long). */
+export function showManual() {
+  clear();
   show(e.linkError, false);
   show(e.manual, true);
   void checkManualKey(false);
