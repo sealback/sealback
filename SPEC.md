@@ -172,6 +172,8 @@ Tab mode:
    - The fingerprint ("Security code").
    - A collapsible "If the link doesn't work" section with the bare public key, a "Copy public key" button, a "Download public key" button (`sealback-pubkey-<first 4 fingerprint characters>.txt`, containing only the recipient string and a trailing newline), and the instruction that the sender can open `https://sealback.org/#send` and paste or load the key there.
    - Instructions: send the link; when the sender reads out the security code, compare it; keep the key file and passphrase until the secret arrives; delete the key file after decryption.
+   - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the receive view stays active; leaving the tab or the page discards them and hides the button. The link and security code are not secret and stay visible.
+   - A "Create another key" button that returns to the empty form.
 8. Encourage one key per exchange in the UI text.
 
 ### 6.4 Send view (encrypt)
