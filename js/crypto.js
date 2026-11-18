@@ -45,6 +45,16 @@ export async function generateKey(type) {
 }
 
 /**
+ * The recipient (public key) of an identity.
+ *
+ * @param {string} identity
+ * @returns {Promise<string>}
+ */
+export async function recipientOf(identity) {
+  return await identityToRecipient(identity);
+}
+
+/**
  * The plaintext content of a key file, in the format written by age-keygen.
  *
  * @param {KeyPair} key

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// DOM logic for the request view: generate a key pair, download the key file,
-// show the share link.
+// DOM logic for the request view: generate a key pair and download the key
+// file, or load an existing key file; then show the share link.
 
-import { createKeyFile, generateKey } from "./crypto.js";
+import { createKeyFile, generateKey, readKeyFile, recipientOf, unlockKeyFile } from "./crypto.js";
 import { fingerprint, formatFingerprint } from "./fingerprint.js";
 import { setText, t } from "./i18n.js";
 import { buildLink } from "./link.js";
-import { baseUrl, busy, byId, copyWithStatus, download, mailtoUrl, message, show } from "./ui.js";
+import { baseUrl, busy, byId, copyWithStatus, download, mailtoUrl, message, readFile, show } from "./ui.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 
@@ -26,6 +26,14 @@ function elements() {
     create: byId("request-create", HTMLButtonElement),
     status: byId("request-status", HTMLParagraphElement),
     error: byId("request-error", HTMLParagraphElement),
+    existing: byId("request-existing", HTMLDetailsElement),
+    existingFile: byId("request-existing-file", HTMLInputElement),
+    existingStatus: byId("request-existing-status", HTMLParagraphElement),
+    existingPassField: byId("request-existing-pass-field", HTMLDivElement),
+    existingPass: byId("request-existing-pass", HTMLInputElement),
+    existingShow: byId("request-existing-show", HTMLButtonElement),
+    existingWorking: byId("request-existing-working", HTMLParagraphElement),
+    existingError: byId("request-existing-error", HTMLParagraphElement),
     result: byId("request-result", HTMLDivElement),
     doneTitle: byId("request-done-title", HTMLHeadingElement),
     file: byId("request-file", HTMLParagraphElement),
@@ -54,6 +62,13 @@ let e;
  */
 let keyFile = null;
 
+/**
+ * An existing key file loaded by the user, kept until the link is shown.
+ * @type {{ name: string, bytes: Uint8Array, kind: "plain", identity: string }
+ *   | { name: string, bytes: Uint8Array, kind: "protected" } | null}
+ */
+let existing = null;
+
 /** The public key shown in the result, and its fingerprint. */
 let shown = { recipient: "", code: "" };
 
@@ -64,6 +79,12 @@ export function init() {
   e.protect.addEventListener("change", showPassphraseFields);
   showPassphraseFields(); // the browser may restore the checkbox state on reload
   e.create.addEventListener("click", () => void createKey());
+  e.existingFile.addEventListener("change", () => {
+    const file = e.existingFile.files?.[0];
+    e.existingFile.value = "";
+    if (file) void loadExisting(file);
+  });
+  e.existingShow.addEventListener("click", () => void showExisting());
   e.downloadAgain.addEventListener("click", () => {
     if (keyFile) download(keyFile.bytes, keyFile.name, keyFile.type);
   });
@@ -148,6 +169,70 @@ async function createKey() {
   showResult();
 }
 
+/** @param {File} file */
+async function loadExisting(file) {
+  message(e.existingError, null);
+  existing = null;
+  e.existingPass.value = "";
+  show(e.existingPassField, false);
+  const bytes = await readFile(file);
+  if (bytes === null) {
+    message(e.existingStatus, null);
+    message(e.existingError, "common.fileTooLarge");
+    return;
+  }
+  const result = await readKeyFile(bytes);
+  if ("error" in result) {
+    message(e.existingStatus, null);
+    message(e.existingError, `error.crypto.${result.error}`);
+    return;
+  }
+  existing =
+    result.kind === "plain"
+      ? { name: file.name, bytes, kind: "plain", identity: result.identity }
+      : { name: file.name, bytes, kind: "protected" };
+  message(e.existingStatus, "decrypt.key.loaded", { file: file.name });
+  show(e.existingPassField, existing.kind === "protected");
+  if (existing.kind === "protected") e.existingPass.focus();
+}
+
+async function showExisting() {
+  message(e.existingError, null);
+  if (existing === null) {
+    message(e.existingError, "decrypt.error.noKey");
+    return;
+  }
+  if (existing.kind === "protected" && e.existingPass.value === "") {
+    message(e.existingError, "decrypt.error.noPass");
+    e.existingPass.focus();
+    return;
+  }
+  const loaded = existing;
+  const passphrase = e.existingPass.value;
+  e.existingPass.value = "";
+  const recipient = await busy(e.existingShow, e.existingWorking, "request.existing.working", async () => {
+    if (loaded.kind === "plain") return await recipientOf(loaded.identity);
+    const unlocked = await unlockKeyFile(loaded.bytes, passphrase);
+    if ("error" in unlocked) {
+      message(e.existingError, `error.crypto.${unlocked.error}`);
+      return null;
+    }
+    return await recipientOf(unlocked.identity);
+  });
+  if (recipient === null) {
+    e.existingPass.focus();
+    return;
+  }
+  shown = { recipient, code: await fingerprint(recipient) };
+  existing = null;
+  keyFile = null;
+  setText(e.doneTitle, "request.existing.title");
+  setText(e.file, "request.existing.file", { file: loaded.name });
+  message(e.existingStatus, null);
+  show(e.existingPassField, false);
+  showResult();
+}
+
 function showResult() {
   e.link.value = buildLink(baseUrl(), shown.recipient);
   e.pubkey.value = shown.recipient;
@@ -177,6 +262,7 @@ function reset() {
   showTypeHint();
   e.protect.checked = true;
   showPassphraseFields();
+  e.existing.open = false;
   e.link.value = "";
   e.pubkey.value = "";
   e.code.textContent = "";
@@ -186,14 +272,18 @@ function reset() {
 }
 
 /**
- * Clears secret-bearing state: passphrases and the key file. The link and the
+ * Clears secret-bearing state: passphrases and key files. The link and the
  * key fingerprint are not secret and stay visible.
  */
 export function clear() {
   clearPassphrases();
   keyFile = null;
+  existing = null;
+  e.existingFile.value = "";
+  e.existingPass.value = "";
+  show(e.existingPassField, false);
   show(e.downloadAgain, false);
-  for (const el of [e.error, e.status, e.copyStatus]) {
+  for (const el of [e.error, e.status, e.copyStatus, e.existingStatus, e.existingError, e.existingWorking]) {
     message(el, null);
   }
 }

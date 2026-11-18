@@ -173,6 +173,7 @@ The recipient prepares to receive information: a key pair and a share link are c
    - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and key fingerprint are not secret and stay visible.
    - A "Create another key" button that returns to the empty form.
 8. Key reuse: the UI says that a new key per request is safest, and that for recurring exchanges with the same person the key can be kept and used again. Trade-off: reuse saves the repeated phone check, but a later compromise of the key file exposes every message ever encrypted to it, and the passphrase must be remembered for as long as the key is used. There is no revocation.
+9. "Use an existing key file instead" (collapsible section below the form): the user loads a key file created earlier (file picker; passphrase if protected), and "Show link" shows the same result as in step 7 for that key (link, key fingerprint, fallback section), headed "Link for your existing key" and without a key file download. The identity is only used to derive the public key and is not kept. "Create another key" collapses the section again.
 
 ### 6.4 Send view (encrypt)
 

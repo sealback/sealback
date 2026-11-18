@@ -9,6 +9,7 @@ import {
   generateKey,
   keyFileContent,
   readKeyFile,
+  recipientOf,
   stanzaTypes,
   toAgeBytes,
   unlockKeyFile,
@@ -54,6 +55,10 @@ for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     assert.deepEqual(stanzaTypes(binary), [type === "mlkem768x25519" ? "mlkem768x25519" : "X25519"]);
     assert.equal(ok(await decryptText(k.identity, armored)).text, TEXT);
     assert.equal(ok(await decryptText(k.identity, binary)).text, TEXT);
+  });
+
+  test(`${type}: recipientOf derives the public key`, async () => {
+    assert.equal(await recipientOf(keys[type].identity), keys[type].recipient);
   });
 
   test(`${type}: plain key file`, async () => {

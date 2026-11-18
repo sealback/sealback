@@ -660,7 +660,9 @@ textarea:focus-visible {
   color: var(--fg);
 }
 
-
+.existing {
+  margin-top: 2rem;
+}
 
 details {
   margin: 1.5rem 0;
