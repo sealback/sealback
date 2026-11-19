@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Checks on every push and pull request. Also called by deploy.yml, so that
+# nothing is deployed without passing these checks.
+#
+# Third-party actions are pinned to full commit SHAs (version in the comment).
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check (Node ${{ matrix.node }})
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        node: ["24", "26"]
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies (no install scripts)
+        run: npm ci --ignore-scripts
+
+      - name: Type check
+        run: npm run check
+
+      - name: Formatting
+        run: npm run format:check
+
+      - name: Tests
+        run: npm test
+
+      - name: Regenerate third_party/ and compare with the committed files
+        run: |
+          sh scripts/update-third-party.sh
+          git diff --exit-code third_party/

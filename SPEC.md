@@ -306,9 +306,15 @@ Supported recipient types:
 
 - GitHub Pages with custom domain `sealback.org` (`CNAME` file in the deployed content), "Enforce HTTPS" enabled.
 - Domain verified in the `sealback` organization's GitHub settings to prevent takeover by other accounts. Recommended at the registrar: CAA record and DNSSEC.
-- `ci.yml` on every push and pull request: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `prettier --check .`, `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`).
-- `deploy.yml`: deploys `index.html`, `CNAME`, `css/`, `js/`, `third_party/age-encryption.js` and `img/` to GitHub Pages when a version tag `v*` is pushed (`actions/upload-pages-artifact`, `actions/deploy-pages`). The workflow computes SHA-256 hashes of all deployed files into `SHA256SUMS` and attaches it to the GitHub release.
-- All third-party actions in both workflows are pinned to full commit SHAs.
+- `ci.yml` on every push and pull request, on Node.js 24 and 26: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `prettier --check .`, `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`). It can also be called by other workflows (`workflow_call`).
+- `deploy.yml`, when a version tag `v*` is pushed, runs four jobs in order:
+  1. **CI:** the complete `ci.yml`; nothing is deployed if it fails.
+  2. **Build:** copies exactly `index.html`, `CNAME`, `css/`, `js/`, `img/` and `third_party/age-encryption.js` into `_site/`, computes `SHA256SUMS` (paths relative to the site root, sorted), and uploads the Pages artifact (`actions/upload-pages-artifact`).
+  3. **Deploy:** publishes the artifact to GitHub Pages (`actions/deploy-pages`, environment `github-pages`).
+  4. **Release:** only after a successful deployment, creates the GitHub release for the tag with `SHA256SUMS` attached (or replaces the file if the release already exists).
+- Each job gets only the permissions it needs (`contents: read` for CI and build, `pages: write` and `id-token: write` for the deployment, `contents: write` for the release). Checkouts do not persist credentials.
+- All third-party actions in both workflows are pinned to full commit SHAs, with the version in a comment.
+- One-time repository setup: Settings → Pages → Source "GitHub Actions"; Settings → Environments → `github-pages`: allow deployments from tags matching `v*` (by default only the default branch may deploy).
 - Repository settings (documented in README, not enforced by code): branch protection on `main`, required signed commits, 2FA required for all organization members.
 
 ## 11. License

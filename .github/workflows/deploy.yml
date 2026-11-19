@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Deploys the site to GitHub Pages when a version tag (v*) is pushed, and
+# attaches the SHA-256 hashes of all deployed files to the GitHub release, so
+# anyone can check that https://sealback.org serves exactly this release.
+#
+# Repository setup (once): Settings → Pages → Source: "GitHub Actions"; and in
+# Settings → Environments → github-pages, allow deployments from tags "v*".
+#
+# Third-party actions are pinned to full commit SHAs (version in the comment).
+
+name: Deploy
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  build:
+    name: Build site
+    needs: ci
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      sums: ${{ steps.sums.outputs.sums }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Assemble the deployed files
+        run: |
+          mkdir -p _site/third_party
+          cp -R index.html CNAME css js img _site/
+          cp third_party/age-encryption.js _site/third_party/
+
+      - name: Compute SHA-256 hashes
+        id: sums
+        run: |
+          (cd _site && find . -type f | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum) > SHA256SUMS
+          cat SHA256SUMS
+          {
+            echo "sums<<EOF_SHA256SUMS"
+            cat SHA256SUMS
+            echo "EOF_SHA256SUMS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  release:
+    name: Attach hashes to the release
+    needs: [build, deploy]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      SUMS: ${{ needs.build.outputs.sums }}
+    steps:
+      - name: Create or update the release
+        run: |
+          printf '%s\n' "$SUMS" > SHA256SUMS
+          notes="SHA-256 hashes of all files deployed to https://sealback.org for $TAG are attached as SHA256SUMS. See the README for how to verify them."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" SHA256SUMS --clobber
+          else
+            gh release create "$TAG" SHA256SUMS --verify-tag --title "$TAG" --notes "$notes"
+          fi
