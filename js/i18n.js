@@ -27,7 +27,7 @@ const en = {
   "home.how.title": "How it works",
   "home.how.1": "Create a key. The key file is saved on your computer, and you get a link.",
   "home.how.2":
-    "Send the link to the person who has the information. They encrypt it and email it back to you.",
+    "Send the link to the person who has the information. They encrypt it and send it back to you.",
   "home.how.3": "Open Sealback again, provide your stored key file and decrypt the information.",
   "home.features.title": "Why Sealback?",
   "home.feature.1": "Nothing leaves your browser",
@@ -207,21 +207,21 @@ const de = {
   "tab.decrypt": "Entschlüsseln",
   "footer.source": "Quellcode auf GitHub",
   "home.intro":
-    "Sie benötigen von jemandem ein Passwort, Zugangsdaten oder andere vertrauliche Informationen? Sealback erstellt einen Schlüssel und einen Link für diese Person. Sie verschlüsselt die Informationen in ihrem Browser, und nur Ihre Schlüsseldatei kann sie wieder öffnen.",
+    "Du brauchst von jemandem ein Passwort, Zugangsdaten oder andere vertrauliche Informationen? Sealback erstellt einen Schlüssel und einen Link für diese Person. Sie verschlüsselt die Informationen in ihrem Browser, und nur deine Schlüsseldatei kann sie wieder öffnen.",
   "home.how.title": "So funktioniert es",
   "home.how.1":
-    "Erstellen Sie einen Schlüssel. Die Schlüsseldatei wird auf Ihrem Computer gespeichert, und Sie erhalten einen Link.",
+    "Erstelle einen Schlüssel. Die Schlüsseldatei wird auf deinem Computer gespeichert, und du erhältst einen Link.",
   "home.how.2":
-    "Schicken Sie den Link an die Person, die die Informationen hat. Sie verschlüsselt sie und schickt sie Ihnen per E-Mail zurück.",
+    "Schick den Link an die Person, die die Informationen hat. Sie verschlüsselt sie und schickt sie dir zurück.",
   "home.how.3":
-    "Öffnen Sie Sealback erneut, wählen Sie „Informationen entschlüsseln“ und öffnen Sie Ihre Schlüsseldatei.",
+    "Öffne Sealback erneut, öffne deine Schlüsseldatei und entschlüssle die Informationen.",
   "home.features.title": "Warum Sealback?",
-  "home.feature.1": "Nichts verlässt Ihren Browser",
+  "home.feature.1": "Nichts verlässt deinen Browser",
   "home.feature.1.text":
-    "Ver- und Entschlüsselung finden auf Ihrem Gerät statt. Sealback hat keinen Server, der Ihre Informationen speichert oder sieht.",
+    "Ver- und Entschlüsselung finden auf deinem Gerät statt. Sealback hat keinen Server, der deine Informationen speichert oder sieht.",
   "home.feature.2": "Kein Konto, keine Installation",
   "home.feature.2.text":
-    "Funktioniert in jedem aktuellen Browser, für Sie und für die Person, die Ihnen die Informationen schickt.",
+    "Funktioniert in jedem aktuellen Browser, für dich und für die Person, die dir die Informationen schickt.",
   "home.feature.3": "Quantum Safe",
   "home.feature.3.text":
     "Hybride Verschlüsselung mit ML-KEM-768 und X25519 schützt die Informationen auch vor zukünftigen Quantencomputern.",
@@ -234,16 +234,16 @@ const de = {
   "home.feature.6.text": "Keine Kosten, keine Werbung, keine Analyse, keine Cookies.",
   "home.request": "Informationen anfordern",
   "home.request.hint":
-    "Erstellen Sie einen Schlüssel und einen Link für die Person, die die Informationen hat.",
+    "Erstelle einen Schlüssel und einen Link für die Person, die die Informationen hat.",
   "home.decrypt": "Informationen entschlüsseln",
   "home.decrypt.hint":
-    "Verschlüsselte Informationen erhalten? Öffnen Sie Ihre Schlüsseldatei und entschlüsseln Sie sie.",
+    "Verschlüsselte Informationen erhalten? Öffne deine Schlüsseldatei und entschlüssle sie.",
 
   "request.title": "Vertrauliche Informationen anfordern",
   "request.intro":
-    "Erstellen Sie einen Schlüssel für Ihre Anfrage. Die Schlüsseldatei wird auf Ihrem Computer gespeichert, und Sie erhalten einen Link für die Person, die die Informationen hat.",
+    "Erstelle einen Schlüssel für deine Anfrage. Die Schlüsseldatei wird auf deinem Computer gespeichert, und du erhältst einen Link für die Person, die die Informationen hat.",
   "request.oneKey":
-    "Ein neuer Schlüssel für jede Anfrage ist am sichersten. Bei wiederkehrendem Austausch mit derselben Person können Sie den Schlüssel behalten und erneut verwenden.",
+    "Ein neuer Schlüssel für jede Anfrage ist am sichersten. Bei wiederkehrendem Austausch mit derselben Person kannst du den Schlüssel behalten und erneut verwenden.",
   "request.type.label": "Verschlüsselung",
   "request.type.mlkem768x25519": "Quantum Safe (ML-KEM-768 + X25519)",
   "request.type.mlkem768x25519.hint":
@@ -254,9 +254,9 @@ const de = {
   "request.protect.label": "Schlüsseldatei mit einer Passphrase schützen",
   "request.pass.label": "Passphrase",
   "request.pass2.label": "Passphrase wiederholen",
-  "request.pass.hint": "Mindestens 12 Zeichen. Tipp: Verwenden Sie einige zufällige Wörter.",
+  "request.pass.hint": "Mindestens 12 Zeichen. Tipp: Verwende einige zufällige Wörter.",
   "request.pass.note":
-    "Wenn Sie die Passphrase vergessen, lassen sich Informationen, die an diesen Schlüssel gesendet wurden, nicht mehr entschlüsseln.",
+    "Wenn du die Passphrase vergisst, lassen sich Informationen, die an diesen Schlüssel gesendet wurden, nicht mehr entschlüsseln.",
   "request.nopass.warning":
     "Ohne Passphrase kann jeder, der an die Schlüsseldatei kommt, die Informationen lesen.",
   "request.create": "Schlüssel erstellen",
@@ -264,126 +264,124 @@ const de = {
   "request.error.passShort": "Die Passphrase muss mindestens 12 Zeichen lang sein.",
   "request.error.passMismatch": "Die beiden Passphrasen stimmen nicht überein.",
   "request.error.failed": "Der Schlüssel konnte nicht erstellt werden.",
-  "request.existing.heading": "Sie haben schon eine Schlüsseldatei?",
+  "request.existing.heading": "Du hast schon eine Schlüsseldatei?",
   "request.existing.hint":
-    "Öffnen Sie eine früher erstellte Schlüsseldatei, um ihren Link erneut anzuzeigen, z. B. für eine weitere Anfrage an dieselbe Person. Es wird kein neuer Schlüssel erstellt.",
+    "Öffne eine früher erstellte Schlüsseldatei, um ihren Link erneut anzuzeigen, z. B. für eine weitere Anfrage an dieselbe Person. Es wird kein neuer Schlüssel erstellt.",
   "request.existing.choose": "Schlüsseldatei öffnen",
   "request.existing.unlock": "Entsperren",
   "request.existing.working": "Schlüsseldatei wird gelesen …",
-  "request.existing.title": "Link für Ihren vorhandenen Schlüssel",
+  "request.existing.title": "Link für deinen vorhandenen Schlüssel",
   "request.existing.file": "Schlüsseldatei: {file}",
-  "request.done.title": "Ihre Schlüsseldatei wurde heruntergeladen",
+  "request.done.title": "Deine Schlüsseldatei wurde heruntergeladen",
   "request.done.file": "Dateiname: {file}",
   "request.downloadAgain": "Schlüsseldatei erneut herunterladen",
   "request.link.label": "Link für den Absender",
   "request.copyLink": "Link kopieren",
   "request.compose": "E-Mail verfassen",
   "request.mailTooLong":
-    "Der Link ist zu lang für eine E-Mail-Schaltfläche. Kopieren Sie ihn und fügen Sie ihn in eine E-Mail ein.",
+    "Der Link ist zu lang für eine E-Mail-Schaltfläche. Kopiere ihn und füge ihn in eine E-Mail ein.",
   "request.code.label": "Schlüssel-Fingerabdruck",
   "request.fallback.summary": "Falls der Link nicht funktioniert",
   "request.fallback.text":
-    "Manche E-Mail-Programme zerstören lange Links. Schicken Sie dann stattdessen den öffentlichen Schlüssel unten. Der Absender öffnet {url} und fügt ihn dort ein oder lädt ihn.",
+    "Manche E-Mail-Programme zerstören lange Links. Schick dann stattdessen den öffentlichen Schlüssel unten. Der Absender öffnet {url} und fügt ihn dort ein oder lädt ihn.",
   "request.pubkey.label": "Öffentlicher Schlüssel",
   "request.copyPubkey": "Öffentlichen Schlüssel kopieren",
   "request.downloadPubkey": "Öffentlichen Schlüssel herunterladen",
   "request.steps.title": "Nächste Schritte",
-  "request.step1": "Schicken Sie den Link an die Person, die Ihnen die Informationen senden soll.",
+  "request.step1": "Schick den Link an die Person, die dir die Informationen senden soll.",
   "request.step2":
-    "Wenn sie Ihnen den Schlüssel-Fingerabdruck vorliest, vergleichen Sie ihn mit dem oben. Weicht er ab, bitten Sie darum, die Informationen nicht zu senden.",
+    "Wenn sie dir den Schlüssel-Fingerabdruck vorliest, vergleiche ihn mit dem oben. Weicht er ab, bitte darum, die Informationen nicht zu senden.",
   "request.step3":
-    "Bewahren Sie Schlüsseldatei und Passphrase auf. Wenn die Informationen ankommen, öffnen Sie „Entschlüsseln“.",
-  "request.step4":
-    "Löschen Sie die Schlüsseldatei, wenn Sie damit keine Informationen mehr erwarten.",
+    "Bewahre Schlüsseldatei und Passphrase auf. Wenn die Informationen ankommen, öffne „Entschlüsseln“.",
+  "request.step4": "Lösche die Schlüsseldatei, wenn du damit keine Informationen mehr erwartest.",
   "request.new": "Weiteren Schlüssel erstellen",
-  "request.mail.subject": "Bitte schicken Sie mir die Informationen sicher",
+  "request.mail.subject": "Bitte schick mir die Informationen sicher",
   "request.mail.body":
-    "Hallo,\n\nbitte schicken Sie mir die Informationen über diesen Link:\n\n{link}\n\nÖffnen Sie den Link, fügen Sie die Informationen ein und klicken Sie auf „Verschlüsseln“. Schicken Sie mir dann den verschlüsselten Text per E-Mail.\n\nBitte rufen Sie mich vorher an und lesen Sie mir den Schlüssel-Fingerabdruck vor, der auf der Seite angezeigt wird.\n\nVielen Dank!",
+    "Hallo,\n\nbitte schick mir die Informationen über diesen Link:\n\n{link}\n\nÖffne den Link, füge die Informationen ein und klicke auf „Verschlüsseln“. Schick mir dann den verschlüsselten Text per E-Mail.\n\nBitte ruf mich vorher an und lies mir den Schlüssel-Fingerabdruck vor, der auf der Seite angezeigt wird.\n\nVielen Dank!",
 
   "send.title": "Vertrauliche Informationen senden",
   "send.intro":
-    "Die Informationen werden in Ihrem Browser verschlüsselt, bevor Sie sie senden. Nur die Person, die sie angefordert hat, kann sie entschlüsseln.",
+    "Die Informationen werden in deinem Browser verschlüsselt, bevor du sie sendest. Nur die Person, die sie angefordert hat, kann sie entschlüsseln.",
   "send.linkError.title": "Dieser Link scheint beschädigt zu sein.",
   "send.linkError.text":
-    "Manche E-Mail-Programme zerstören lange Links. Bitten Sie den Empfänger, den Link erneut zu schicken, oder fügen Sie den vollständigen Link oder Schlüssel unten ein.",
+    "Manche E-Mail-Programme zerstören lange Links. Bitte den Empfänger, den Link erneut zu schicken, oder füge den vollständigen Link oder Schlüssel unten ein.",
   "send.key.label": "Link oder öffentlicher Schlüssel des Empfängers",
-  "send.key.hint":
-    "Fügen Sie den erhaltenen Link oder Schlüssel ein, oder laden Sie ihn aus einer Datei.",
+  "send.key.hint": "Füge den erhaltenen Link oder Schlüssel ein, oder lade ihn aus einer Datei.",
   "send.key.load": "Aus Datei laden",
   "send.protection": "Schutz:",
   "send.protection.mlkem768x25519": "Quantum Safe",
   "send.protection.x25519": "Elliptische Kurven",
   "send.code.label": "Schlüssel-Fingerabdruck:",
   "send.code.hint":
-    "Bestätigen Sie diesen Fingerabdruck telefonisch mit dem Empfänger, bevor Sie sensible Informationen senden.",
+    "Bestätige diesen Fingerabdruck telefonisch mit dem Empfänger, bevor du sensible Informationen sendest.",
   "send.secret.label": "Vertrauliche Informationen",
   "send.encrypt": "Verschlüsseln",
   "send.working": "Wird verschlüsselt …",
-  "send.error.empty": "Bitte geben Sie zuerst die Informationen ein.",
+  "send.error.empty": "Bitte gib zuerst die Informationen ein.",
   "send.error.failed": "Die Verschlüsselung ist fehlgeschlagen.",
   "send.result.label": "Verschlüsselter Text – kann per normaler E-Mail verschickt werden:",
   "send.download": "Als Datei herunterladen",
   "send.mail": "Per E-Mail senden",
   "send.result.note":
-    "Fügen Sie den verschlüsselten Text in eine E-Mail ein, oder hängen Sie die heruntergeladene Datei an. Nur der Empfänger kann ihn entschlüsseln.",
+    "Füge den verschlüsselten Text in eine E-Mail ein, oder hänge die heruntergeladene Datei an. Nur der Empfänger kann ihn entschlüsseln.",
   "send.bookmark":
-    "Tipp: Wenn Sie den Schlüssel-Fingerabdruck bestätigt haben, setzen Sie ein Lesezeichen für diese Seite. Dann können Sie später erneut Informationen an denselben Empfänger senden, ohne erneute Prüfung.",
+    "Tipp: Wenn du den Schlüssel-Fingerabdruck bestätigt hast, setz ein Lesezeichen für diese Seite. Dann kannst du später erneut Informationen an denselben Empfänger senden, ohne erneute Prüfung.",
   "send.mail.subject": "Verschlüsselte Informationen",
   "send.mail.body":
-    "Hallo,\n\nhier sind die verschlüsselten Informationen. Sie können sie mit Ihrer Schlüsseldatei unter {url} entschlüsseln.\n\n{ciphertext}",
+    "Hallo,\n\nhier sind die verschlüsselten Informationen. Du kannst sie mit deiner Schlüsseldatei unter {url} entschlüsseln.\n\n{ciphertext}",
   "send.howto.summary": "Wie funktioniert das?",
   "send.howto.p1":
-    "Sealback verwendet age, ein offenes und verbreitetes Verschlüsselungsformat. Der Link enthält den öffentlichen Schlüssel des Empfängers. Damit werden Ihre Informationen direkt in Ihrem Browser verschlüsselt. Nur die private Schlüsseldatei des Empfängers kann sie entschlüsseln.",
+    "Sealback verwendet age, ein offenes und verbreitetes Verschlüsselungsformat. Der Link enthält den öffentlichen Schlüssel des Empfängers. Damit werden deine Informationen direkt in deinem Browser verschlüsselt. Nur die private Schlüsseldatei des Empfängers kann sie entschlüsseln.",
   "send.howto.p2":
     "Quantum-Safe-Schlüssel kombinieren ML-KEM-768 mit X25519, sodass der verschlüsselte Text auch gegen zukünftige Quantencomputer geschützt bleibt. Schlüssel mit elliptischen Kurven verwenden nur X25519.",
   "send.howto.p3":
-    "Nichts, was Sie eingeben, wird irgendwohin gesendet. Nach dem Laden stellt diese Seite keine Netzwerkanfragen. Sie entscheiden, wohin der verschlüsselte Text geht.",
+    "Nichts, was du eingibst, wird irgendwohin gesendet. Nach dem Laden stellt diese Seite keine Netzwerkanfragen. Du entscheidest, wohin der verschlüsselte Text geht.",
   "send.ownKey": "Selbst Informationen anfordern →",
 
   "decrypt.title": "Informationen entschlüsseln",
   "decrypt.intro":
-    "Entschlüsseln Sie die Informationen, die Ihnen geschickt wurden. Alles geschieht in Ihrem Browser.",
-  "decrypt.key.label": "Ihre Schlüsseldatei",
-  "decrypt.key.drop": "Wählen Sie Ihre Schlüsseldatei aus, oder ziehen Sie sie hierher.",
+    "Entschlüssle die Informationen, die dir geschickt wurden. Alles geschieht in deinem Browser.",
+  "decrypt.key.label": "Deine Schlüsseldatei",
+  "decrypt.key.drop": "Wähle deine Schlüsseldatei aus, oder zieh sie hierher.",
   "decrypt.key.loaded": "Schlüsseldatei geladen: {file}",
   "decrypt.pass.label": "Passphrase der Schlüsseldatei",
   "decrypt.input.label": "Verschlüsselter Text",
   "decrypt.input.hint":
-    "Fügen Sie den verschlüsselten Text aus der E-Mail ein, oder laden Sie die angehängte .age-Datei.",
+    "Füge den verschlüsselten Text aus der E-Mail ein, oder lade die angehängte .age-Datei.",
   "decrypt.input.load": ".age-Datei laden",
   "decrypt.input.loaded": "Datei geladen: {file}",
   "decrypt.run": "Entschlüsseln",
   "decrypt.working": "Wird entschlüsselt …",
-  "decrypt.error.noKey": "Bitte wählen Sie zuerst Ihre Schlüsseldatei aus.",
-  "decrypt.error.noPass": "Bitte geben Sie die Passphrase der Schlüsseldatei ein.",
-  "decrypt.error.noInput": "Bitte fügen Sie den verschlüsselten Text ein oder laden Sie die Datei.",
+  "decrypt.error.noKey": "Bitte wähle zuerst deine Schlüsseldatei aus.",
+  "decrypt.error.noPass": "Bitte gib die Passphrase der Schlüsseldatei ein.",
+  "decrypt.error.noInput": "Bitte füge den verschlüsselten Text ein oder lade die Datei.",
   "decrypt.result.label": "Entschlüsselte Informationen",
   "decrypt.hide": "Ausblenden",
   "decrypt.reminder.title": "Fertig? Bitte aufräumen:",
   "decrypt.reminder":
-    "Speichern Sie die Informationen dort, wo sie hingehören, z. B. in einem Passwortmanager. Löschen Sie dann die E-Mail und ändern Sie die Informationen, wenn möglich (z. B. das Passwort). Löschen Sie die Schlüsseldatei, wenn Sie damit keine Informationen mehr erwarten.",
+    "Speichere die Informationen dort, wo sie hingehören, z. B. in einem Passwortmanager. Lösche dann die E-Mail und ändere die Informationen, wenn möglich (z. B. das Passwort). Lösche die Schlüsseldatei, wenn du damit keine Informationen mehr erwartest.",
   "decrypt.timeout":
-    "Zu Ihrer Sicherheit wurden die entschlüsselten Informationen, die Schlüsseldatei und die Passphrase nach 10 Minuten ohne Aktivität entfernt.",
+    "Zu deiner Sicherheit wurden die entschlüsselten Informationen, die Schlüsseldatei und die Passphrase nach 10 Minuten ohne Aktivität entfernt.",
 
   "common.copy": "Kopieren",
   "common.copied": "In die Zwischenablage kopiert.",
   "common.copyFailed":
-    "Automatisches Kopieren nicht möglich. Der Text ist markiert: Drücken Sie Strg+C (oder ⌘+C).",
+    "Automatisches Kopieren nicht möglich. Der Text ist markiert: Drücke Strg+C (oder ⌘+C).",
   "common.fileTooLarge": "Die Datei ist zu groß.",
 
-  "error.key.empty": "Bitte fügen Sie einen Link oder öffentlichen Schlüssel ein.",
+  "error.key.empty": "Bitte füge einen Link oder öffentlichen Schlüssel ein.",
   "error.key.invalid": "Das ist kein Sealback-Link und kein öffentlicher Schlüssel.",
   "error.key.damaged":
-    "Der Schlüssel ist beschädigt oder unvollständig (Prüfsumme falsch). Achten Sie darauf, den vollständigen Link oder Schlüssel zu kopieren.",
+    "Der Schlüssel ist beschädigt oder unvollständig (Prüfsumme falsch). Achte darauf, den vollständigen Link oder Schlüssel zu kopieren.",
   "error.key.unsupported": "Diese Art von Schlüssel wird nicht unterstützt.",
   "error.key.secret-key":
-    "Das ist ein privater Schlüssel! Geben Sie ihn niemals weiter. Bitten Sie den Empfänger stattdessen um den Link oder den öffentlichen Schlüssel.",
+    "Das ist ein privater Schlüssel! Gib ihn niemals weiter. Bitte den Empfänger stattdessen um den Link oder den öffentlichen Schlüssel.",
   "error.crypto.invalid-key-file": "Das ist keine gültige Schlüsseldatei.",
   "error.crypto.wrong-passphrase": "Falsche Passphrase.",
   "error.crypto.wrong-key":
-    "Dieser Text wurde nicht für diese Schlüsseldatei verschlüsselt. Prüfen Sie, ob Sie die richtige Schlüsseldatei gewählt haben.",
+    "Dieser Text wurde nicht für diese Schlüsseldatei verschlüsselt. Prüfe, ob du die richtige Schlüsseldatei gewählt hast.",
   "error.crypto.malformed":
-    "Der verschlüsselte Text ist beschädigt oder unvollständig. Achten Sie darauf, alles zu kopieren, einschließlich der Zeilen BEGIN und END.",
+    "Der verschlüsselte Text ist beschädigt oder unvollständig. Achte darauf, alles zu kopieren, einschließlich der Zeilen BEGIN und END.",
 };
 
 /** @type {Record<Lang, Record<string, string>>} */
