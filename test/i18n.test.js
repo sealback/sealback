@@ -76,8 +76,8 @@ test("language detection", () => {
 
 test("translation with placeholders", () => {
   setLanguage("de");
-  assert.equal(t("request.done.file", { file: "x.age" }), "Dateiname: x.age");
+  assert.equal(t("request.done.file", { file: "x.age" }), "Heruntergeladen als x.age");
   setLanguage("en");
-  assert.equal(t("request.done.file", { file: "x.age" }), "File name: x.age");
+  assert.equal(t("request.done.file", { file: "x.age" }), "Downloaded as x.age");
   assert.equal(t("no.such.key"), "no.such.key");
 });

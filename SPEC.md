@@ -172,13 +172,13 @@ The recipient prepares to receive information: a key pair and a share link are c
 7. Show the following only after the download was triggered:
    - The share link with a "Copy link" button.
    - A "Compose email" button (`mailto:` with prefilled subject and localized body containing the link and short instructions for the sender), only if the complete `mailto:` URL is at most 1,800 characters. Otherwise a note that the link must be copied into an email manually.
-   - A success box at the top: "Your key file has been downloaded", the file name, the "Download key file again" button, and the key fingerprint ("Key fingerprint" / "Schlüssel-Fingerabdruck").
+   - A box at the top, styled like the fingerprint box on the sender page: the label "Key fingerprint", the fingerprint in large type, and one small line below it: "Downloaded as <file name> · Download again" (the button re-downloads the key file). For an opened existing key, the line reads "Key file: <file name>" without the button.
    - A collapsible "If the link doesn't work" section with the bare public key, a "Copy public key" button, a "Download public key" button (`sealback-pubkey-<fingerprint>.txt`, containing only the recipient string and a trailing newline), and the instruction that the sender can open `https://sealback.org/#send` and paste or load the key there.
    - Instructions: send the link; when the sender reads out the key fingerprint, compare it; keep the key file and passphrase, and open "Decrypt" when the information arrives; delete the key file when no more information is expected with it.
    - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and key fingerprint are not secret and stay visible.
    - A "Create another key" button that returns to the empty form.
 8. Key reuse: the UI says that a new key per request is safest, and that for recurring exchanges with the same person the key can be kept and used again. Trade-off: reuse saves the repeated phone check, but a later compromise of the key file exposes every message ever encrypted to it, and the passphrase must be remembered for as long as the key is used. There is no revocation.
-9. "Already have a key file?" (a visible section below the form, separated by a line, not collapsed): an "Open key file" button opens the file picker. A plain key file shows its result immediately; a passphrase-protected one first shows the passphrase field with an "Unlock" button (Enter also works). The result is the same as in step 7 for that key (link, key fingerprint, fallback section), headed "Link for your existing key" and without a key file download. The identity is only used to derive the public key and is not kept.
+9. "Already have a key file?" (a visible section below the form, separated by a line, not collapsed): an "Open key file" button opens the file picker. A plain key file shows its result immediately; a passphrase-protected one first shows the passphrase field with an "Unlock" button (Enter also works). The result is the same as in step 7 for that key (key fingerprint, link, fallback section), without a key file download. The identity is only used to derive the public key and is not kept.
 
 ### 6.4 Send view (encrypt)
 
@@ -299,6 +299,7 @@ Supported recipient types:
 - Interoperability: fixtures created with the `age` CLI (≥ 1.3.0) for both key types, plain and passphrase-protected key files, armored and binary ciphertext, decrypt in tests; `test/fixtures/README.md` records the commands and `age` version. The README documents how to verify the reverse direction manually.
 - i18n: the `en` and `de` tables have identical key sets, and every `data-i18n` key used in `index.html` exists.
 - Security scan as described in section 7.
+- DOM consistency: every element that the views look up by id exists in `index.html` with the expected tag (a mismatch would stop the page at startup, which the type checker cannot detect).
 - Tests may lower the scrypt work factor to keep the suite fast; the application always uses typage's default.
 
 ## 10. Hosting, CI and release

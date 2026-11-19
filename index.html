@@ -316,22 +316,26 @@
           </div>
 
           <div id="request-result" hidden>
-            <div class="alert success">
-              <h2 id="request-done-title" tabindex="-1" data-i18n="request.done.title">
-                Your key file has been downloaded
-              </h2>
-              <p id="request-file"></p>
-              <button
-                id="request-download-again"
-                type="button"
-                class="link"
-                data-i18n="request.downloadAgain"
+            <div class="code-box">
+              <h2
+                id="request-done-title"
+                class="code-label"
+                tabindex="-1"
+                data-i18n="request.code.label"
               >
-                Download key file again
-              </button>
-              <p class="success-code">
-                <span class="code-label" data-i18n="request.code.label">Key fingerprint</span>
-                <strong id="request-code" class="code"></strong>
+                Key fingerprint
+              </h2>
+              <strong id="request-code" class="code"></strong>
+              <p class="hint">
+                <span id="request-file"></span>
+                <button
+                  id="request-download-again"
+                  type="button"
+                  class="link"
+                  data-i18n="request.downloadAgain"
+                >
+                  Download again
+                </button>
               </p>
             </div>
 

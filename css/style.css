@@ -641,15 +641,23 @@ textarea:focus-visible {
   margin-top: 0;
 }
 
-/* Key fingerprint inside the success box after creating or opening a key. */
-.success-code {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--success-line);
+/* Small line below the fingerprint: key file name and "Download again". */
+.code-box .hint {
+  margin-bottom: 0;
 }
 
-.success-code .code {
-  color: var(--fg);
+.code-box .hint button.link {
+  font-size: inherit;
+}
+
+/* Separator between file name and "Download again", only if the button is shown. */
+.code-box .hint span:has(+ button:not([hidden]))::after {
+  content: "·";
+  margin: 0 0.4em;
+}
+
+h2.code-label {
+  margin: 0;
 }
 
 .code-label {

@@ -45,7 +45,7 @@ function elements() {
     existingError: byId("request-existing-error", HTMLParagraphElement),
     result: byId("request-result", HTMLDivElement),
     doneTitle: byId("request-done-title", HTMLHeadingElement),
-    file: byId("request-file", HTMLParagraphElement),
+    file: byId("request-file", HTMLSpanElement),
     downloadAgain: byId("request-download-again", HTMLButtonElement),
     link: byId("request-link", HTMLTextAreaElement),
     copyLink: byId("request-copy-link", HTMLButtonElement),
@@ -186,7 +186,6 @@ async function createKey() {
   }
   if (!keyFile) return;
   download(keyFile.bytes, keyFile.name, keyFile.type);
-  setText(e.doneTitle, "request.done.title");
   setText(e.file, "request.done.file", { file: keyFile.name });
   showResult();
 }
@@ -261,7 +260,6 @@ async function showExisting(recipient, fileName) {
   shown = { recipient, code: await fingerprint(recipient) };
   existing = null;
   keyFile = null;
-  setText(e.doneTitle, "request.existing.title");
   setText(e.file, "request.existing.file", { file: fileName });
   message(e.existingStatus, null);
   show(e.existingPassField, false);
