@@ -291,7 +291,7 @@ export function refresh() {
 }
 
 /** Returns the view to the empty form. */
-function reset() {
+export function reset() {
   clear();
   e.type.value = "mlkem768x25519";
   showTypeHint();

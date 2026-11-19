@@ -18,7 +18,7 @@ import * as send from "./view-send.js";
 /** @typedef {"request" | "decrypt"} Tab */
 
 /** The landing page has no state. */
-const home = { clear() {}, refresh() {} };
+const home = { clear() {}, reset() {}, refresh() {} };
 
 const views = { home, request, send, decrypt };
 
@@ -120,6 +120,27 @@ initTabs();
 initLanguage();
 route();
 window.addEventListener("hashchange", route);
+
+// The logo leads to the landing page and discards all state, like a fresh
+// page load, but without reloading, so the chosen language is kept. Its
+// href "./" still works for opening in a new tab.
+document.querySelector(".brand")?.addEventListener("click", (ev) => {
+  if (
+    !(ev instanceof MouseEvent) ||
+    ev.button !== 0 ||
+    ev.ctrlKey ||
+    ev.metaKey ||
+    ev.shiftKey ||
+    ev.altKey
+  ) {
+    return;
+  }
+  ev.preventDefault();
+  for (const view of Object.values(views)) view.reset();
+  if (location.hash !== "") history.pushState(null, "", location.pathname + location.search);
+  route();
+  scrollTo(0, 0);
+});
 window.addEventListener("pagehide", () => {
   for (const view of Object.values(views)) view.clear();
 });

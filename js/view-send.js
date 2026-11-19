@@ -200,6 +200,15 @@ function clearResult() {
   message(e.copyStatus, null);
 }
 
+/** Returns the view to its initial state, including the entered key. */
+export function reset() {
+  clear();
+  e.key.value = "";
+  message(e.keyError, null);
+  show(e.linkError, false);
+  void setRecipient(null, false);
+}
+
 /** Clears the secret and the result. */
 export function clear() {
   e.secret.value = "";

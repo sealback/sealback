@@ -14,8 +14,8 @@
 const en = {
   "app.description":
     "Request confidential information and get it back encrypted, without software, account or server.",
-  "app.title": "Sealback – sealed on the way back",
-  "app.slogan": "Sealed on the way back",
+  "app.title": "Sealback – Request confidential information, end-to-end encrypted",
+  "app.slogan": "Request confidential information, end-to-end encrypted.",
   "app.home": "Sealback – start over",
   "lang.label": "Language",
   "tabs.label": "Mode",
@@ -200,8 +200,8 @@ const en = {
 const de = {
   "app.description":
     "Vertrauliche Informationen anfordern und verschlüsselt zurückbekommen, ohne Software, Konto oder Server.",
-  "app.title": "Sealback – versiegelt auf dem Rückweg",
-  "app.slogan": "Versiegelt auf dem Rückweg",
+  "app.title": "Sealback – Vertrauliche Informationen anfordern, Ende-zu-Ende-verschlüsselt",
+  "app.slogan": "Vertrauliche Informationen anfordern, Ende-zu-Ende-verschlüsselt.",
   "app.home": "Sealback – neu beginnen",
   "lang.label": "Sprache",
   "tabs.label": "Modus",

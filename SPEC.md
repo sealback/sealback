@@ -117,7 +117,7 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 
 ### 6.2 Layout
 
-All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens; a link to the start page `./`, whose full page load discards all state), the slogan below it and, for the recipient's views, the tabs centred below it; a large card; and a footer with a short privacy note on the left and, on the right, the link to the source code and the language drop-down.
+All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens; a link to the start page `./`; a click resets all views and shows the landing page without reloading, so all state is discarded but the chosen language is kept), the slogan below it and, for the recipient's views, the tabs centred below it; a large card; and a footer with a short privacy note on the left and, on the right, the link to the source code and the language drop-down.
 
 On wide screens, the card spans most of the window width (up to ~90rem) and has two columns: an introduction on the left (heading, short explanation, "How it works" steps or the "How does this work?" section) and the task on the right (form, results). Below ~56rem the columns stack, introduction first.
 
@@ -264,7 +264,7 @@ Supported recipient types:
 - `<meta name="referrer" content="no-referrer">`.
 - No persistence of keys, passphrases, secrets or ciphertext: no localStorage, sessionStorage, IndexedDB, cookies or service worker.
 - Generated object URLs for downloads are revoked immediately after use.
-- Secret, passphrase and plaintext fields are cleared after use, on tab switch, on `pagehide`, and in the decrypt view after 10 minutes of inactivity (6.5). JavaScript cannot securely wipe memory; "cleared" means all references are dropped.
+- Secret, passphrase and plaintext fields are cleared after use, on tab switch, when the logo is clicked (6.2), on `pagehide`, and in the decrypt view after 10 minutes of inactivity (6.5). JavaScript cannot securely wipe memory; "cleared" means all references are dropped.
 - No `<form>` submissions; all actions via button click handlers.
 - Generated keys come exclusively from typage, which uses `crypto.getRandomValues`.
 - A test scans `index.html` and `js/` for forbidden constructs (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, `new Function`, `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `serviceWorker`, `fetch`, `XMLHttpRequest`, inline `<script>` content, `style=` attributes) to guard against regressions.
@@ -277,10 +277,10 @@ Supported recipient types:
 - Light and dark mode via `prefers-color-scheme`.
 - Usable on mobile screens.
 - Accessible: proper labels for all inputs, visible focus states, sufficient contrast, status and error messages announced via `aria-live`.
-- Languages: English and German. Default from `navigator.language`, with a visible language drop-down in the footer (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
+- Languages: English and German. The chosen language is not stored (section 7); it is kept within the page, including when the logo resets it. Default from `navigator.language`, with a visible language drop-down in the footer (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
 - Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label); such details appear only in the "How does this work?" section.
 - **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, centred, 232 × 64 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
-- **Slogan:** "Sealed on the way back" (German: "Versiegelt auf dem Rückweg"), shown below the logo and in the page title ("Sealback – sealed on the way back"), both localized. It plays on the name: the information travels back to the person who requested it, sealed.
+- **Slogan:** "Request confidential information, end-to-end encrypted." (German: "Vertrauliche Informationen anfordern, Ende-zu-Ende-verschlüsselt."), shown below the logo; the page title is "Sealback – Request confidential information, end-to-end encrypted". Both are localized.
 - **Wording:** the UI speaks of "confidential information" ("vertrauliche Informationen"), not "secret", to cover passwords, access data and similar.
 - **Drop-downs** (language, encryption type) are native `<select>` elements. Where the browser supports customizable selects (`appearance: base-select`), the opened menu is styled to match the page; other browsers show their native menu.
 

@@ -247,5 +247,10 @@ export function clear() {
   message(e.status, null);
 }
 
+/** Returns the view to its initial state. */
+export function reset() {
+  clear();
+}
+
 /** Nothing language-dependent beyond translated messages. */
 export function refresh() {}
