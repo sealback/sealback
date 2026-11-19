@@ -85,8 +85,8 @@
       </noscript>
 
       <!-- ============================== Landing page ============================== -->
-      <section id="panel-home" class="card panel" aria-labelledby="home-title" hidden>
-        <div class="intro">
+      <section id="panel-home" class="home" aria-labelledby="home-title" hidden>
+        <div class="hero">
           <h1 id="home-title" data-i18n="home.title">
             Get confidential information back, encrypted
           </h1>
@@ -94,28 +94,9 @@
             Do you need a password, access data or other confidential information from someone?
             Sealback creates a key and a link for that person.
           </p>
-          <h2 data-i18n="home.how.title">How it works</h2>
-          <ol class="steps">
-            <li data-i18n="home.how.1">
-              Create a key. The key file is saved on your computer, and you get a link.
-            </li>
-            <li data-i18n="home.how.2">
-              Send the link to the person who has the information. They encrypt it and email it back
-              to you.
-            </li>
-            <li data-i18n="home.how.3">
-              Open Sealback again, choose “Decrypt information” and open your key file.
-            </li>
-          </ol>
-          <ul class="facts">
-            <li data-i18n="home.fact.1">Nothing is stored or sent to a server</li>
-            <li data-i18n="home.fact.2">No account, no installation</li>
-            <li data-i18n="home.fact.3">Quantum Safe encryption</li>
-            <li data-i18n="home.fact.4">Open source</li>
-          </ul>
         </div>
 
-        <div class="work choices">
+        <div class="choices">
           <a class="choice" href="#request">
             <span class="choice-title" data-i18n="home.request">Request information</span>
             <span class="choice-hint" data-i18n="home.request.hint"
@@ -129,6 +110,54 @@
             >
           </a>
         </div>
+
+        <h2 data-i18n="home.how.title">How it works</h2>
+        <ol class="steps steps-row">
+          <li data-i18n="home.how.1">
+            Create a key. The key file is saved on your computer, and you get a link.
+          </li>
+          <li data-i18n="home.how.2">
+            Send the link to the person who has the information. They encrypt it and email it back
+            to you.
+          </li>
+          <li data-i18n="home.how.3">
+            Open Sealback again, choose “Decrypt information” and open your key file.
+          </li>
+        </ol>
+
+        <h2 data-i18n="home.features.title">Why Sealback?</h2>
+        <ul class="features">
+          <li>
+            <strong data-i18n="home.feature.1">Nothing leaves your browser</strong>
+            <span data-i18n="home.feature.1.text"
+              >Encryption and decryption happen on your device.</span
+            >
+          </li>
+          <li>
+            <strong data-i18n="home.feature.2">No account, no installation</strong>
+            <span data-i18n="home.feature.2.text">Works in any modern browser.</span>
+          </li>
+          <li>
+            <strong data-i18n="home.feature.3">Quantum Safe</strong>
+            <span data-i18n="home.feature.3.text"
+              >Optional hybrid encryption with ML-KEM-768 and X25519.</span
+            >
+          </li>
+          <li>
+            <strong data-i18n="home.feature.4">Open standard</strong>
+            <span data-i18n="home.feature.4.text">Messages use the age encryption format.</span>
+          </li>
+          <li>
+            <strong data-i18n="home.feature.5">Open source</strong>
+            <span data-i18n="home.feature.5.text"
+              >The complete code is public and can be reviewed by anyone.</span
+            >
+          </li>
+          <li>
+            <strong data-i18n="home.feature.6">Free and without tracking</strong>
+            <span data-i18n="home.feature.6.text">No costs, no ads, no analytics, no cookies.</span>
+          </li>
+        </ul>
       </section>
 
       <!-- ============================== Request ============================== -->

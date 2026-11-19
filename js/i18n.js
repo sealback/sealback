@@ -31,10 +31,23 @@ const en = {
   "home.how.2":
     "Send the link to the person who has the information. They encrypt it and email it back to you.",
   "home.how.3": "Open Sealback again, choose “Decrypt information” and open your key file.",
-  "home.fact.1": "Nothing is stored or sent to a server",
-  "home.fact.2": "No account, no installation",
-  "home.fact.3": "Quantum Safe encryption",
-  "home.fact.4": "Open source",
+  "home.features.title": "Why Sealback?",
+  "home.feature.1": "Nothing leaves your browser",
+  "home.feature.1.text":
+    "Encryption and decryption happen on your device. Sealback has no server that stores or sees your information.",
+  "home.feature.2": "No account, no installation",
+  "home.feature.2.text":
+    "Works in any modern browser, for you and for the person who sends you the information.",
+  "home.feature.3": "Quantum Safe",
+  "home.feature.3.text":
+    "Optional hybrid encryption with ML-KEM-768 and X25519 protects the information even against future quantum computers.",
+  "home.feature.4": "Open standard",
+  "home.feature.4.text":
+    "Messages use the age encryption format, so they can also be decrypted with the age command-line tool.",
+  "home.feature.5": "Open source",
+  "home.feature.5.text": "The complete code is public and can be reviewed by anyone.",
+  "home.feature.6": "Free and without tracking",
+  "home.feature.6.text": "No costs, no ads, no analytics, no cookies.",
   "home.request": "Request information",
   "home.request.hint": "Create a key and a link for the person who has the information.",
   "home.decrypt": "Decrypt information",
@@ -206,10 +219,23 @@ const de = {
     "Schicken Sie den Link an die Person, die die Informationen hat. Sie verschlüsselt sie und schickt sie Ihnen per E-Mail zurück.",
   "home.how.3":
     "Öffnen Sie Sealback erneut, wählen Sie „Informationen entschlüsseln“ und öffnen Sie Ihre Schlüsseldatei.",
-  "home.fact.1": "Nichts wird gespeichert oder an einen Server gesendet",
-  "home.fact.2": "Kein Konto, keine Installation",
-  "home.fact.3": "Quantum-Safe-Verschlüsselung",
-  "home.fact.4": "Open Source",
+  "home.features.title": "Warum Sealback?",
+  "home.feature.1": "Nichts verlässt Ihren Browser",
+  "home.feature.1.text":
+    "Ver- und Entschlüsselung finden auf Ihrem Gerät statt. Sealback hat keinen Server, der Ihre Informationen speichert oder sieht.",
+  "home.feature.2": "Kein Konto, keine Installation",
+  "home.feature.2.text":
+    "Funktioniert in jedem aktuellen Browser, für Sie und für die Person, die Ihnen die Informationen schickt.",
+  "home.feature.3": "Quantum Safe",
+  "home.feature.3.text":
+    "Optionale hybride Verschlüsselung mit ML-KEM-768 und X25519 schützt die Informationen auch vor zukünftigen Quantencomputern.",
+  "home.feature.4": "Offener Standard",
+  "home.feature.4.text":
+    "Nachrichten verwenden das Verschlüsselungsformat age und lassen sich daher auch mit dem Kommandozeilenwerkzeug age entschlüsseln.",
+  "home.feature.5": "Open Source",
+  "home.feature.5.text": "Der gesamte Code ist öffentlich und kann von allen geprüft werden.",
+  "home.feature.6": "Kostenlos und ohne Tracking",
+  "home.feature.6.text": "Keine Kosten, keine Werbung, keine Analyse, keine Cookies.",
   "home.request": "Informationen anfordern",
   "home.request.hint":
     "Erstellen Sie einen Schlüssel und einen Link für die Person, die die Informationen hat.",
