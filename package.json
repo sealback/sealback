@@ -12,11 +12,14 @@
     "check": "tsc --noEmit -p jsconfig.json",
     "test": "node --test",
     "update-third-party": "sh scripts/update-third-party.sh",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "age-encryption": "0.3.1",
     "esbuild": "0.28.2",
+    "prettier": "3.10.1",
     "typescript": "7.0.2"
   }
 }

@@ -17,7 +17,11 @@ for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     assert.ok("kind" in key && key.kind === "plain");
     assert.equal(key.type, type);
     for (const name of [`${type}-message.age`, `${type}-message.armored.age`]) {
-      assert.deepEqual(await decryptText(key.identity, fixtureBytes(name)), { text: PLAINTEXT }, name);
+      assert.deepEqual(
+        await decryptText(key.identity, fixtureBytes(name)),
+        { text: PLAINTEXT },
+        name,
+      );
     }
     assert.deepEqual(await decryptText(key.identity, fixtureText(`${type}-message.armored.age`)), {
       text: PLAINTEXT,

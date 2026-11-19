@@ -38,5 +38,10 @@ export async function fingerprint(recipient) {
  * @returns {string}
  */
 export function formatFingerprint(code, separator = " ") {
-  return code.toUpperCase().match(/.{1,4}/g)?.join(separator) ?? "";
+  return (
+    code
+      .toUpperCase()
+      .match(/.{1,4}/g)
+      ?.join(separator) ?? ""
+  );
 }

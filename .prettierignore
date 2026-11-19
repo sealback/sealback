@@ -1,0 +1,7 @@
+# Generated, compared byte for byte in CI
+third_party/
+# age CLI output and test data
+test/fixtures/
+package-lock.json
+node_modules/
+sealback-logo-kit/

@@ -55,7 +55,13 @@ let inactivityTimer;
 
 /** @returns {boolean} whether the view holds anything worth forgetting */
 function hasState() {
-  return key !== null || loadedCiphertext !== null || e.pass.value !== "" || e.input.value !== "" || !e.result.hidden;
+  return (
+    key !== null ||
+    loadedCiphertext !== null ||
+    e.pass.value !== "" ||
+    e.input.value !== "" ||
+    !e.result.hidden
+  );
 }
 
 /** Restarts the inactivity timer if the view holds state. */
@@ -108,7 +114,10 @@ export function init() {
     message(e.inputStatus, null);
   });
   e.run.addEventListener("click", () => void run());
-  e.copy.addEventListener("click", () => void copyWithStatus(e.output.value, e.output, e.copyStatus));
+  e.copy.addEventListener(
+    "click",
+    () => void copyWithStatus(e.output.value, e.output, e.copyStatus),
+  );
   e.hide.addEventListener("click", hideResult);
 }
 
@@ -130,7 +139,10 @@ async function loadKey(file) {
     message(e.error, `error.crypto.${result.error}`);
     return;
   }
-  key = result.kind === "plain" ? { kind: "plain", identity: result.identity } : { kind: "protected", bytes };
+  key =
+    result.kind === "plain"
+      ? { kind: "plain", identity: result.identity }
+      : { kind: "protected", bytes };
   message(e.keyStatus, "decrypt.key.loaded", { file: file.name });
   show(e.passField, key.kind === "protected");
   if (key.kind === "protected") e.pass.focus();

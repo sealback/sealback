@@ -43,7 +43,10 @@ for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     const k = keys[type];
     assert.equal(k.type, type);
     assert.equal(detectRecipientType(k.recipient), type);
-    assert.match(k.identity, type === "mlkem768x25519" ? /^AGE-SECRET-KEY-PQ-1/ : /^AGE-SECRET-KEY-1/);
+    assert.match(
+      k.identity,
+      type === "mlkem768x25519" ? /^AGE-SECRET-KEY-PQ-1/ : /^AGE-SECRET-KEY-1/,
+    );
   });
 
   test(`${type}: round trip encrypt → armor → dearmor → decrypt`, async () => {
@@ -52,7 +55,9 @@ for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     assert.match(armored, /^-----BEGIN AGE ENCRYPTED FILE-----\n/);
     assert.match(armored, /\n-----END AGE ENCRYPTED FILE-----\n$/);
     assert.deepEqual(toAgeBytes(armored), binary);
-    assert.deepEqual(stanzaTypes(binary), [type === "mlkem768x25519" ? "mlkem768x25519" : "X25519"]);
+    assert.deepEqual(stanzaTypes(binary), [
+      type === "mlkem768x25519" ? "mlkem768x25519" : "X25519",
+    ]);
     assert.equal(ok(await decryptText(k.identity, armored)).text, TEXT);
     assert.equal(ok(await decryptText(k.identity, binary)).text, TEXT);
   });
@@ -67,7 +72,10 @@ for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     const file = await createKeyFile(k, null, { created });
     const text = new TextDecoder().decode(file);
     assert.equal(text, keyFileContent(k, created));
-    assert.equal(text, `# created: 2026-11-18T14:02:48Z\n# public key: ${k.recipient}\n${k.identity}\n`);
+    assert.equal(
+      text,
+      `# created: 2026-11-18T14:02:48Z\n# public key: ${k.recipient}\n${k.identity}\n`,
+    );
     assert.deepEqual(await readKeyFile(file), { kind: "plain", identity: k.identity, type });
   });
 
@@ -76,8 +84,13 @@ for (const type of /** @type {const} */ (["x25519", "mlkem768x25519"])) {
     const file = await createKeyFile(k, "correct horse battery staple", FAST);
     assert.deepEqual(stanzaTypes(file), ["scrypt"]);
     assert.deepEqual(await readKeyFile(file), { kind: "protected" });
-    assert.deepEqual(await unlockKeyFile(file, "correct horse battery staple"), { identity: k.identity, type });
-    assert.deepEqual(await unlockKeyFile(file, "wrong horse battery staple"), { error: "wrong-passphrase" });
+    assert.deepEqual(await unlockKeyFile(file, "correct horse battery staple"), {
+      identity: k.identity,
+      type,
+    });
+    assert.deepEqual(await unlockKeyFile(file, "wrong horse battery staple"), {
+      error: "wrong-passphrase",
+    });
     assert.deepEqual(await unlockKeyFile(file, ""), { error: "wrong-passphrase" });
   });
 }
@@ -94,7 +107,9 @@ test("wrong identity: X25519 identity against ML-KEM-768 + X25519 ciphertext and
   const toPq = await encryptText(keys.mlkem768x25519.recipient, TEXT);
   const toX25519 = await encryptText(keys.x25519.recipient, TEXT);
   assert.deepEqual(await decryptText(keys.x25519.identity, toPq.armored), { error: "wrong-key" });
-  assert.deepEqual(await decryptText(keys.mlkem768x25519.identity, toX25519.armored), { error: "wrong-key" });
+  assert.deepEqual(await decryptText(keys.mlkem768x25519.identity, toX25519.armored), {
+    error: "wrong-key",
+  });
 });
 
 test("passphrase-encrypted message counts as not for this key", async () => {
@@ -116,7 +131,11 @@ test("malformed ciphertext", async () => {
     binary.subarray(0, binary.length - 10),
   ];
   for (const input of cases) {
-    assert.deepEqual(await decryptText(k.identity, input), { error: "malformed" }, String(input).slice(0, 40));
+    assert.deepEqual(
+      await decryptText(k.identity, input),
+      { error: "malformed" },
+      String(input).slice(0, 40),
+    );
   }
   // Payload modified: the key matches, but the content is damaged.
   const flipped = binary.slice();
@@ -127,9 +146,15 @@ test("malformed ciphertext", async () => {
 test("armored text survives what email clients do to it", async () => {
   const k = keys.mlkem768x25519;
   const { armored } = await encryptText(k.recipient, TEXT);
-  const quoted = armored.split("\n").map((l) => `> ${l}  `).join("\r\n");
+  const quoted = armored
+    .split("\n")
+    .map((l) => `> ${l}  `)
+    .join("\r\n");
   const rewrapped = armored.replace(/\n(?!-----END)/g, (m, offset) => (offset % 3 === 0 ? "" : m));
-  const indented = armored.split("\n").map((l) => `    ${l}`).join("\n");
+  const indented = armored
+    .split("\n")
+    .map((l) => `    ${l}`)
+    .join("\n");
   const surrounded = `Hi,\n\nhere it is:\n\n${armored}\nBest,\nAnna`;
   for (const input of [quoted, rewrapped, indented, surrounded]) {
     assert.equal(ok(await decryptText(k.identity, input)).text, TEXT);
@@ -148,7 +173,11 @@ test("invalid key files", async () => {
     k.recipient,
   ];
   for (const text of cases) {
-    assert.deepEqual(await readKeyFile(enc.encode(text)), { error: "invalid-key-file" }, text.slice(0, 40));
+    assert.deepEqual(
+      await readKeyFile(enc.encode(text)),
+      { error: "invalid-key-file" },
+      text.slice(0, 40),
+    );
   }
   // An age file that is not passphrase-encrypted is not a key file.
   const { binary } = await encryptText(k.recipient, k.identity);

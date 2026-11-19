@@ -45,7 +45,9 @@ test("every key used in index.html exists", () => {
 
 test("every literal key used in js/ exists", () => {
   // Every string literal that looks like a translation key, in any call.
-  const used = [...js.matchAll(/"((?:app|lang|tabs|tab|footer|request|send|decrypt|common|error)\.[\w.-]+)"/g)]
+  const used = [
+    ...js.matchAll(/"((?:app|lang|tabs|tab|footer|request|send|decrypt|common|error)\.[\w.-]+)"/g),
+  ]
     .map((m) => m[1])
     // Prefixes completed at runtime, e.g. `error.key.${code}`, are tested below.
     .filter((key) => !key?.endsWith("."));
@@ -60,7 +62,8 @@ test("keys built from error codes exist", () => {
   for (const code of ["invalid-key-file", "wrong-passphrase", "wrong-key", "malformed"]) {
     assert.ok(`error.crypto.${code}` in STRINGS.en, code);
   }
-  for (const type of ["mlkem768x25519", "x25519"]) assert.ok(`send.protection.${type}` in STRINGS.en, type);
+  for (const type of ["mlkem768x25519", "x25519"])
+    assert.ok(`send.protection.${type}` in STRINGS.en, type);
 });
 
 test("language detection", () => {

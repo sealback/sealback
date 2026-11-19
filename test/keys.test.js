@@ -51,7 +51,9 @@ test("rejects other age recipient types", () => {
 
 test("rejects SSH keys as unsupported", () => {
   assert.deepEqual(
-    normalizeRecipientInput("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"),
+    normalizeRecipientInput(
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl",
+    ),
     { error: "unsupported" },
   );
 });
@@ -70,7 +72,10 @@ test("rejects private keys with a specific error", () => {
 test("normalizes whitespace and line breaks", () => {
   const wrapped = PQ.replace(/(.{76})/g, "$1\r\n  ");
   assert.notEqual(wrapped, PQ);
-  assert.deepEqual(normalizeRecipientInput(`  ${wrapped}\n`), { recipient: PQ, type: "mlkem768x25519" });
+  assert.deepEqual(normalizeRecipientInput(`  ${wrapped}\n`), {
+    recipient: PQ,
+    type: "mlkem768x25519",
+  });
   assert.deepEqual(normalizeRecipientInput(X25519.replace(/(.{10})/g, "$1 \t")), {
     recipient: X25519,
     type: "x25519",
@@ -78,15 +83,27 @@ test("normalizes whitespace and line breaks", () => {
 });
 
 test("normalizes uppercase keys", () => {
-  assert.deepEqual(normalizeRecipientInput(X25519.toUpperCase()), { recipient: X25519, type: "x25519" });
-  assert.deepEqual(normalizeRecipientInput(PQ.toUpperCase()), { recipient: PQ, type: "mlkem768x25519" });
+  assert.deepEqual(normalizeRecipientInput(X25519.toUpperCase()), {
+    recipient: X25519,
+    type: "x25519",
+  });
+  assert.deepEqual(normalizeRecipientInput(PQ.toUpperCase()), {
+    recipient: PQ,
+    type: "mlkem768x25519",
+  });
 });
 
 test("extracts the key from a Sealback link", () => {
   const expected = { recipient: PQ, type: "mlkem768x25519" };
   assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}`), expected);
-  assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}&title=Martin%20J.`), expected);
-  assert.deepEqual(normalizeRecipientInput(`https://sealback.org/#title=Martin&pubkey=${PQ}`), expected);
+  assert.deepEqual(
+    normalizeRecipientInput(`https://sealback.org/#pubkey=${PQ}&title=Martin%20J.`),
+    expected,
+  );
+  assert.deepEqual(
+    normalizeRecipientInput(`https://sealback.org/#title=Martin&pubkey=${PQ}`),
+    expected,
+  );
   assert.deepEqual(normalizeRecipientInput(`#pubkey=${PQ}`), expected);
   // Wrapped by an email client, and in angle brackets.
   const link = `https://sealback.org/#pubkey=${PQ}&title=Martin`;

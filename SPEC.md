@@ -43,7 +43,8 @@ Out of scope:
 - Pinned typage version: `age-encryption@0.3.1`. Its API used by Sealback: `generateX25519Identity()`, `generateHybridIdentity()`, `identityToRecipient()`, `Encrypter` (`addRecipient`, `setPassphrase`, `setScryptWorkFactor`, `encrypt`), `Decrypter` (`addIdentity`, `addPassphrase`, `decrypt`), `armor.encode`, `armor.decode`. Note that `generateIdentity()` produces an X25519 identity; Sealback always calls the type-specific functions explicitly.
 - Type information for the bundled file comes from `third_party/age-encryption.d.ts`, a one-line re-export of `node_modules/age-encryption/dist/index.d.ts`. It is written by `scripts/update-third-party.sh` together with the bundle, so it always follows the pinned version and needs no manual updates. It is used only for type checking and is not deployed.
 - Tests with Node's built-in `node:test`. Node.js 24 LTS or later.
-- Development dependencies, all pinned to exact versions: `typescript`, `esbuild`, `age-encryption`. Install with `npm ci --ignore-scripts`.
+- Development dependencies, all pinned to exact versions: `typescript`, `esbuild`, `age-encryption`, `prettier`. Install with `npm ci --ignore-scripts`.
+- Code formatting with Prettier (`.prettierrc`: print width 100), applied to all files except those listed in `.prettierignore` (generated `third_party/` files, test fixtures, `package-lock.json`). `npm run format` formats, `npm run format:check` checks.
 - Interoperability reference: the `age` CLI, version 1.3.0 or later (first version with post-quantum keys, `age-keygen -pq`).
 
 ## 5. Repository structure
@@ -100,14 +101,14 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 
 `index.html` contains all views. `main.js` selects the view from the URL fragment:
 
-| Fragment | Shown |
-|---|---|
-| `#pubkey=…` (valid) | Sender page with the key preset, no tabs |
+| Fragment                           | Shown                                                                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `#pubkey=…` (valid)                | Sender page with the key preset, no tabs                                                                          |
 | `#pubkey=…` (invalid or truncated) | Sender page with an error explaining that the link may have been damaged, and the manual key input (6.4), no tabs |
-| `#send` | Sender page with the manual key input, no tabs |
-| `#request` | Tabs, "Request" active |
-| `#decrypt` | Tabs, "Decrypt" active |
-| Empty, or anything else | Landing page, no tabs |
+| `#send`                            | Sender page with the manual key input, no tabs                                                                    |
+| `#request`                         | Tabs, "Request" active                                                                                            |
+| `#decrypt`                         | Tabs, "Decrypt" active                                                                                            |
+| Empty, or anything else            | Landing page, no tabs                                                                                             |
 
 - The **sender page** (send view) shows nothing but the sender's task. Senders only ever arrive through a link: the share link (`#pubkey=…`) or the fallback address `https://sealback.org/#send`, which the recipient gives out when a link does not survive email. A link "Request information yourself" navigates to `#request`.
 - The **landing page** is the start page (`https://sealback.org/`). Left column: a heading, a short description of what Sealback does, the three steps ("How it works": create a key and get a link; send the link, the other person encrypts and emails the information back; open Sealback again, choose "Decrypt information" and open the key file), and short facts (nothing stored or sent to a server; no account, no installation; Quantum Safe encryption; open source). Right column: two large choices, "Request information" (→ `#request`) and "Decrypt information" (→ `#decrypt`). On small screens the two choices come first. Recipients who come back days later without any link find "Decrypt information" here; the logo always leads back to this page.
@@ -229,10 +230,10 @@ https://sealback.org/#pubkey=<age recipient>
 
 Supported recipient types:
 
-| Type (code) | UI label | Recipient prefix | Identity prefix |
-|---|---|---|---|
-| `x25519` | Elliptic curve | `age1` (Bech32 HRP `age`) | `AGE-SECRET-KEY-1` |
-| `mlkem768x25519` | Quantum Safe | `age1pq1` (Bech32 HRP `age1pq`) | `AGE-SECRET-KEY-PQ-1` |
+| Type (code)      | UI label       | Recipient prefix                | Identity prefix       |
+| ---------------- | -------------- | ------------------------------- | --------------------- |
+| `x25519`         | Elliptic curve | `age1` (Bech32 HRP `age`)       | `AGE-SECRET-KEY-1`    |
+| `mlkem768x25519` | Quantum Safe   | `age1pq1` (Bech32 HRP `age1pq`) | `AGE-SECRET-KEY-PQ-1` |
 
 (Prefixes verified against typage 0.3.1 and `age` 1.3.)
 
@@ -303,7 +304,7 @@ Supported recipient types:
 
 - GitHub Pages with custom domain `sealback.org` (`CNAME` file in the deployed content), "Enforce HTTPS" enabled.
 - Domain verified in the `sealback` organization's GitHub settings to prevent takeover by other accounts. Recommended at the registrar: CAA record and DNSSEC.
-- `ci.yml` on every push and pull request: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`).
+- `ci.yml` on every push and pull request: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `prettier --check .`, `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`).
 - `deploy.yml`: deploys `index.html`, `CNAME`, `css/`, `js/`, `third_party/age-encryption.js` and `img/` to GitHub Pages when a version tag `v*` is pushed (`actions/upload-pages-artifact`, `actions/deploy-pages`). The workflow computes SHA-256 hashes of all deployed files into `SHA256SUMS` and attaches it to the GitHub release.
 - All third-party actions in both workflows are pinned to full commit SHAs.
 - Repository settings (documented in README, not enforced by code): branch protection on `main`, required signed commits, 2FA required for all organization members.

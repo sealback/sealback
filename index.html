@@ -1,347 +1,670 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
-  <meta name="referrer" content="no-referrer">
-  <title data-i18n="app.title">Sealback – sealed on the way back</title>
-  <meta name="description" content="Request confidential information and get it back encrypted, without software, account or server." data-i18n-attr="content:app.description">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#10293A" media="(prefers-color-scheme: dark)">
-  <link rel="icon" href="img/favicon.ico" sizes="48x48">
-  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/style.css">
-  <script type="module" src="js/main.js"></script>
-</head>
-<body>
-  <header class="site-header">
-    <!-- A full page load of the start page: discards all state. -->
-    <a class="brand" href="./" aria-label="Sealback – start over" data-i18n-attr="aria-label:app.home">
-      <picture>
-        <source srcset="img/sealback-lockup-dark.svg" media="(prefers-color-scheme: dark)">
-        <img src="img/sealback-lockup.svg" alt="Sealback" width="232" height="64">
-      </picture>
-    </a>
-    <p class="slogan" data-i18n="app.slogan">Sealed on the way back</p>
-    <div id="tabs" class="tabs" role="tablist" aria-label="Mode" data-i18n-attr="aria-label:tabs.label" hidden>
-      <button type="button" role="tab" id="tab-request" aria-controls="panel-request" aria-selected="true" data-tab="request" data-i18n="tab.request">Request</button>
-      <button type="button" role="tab" id="tab-decrypt" aria-controls="panel-decrypt" aria-selected="false" tabindex="-1" data-tab="decrypt" data-i18n="tab.decrypt">Decrypt</button>
-    </div>
-  </header>
-
-  <main>
-    <noscript>
-      <div class="card noscript">
-        <p>Sealback needs JavaScript, because all encryption happens in your browser.</p>
-        <p lang="de">Sealback benötigt JavaScript, weil die gesamte Verschlüsselung in Ihrem Browser stattfindet.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <title data-i18n="app.title">Sealback – sealed on the way back</title>
+    <meta
+      name="description"
+      content="Request confidential information and get it back encrypted, without software, account or server."
+      data-i18n-attr="content:app.description"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#10293A" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="img/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <!-- A full page load of the start page: discards all state. -->
+      <a
+        class="brand"
+        href="./"
+        aria-label="Sealback – start over"
+        data-i18n-attr="aria-label:app.home"
+      >
+        <picture>
+          <source srcset="img/sealback-lockup-dark.svg" media="(prefers-color-scheme: dark)" />
+          <img src="img/sealback-lockup.svg" alt="Sealback" width="232" height="64" />
+        </picture>
+      </a>
+      <p class="slogan" data-i18n="app.slogan">Sealed on the way back</p>
+      <div
+        id="tabs"
+        class="tabs"
+        role="tablist"
+        aria-label="Mode"
+        data-i18n-attr="aria-label:tabs.label"
+        hidden
+      >
+        <button
+          type="button"
+          role="tab"
+          id="tab-request"
+          aria-controls="panel-request"
+          aria-selected="true"
+          data-tab="request"
+          data-i18n="tab.request"
+        >
+          Request
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="tab-decrypt"
+          aria-controls="panel-decrypt"
+          aria-selected="false"
+          tabindex="-1"
+          data-tab="decrypt"
+          data-i18n="tab.decrypt"
+        >
+          Decrypt
+        </button>
       </div>
-    </noscript>
+    </header>
 
-    <!-- ============================== Landing page ============================== -->
-    <section id="panel-home" class="card panel" aria-labelledby="home-title" hidden>
-      <div class="intro">
-        <h1 id="home-title" data-i18n="home.title">Get confidential information back, encrypted</h1>
-        <p class="lead" data-i18n="home.intro">Do you need a password, access data or other confidential information from someone? Sealback creates a key and a link for that person.</p>
-        <h2 data-i18n="home.how.title">How it works</h2>
-        <ol class="steps">
-          <li data-i18n="home.how.1">Create a key. The key file is saved on your computer, and you get a link.</li>
-          <li data-i18n="home.how.2">Send the link to the person who has the information. They encrypt it and email it back to you.</li>
-          <li data-i18n="home.how.3">Open Sealback again, choose “Decrypt information” and open your key file.</li>
-        </ol>
-        <ul class="facts">
-          <li data-i18n="home.fact.1">Nothing is stored or sent to a server</li>
-          <li data-i18n="home.fact.2">No account, no installation</li>
-          <li data-i18n="home.fact.3">Quantum Safe encryption</li>
-          <li data-i18n="home.fact.4">Open source</li>
-        </ul>
-      </div>
+    <main>
+      <noscript>
+        <div class="card noscript">
+          <p>Sealback needs JavaScript, because all encryption happens in your browser.</p>
+          <p lang="de">
+            Sealback benötigt JavaScript, weil die gesamte Verschlüsselung in Ihrem Browser
+            stattfindet.
+          </p>
+        </div>
+      </noscript>
 
-      <div class="work choices">
-        <a class="choice" href="#request">
-          <span class="choice-title" data-i18n="home.request">Request information</span>
-          <span class="choice-hint" data-i18n="home.request.hint">Create a key and a link for the person who has the information.</span>
-        </a>
-        <a class="choice" href="#decrypt">
-          <span class="choice-title" data-i18n="home.decrypt">Decrypt information</span>
-          <span class="choice-hint" data-i18n="home.decrypt.hint">Received encrypted information? Open your key file and decrypt it.</span>
-        </a>
-      </div>
-    </section>
+      <!-- ============================== Landing page ============================== -->
+      <section id="panel-home" class="card panel" aria-labelledby="home-title" hidden>
+        <div class="intro">
+          <h1 id="home-title" data-i18n="home.title">
+            Get confidential information back, encrypted
+          </h1>
+          <p class="lead" data-i18n="home.intro">
+            Do you need a password, access data or other confidential information from someone?
+            Sealback creates a key and a link for that person.
+          </p>
+          <h2 data-i18n="home.how.title">How it works</h2>
+          <ol class="steps">
+            <li data-i18n="home.how.1">
+              Create a key. The key file is saved on your computer, and you get a link.
+            </li>
+            <li data-i18n="home.how.2">
+              Send the link to the person who has the information. They encrypt it and email it back
+              to you.
+            </li>
+            <li data-i18n="home.how.3">
+              Open Sealback again, choose “Decrypt information” and open your key file.
+            </li>
+          </ol>
+          <ul class="facts">
+            <li data-i18n="home.fact.1">Nothing is stored or sent to a server</li>
+            <li data-i18n="home.fact.2">No account, no installation</li>
+            <li data-i18n="home.fact.3">Quantum Safe encryption</li>
+            <li data-i18n="home.fact.4">Open source</li>
+          </ul>
+        </div>
 
-    <!-- ============================== Request ============================== -->
-    <section id="panel-request" class="card panel" role="tabpanel" aria-labelledby="tab-request" hidden>
-      <div class="intro">
-        <h1 data-i18n="request.title">Request confidential information</h1>
-        <p class="lead" data-i18n="request.intro">Create a key for your request. The key file is saved on your computer, and you get a link for the person who has the information.</p>
-        <p class="hint" data-i18n="request.oneKey">A new key for each request is safest. For recurring exchanges, you can keep the key and use it again.</p>
-      </div>
+        <div class="work choices">
+          <a class="choice" href="#request">
+            <span class="choice-title" data-i18n="home.request">Request information</span>
+            <span class="choice-hint" data-i18n="home.request.hint"
+              >Create a key and a link for the person who has the information.</span
+            >
+          </a>
+          <a class="choice" href="#decrypt">
+            <span class="choice-title" data-i18n="home.decrypt">Decrypt information</span>
+            <span class="choice-hint" data-i18n="home.decrypt.hint"
+              >Received encrypted information? Open your key file and decrypt it.</span
+            >
+          </a>
+        </div>
+      </section>
 
-      <div class="work">
-        <div id="request-form">
-          <div class="field">
-            <label for="request-type" data-i18n="request.type.label">Encryption</label>
-            <select id="request-type" aria-describedby="request-type-hint">
-              <option value="mlkem768x25519" selected data-i18n="request.type.mlkem768x25519">Quantum Safe (ML-KEM-768 + X25519)</option>
-              <option value="x25519" data-i18n="request.type.x25519">Elliptic curve (X25519)</option>
-            </select>
-            <p id="request-type-hint" class="hint" data-i18n="request.type.mlkem768x25519.hint">Recommended. Stays secure even against future quantum computers.</p>
-          </div>
+      <!-- ============================== Request ============================== -->
+      <section
+        id="panel-request"
+        class="card panel"
+        role="tabpanel"
+        aria-labelledby="tab-request"
+        hidden
+      >
+        <div class="intro">
+          <h1 data-i18n="request.title">Request confidential information</h1>
+          <p class="lead" data-i18n="request.intro">
+            Create a key for your request. The key file is saved on your computer, and you get a
+            link for the person who has the information.
+          </p>
+          <p class="hint" data-i18n="request.oneKey">
+            A new key for each request is safest. For recurring exchanges, you can keep the key and
+            use it again.
+          </p>
+        </div>
 
+        <div class="work">
+          <div id="request-form">
+            <div class="field">
+              <label for="request-type" data-i18n="request.type.label">Encryption</label>
+              <select id="request-type" aria-describedby="request-type-hint">
+                <option value="mlkem768x25519" selected data-i18n="request.type.mlkem768x25519">
+                  Quantum Safe (ML-KEM-768 + X25519)
+                </option>
+                <option value="x25519" data-i18n="request.type.x25519">
+                  Elliptic curve (X25519)
+                </option>
+              </select>
+              <p id="request-type-hint" class="hint" data-i18n="request.type.mlkem768x25519.hint">
+                Recommended. Stays secure even against future quantum computers.
+              </p>
+            </div>
 
-          <div class="field">
-            <label class="check">
-              <input id="request-protect" type="checkbox" checked>
-              <span data-i18n="request.protect.label">Protect the key file with a passphrase</span>
-            </label>
-            <div id="request-pass-fields">
-              <div class="row">
-                <div class="field">
-                  <label for="request-pass" data-i18n="request.pass.label">Passphrase</label>
-                  <input id="request-pass" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" aria-describedby="request-pass-hint">
+            <div class="field">
+              <label class="check">
+                <input id="request-protect" type="checkbox" checked />
+                <span data-i18n="request.protect.label"
+                  >Protect the key file with a passphrase</span
+                >
+              </label>
+              <div id="request-pass-fields">
+                <div class="row">
+                  <div class="field">
+                    <label for="request-pass" data-i18n="request.pass.label">Passphrase</label>
+                    <input
+                      id="request-pass"
+                      type="password"
+                      autocomplete="new-password"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      aria-describedby="request-pass-hint"
+                    />
+                  </div>
+                  <div class="field">
+                    <label for="request-pass2" data-i18n="request.pass2.label"
+                      >Repeat passphrase</label
+                    >
+                    <input
+                      id="request-pass2"
+                      type="password"
+                      autocomplete="new-password"
+                      autocapitalize="off"
+                      spellcheck="false"
+                    />
+                  </div>
                 </div>
+                <p id="request-pass-hint" class="hint" data-i18n="request.pass.hint">
+                  At least 12 characters.
+                </p>
+                <p class="hint" data-i18n="request.pass.note">
+                  If you forget the passphrase, information sent to this key cannot be recovered.
+                </p>
+              </div>
+              <p
+                id="request-nopass-warning"
+                class="alert warning"
+                data-i18n="request.nopass.warning"
+                hidden
+              >
+                Without a passphrase, anyone who gets hold of the key file can read the information.
+              </p>
+            </div>
+
+            <div class="actions">
+              <button
+                id="request-create"
+                type="button"
+                class="primary large"
+                data-i18n="request.create"
+              >
+                Create key
+              </button>
+            </div>
+            <p id="request-status" class="status" role="status" aria-live="polite" hidden></p>
+            <p id="request-error" class="alert error" role="alert" hidden></p>
+
+            <div id="request-existing" class="existing">
+              <h2 data-i18n="request.existing.heading">Already have a key file?</h2>
+              <p class="hint" data-i18n="request.existing.hint">
+                Open a key file you created earlier to show its link again. No new key is created.
+              </p>
+              <div class="actions">
+                <label class="button file-button">
+                  <span data-i18n="request.existing.choose">Open key file</span>
+                  <input id="request-existing-file" type="file" accept=".age,.txt" />
+                </label>
+              </div>
+              <p
+                id="request-existing-status"
+                class="status ok"
+                role="status"
+                aria-live="polite"
+                hidden
+              ></p>
+              <div id="request-existing-pass-field" hidden>
                 <div class="field">
-                  <label for="request-pass2" data-i18n="request.pass2.label">Repeat passphrase</label>
-                  <input id="request-pass2" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false">
+                  <label for="request-existing-pass" data-i18n="decrypt.pass.label"
+                    >Passphrase of the key file</label
+                  >
+                  <input
+                    id="request-existing-pass"
+                    type="password"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                  />
+                </div>
+                <div class="actions">
+                  <button
+                    id="request-existing-unlock"
+                    type="button"
+                    class="primary"
+                    data-i18n="request.existing.unlock"
+                  >
+                    Unlock
+                  </button>
                 </div>
               </div>
-              <p id="request-pass-hint" class="hint" data-i18n="request.pass.hint">At least 12 characters.</p>
-              <p class="hint" data-i18n="request.pass.note">If you forget the passphrase, information sent to this key cannot be recovered.</p>
+              <p
+                id="request-existing-working"
+                class="status"
+                role="status"
+                aria-live="polite"
+                hidden
+              ></p>
+              <p id="request-existing-error" class="alert error" role="alert" hidden></p>
             </div>
-            <p id="request-nopass-warning" class="alert warning" data-i18n="request.nopass.warning" hidden>Without a passphrase, anyone who gets hold of the key file can read the information.</p>
           </div>
 
-          <div class="actions">
-            <button id="request-create" type="button" class="primary large" data-i18n="request.create">Create key</button>
-          </div>
-          <p id="request-status" class="status" role="status" aria-live="polite" hidden></p>
-          <p id="request-error" class="alert error" role="alert" hidden></p>
+          <div id="request-result" hidden>
+            <div class="alert success">
+              <h2 id="request-done-title" tabindex="-1" data-i18n="request.done.title">
+                Your key file has been downloaded
+              </h2>
+              <p id="request-file"></p>
+              <button
+                id="request-download-again"
+                type="button"
+                class="link"
+                data-i18n="request.downloadAgain"
+              >
+                Download key file again
+              </button>
+            </div>
 
-          <div id="request-existing" class="existing">
-            <h2 data-i18n="request.existing.heading">Already have a key file?</h2>
-            <p class="hint" data-i18n="request.existing.hint">Open a key file you created earlier to show its link again. No new key is created.</p>
+            <div class="field">
+              <label for="request-link" data-i18n="request.link.label">Link for the sender</label>
+              <textarea
+                id="request-link"
+                class="long mono"
+                rows="4"
+                readonly
+                spellcheck="false"
+              ></textarea>
+            </div>
             <div class="actions">
-              <label class="button file-button">
-                <span data-i18n="request.existing.choose">Open key file</span>
-                <input id="request-existing-file" type="file" accept=".age,.txt">
-              </label>
+              <button
+                id="request-copy-link"
+                type="button"
+                class="primary"
+                data-i18n="request.copyLink"
+              >
+                Copy link
+              </button>
+              <a id="request-mail" class="button" href="mailto:" data-i18n="request.compose" hidden
+                >Compose email</a
+              >
             </div>
-            <p id="request-existing-status" class="status ok" role="status" aria-live="polite" hidden></p>
-            <div id="request-existing-pass-field" hidden>
+            <p id="request-mail-too-long" class="hint" data-i18n="request.mailTooLong" hidden>
+              The link is too long for an email button.
+            </p>
+            <p id="request-copy-status" class="status" role="status" aria-live="polite" hidden></p>
+
+            <div class="code-box">
+              <span class="code-label" data-i18n="request.code.label">Key fingerprint</span>
+              <strong id="request-code" class="code"></strong>
+            </div>
+
+            <h2 data-i18n="request.steps.title">Next steps</h2>
+            <ol class="steps">
+              <li data-i18n="request.step1">
+                Send the link to the person who should send you the information.
+              </li>
+              <li data-i18n="request.step2">
+                When they read the key fingerprint to you, compare it with the one above.
+              </li>
+              <li data-i18n="request.step3">
+                Keep the key file and the passphrase. When the information arrives, open “Decrypt”.
+              </li>
+              <li data-i18n="request.step4">
+                Delete the key file when you no longer expect information with it.
+              </li>
+            </ol>
+
+            <details>
+              <summary data-i18n="request.fallback.summary">If the link doesn't work</summary>
+              <p id="request-fallback-text"></p>
               <div class="field">
-                <label for="request-existing-pass" data-i18n="decrypt.pass.label">Passphrase of the key file</label>
-                <input id="request-existing-pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <label for="request-pubkey" data-i18n="request.pubkey.label">Public key</label>
+                <textarea
+                  id="request-pubkey"
+                  class="long mono"
+                  rows="3"
+                  readonly
+                  spellcheck="false"
+                ></textarea>
               </div>
               <div class="actions">
-                <button id="request-existing-unlock" type="button" class="primary" data-i18n="request.existing.unlock">Unlock</button>
+                <button id="request-copy-pubkey" type="button" data-i18n="request.copyPubkey">
+                  Copy public key
+                </button>
+                <button
+                  id="request-download-pubkey"
+                  type="button"
+                  data-i18n="request.downloadPubkey"
+                >
+                  Download public key
+                </button>
               </div>
+            </details>
+
+            <div class="actions">
+              <button id="request-new" type="button" data-i18n="request.new">
+                Create another key
+              </button>
             </div>
-            <p id="request-existing-working" class="status" role="status" aria-live="polite" hidden></p>
-            <p id="request-existing-error" class="alert error" role="alert" hidden></p>
           </div>
         </div>
+      </section>
 
-        <div id="request-result" hidden>
-          <div class="alert success">
-            <h2 id="request-done-title" tabindex="-1" data-i18n="request.done.title">Your key file has been downloaded</h2>
-            <p id="request-file"></p>
-            <button id="request-download-again" type="button" class="link" data-i18n="request.downloadAgain">Download key file again</button>
-          </div>
-
-          <div class="field">
-            <label for="request-link" data-i18n="request.link.label">Link for the sender</label>
-            <textarea id="request-link" class="long mono" rows="4" readonly spellcheck="false"></textarea>
-          </div>
-          <div class="actions">
-            <button id="request-copy-link" type="button" class="primary" data-i18n="request.copyLink">Copy link</button>
-            <a id="request-mail" class="button" href="mailto:" data-i18n="request.compose" hidden>Compose email</a>
-          </div>
-          <p id="request-mail-too-long" class="hint" data-i18n="request.mailTooLong" hidden>The link is too long for an email button.</p>
-          <p id="request-copy-status" class="status" role="status" aria-live="polite" hidden></p>
-
-          <div class="code-box">
-            <span class="code-label" data-i18n="request.code.label">Key fingerprint</span>
-            <strong id="request-code" class="code"></strong>
-          </div>
-
-          <h2 data-i18n="request.steps.title">Next steps</h2>
-          <ol class="steps">
-            <li data-i18n="request.step1">Send the link to the person who should send you the information.</li>
-            <li data-i18n="request.step2">When they read the key fingerprint to you, compare it with the one above.</li>
-            <li data-i18n="request.step3">Keep the key file and the passphrase. When the information arrives, open “Decrypt”.</li>
-            <li data-i18n="request.step4">Delete the key file when you no longer expect information with it.</li>
-          </ol>
-
+      <!-- ============================== Send ============================== -->
+      <section id="panel-send" class="card panel" aria-labelledby="send-title" hidden>
+        <div class="intro">
+          <h1 id="send-title" data-i18n="send.title">Send confidential information</h1>
+          <p class="lead" data-i18n="send.intro">
+            The information is encrypted in your browser before you send it. Only the person who
+            requested it can decrypt it.
+          </p>
           <details>
-            <summary data-i18n="request.fallback.summary">If the link doesn't work</summary>
-            <p id="request-fallback-text"></p>
+            <summary data-i18n="send.howto.summary">How does this work?</summary>
+            <p data-i18n="send.howto.p1">
+              Sealback uses age, an open and widely used encryption format.
+            </p>
+            <p data-i18n="send.howto.p2">
+              Quantum Safe keys combine ML-KEM-768 with X25519. Elliptic curve keys use X25519
+              alone.
+            </p>
+            <p data-i18n="send.howto.p3">Nothing you enter is sent anywhere.</p>
+          </details>
+          <p class="own-key">
+            <a href="#request" data-i18n="send.ownKey">Request information yourself →</a>
+          </p>
+        </div>
+
+        <div class="work">
+          <div id="send-link-error" class="alert error" role="alert" hidden>
+            <p><strong data-i18n="send.linkError.title">This link seems to be damaged.</strong></p>
+            <p data-i18n="send.linkError.text">
+              Ask the recipient to send the link again, or paste the complete link or key below.
+            </p>
+          </div>
+
+          <div id="send-manual" hidden>
             <div class="field">
-              <label for="request-pubkey" data-i18n="request.pubkey.label">Public key</label>
-              <textarea id="request-pubkey" class="long mono" rows="3" readonly spellcheck="false"></textarea>
+              <label for="send-key" data-i18n="send.key.label"
+                >Link or public key of the recipient</label
+              >
+              <textarea
+                id="send-key"
+                class="long mono"
+                rows="3"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-describedby="send-key-hint"
+              ></textarea>
+              <p id="send-key-hint" class="hint" data-i18n="send.key.hint">
+                Paste the link or key you received, or load it from a file.
+              </p>
             </div>
             <div class="actions">
-              <button id="request-copy-pubkey" type="button" data-i18n="request.copyPubkey">Copy public key</button>
-              <button id="request-download-pubkey" type="button" data-i18n="request.downloadPubkey">Download public key</button>
+              <label class="button file-button">
+                <span data-i18n="send.key.load">Load from file</span>
+                <input id="send-key-file" type="file" accept=".txt,text/plain" />
+              </label>
             </div>
-          </details>
+            <p id="send-key-error" class="alert error" role="alert" hidden></p>
+          </div>
 
-          <div class="actions">
-            <button id="request-new" type="button" data-i18n="request.new">Create another key</button>
+          <div id="send-recipient" hidden>
+            <div class="code-box">
+              <div class="code-head">
+                <span class="code-label" data-i18n="send.code.label">Key fingerprint:</span>
+                <span class="badge">
+                  <span class="sr-only" data-i18n="send.protection">Protection:</span>
+                  <span id="send-protection"></span>
+                </span>
+              </div>
+              <strong id="send-code" class="code"></strong>
+              <p class="hint" data-i18n="send.code.hint">
+                Confirm this fingerprint with the recipient by phone before sending sensitive
+                information.
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="send-secret" data-i18n="send.secret.label"
+                >Confidential information</label
+              >
+              <textarea
+                id="send-secret"
+                rows="6"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+              ></textarea>
+            </div>
+            <div class="actions">
+              <button
+                id="send-encrypt"
+                type="button"
+                class="primary large"
+                data-i18n="send.encrypt"
+              >
+                Encrypt
+              </button>
+            </div>
+            <p id="send-status" class="status" role="status" aria-live="polite" hidden></p>
+            <p id="send-error" class="alert error" role="alert" hidden></p>
+          </div>
+
+          <div id="send-result" hidden>
+            <div class="field">
+              <label for="send-output" data-i18n="send.result.label"
+                >Encrypted text — safe to send by normal email:</label
+              >
+              <textarea
+                id="send-output"
+                class="long mono"
+                rows="9"
+                readonly
+                spellcheck="false"
+              ></textarea>
+            </div>
+            <div class="actions">
+              <button id="send-copy" type="button" class="primary" data-i18n="common.copy">
+                Copy
+              </button>
+              <button id="send-download" type="button" data-i18n="send.download">
+                Download as file
+              </button>
+              <a id="send-mail" class="button" href="mailto:" data-i18n="send.mail" hidden
+                >Send by email</a
+              >
+            </div>
+            <p id="send-copy-status" class="status" role="status" aria-live="polite" hidden></p>
+            <p class="hint" data-i18n="send.result.note">
+              Paste the encrypted text into an email, or attach the downloaded file.
+            </p>
+            <p id="send-bookmark" class="alert info" data-i18n="send.bookmark" hidden>
+              Tip: once you have confirmed the key fingerprint, bookmark this page.
+            </p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ============================== Send ============================== -->
-    <section id="panel-send" class="card panel" aria-labelledby="send-title" hidden>
-      <div class="intro">
-        <h1 id="send-title" data-i18n="send.title">Send confidential information</h1>
-        <p class="lead" data-i18n="send.intro">The information is encrypted in your browser before you send it. Only the person who requested it can decrypt it.</p>
-        <details>
-          <summary data-i18n="send.howto.summary">How does this work?</summary>
-          <p data-i18n="send.howto.p1">Sealback uses age, an open and widely used encryption format.</p>
-          <p data-i18n="send.howto.p2">Quantum Safe keys combine ML-KEM-768 with X25519. Elliptic curve keys use X25519 alone.</p>
-          <p data-i18n="send.howto.p3">Nothing you enter is sent anywhere.</p>
-        </details>
-        <p class="own-key"><a href="#request" data-i18n="send.ownKey">Request information yourself →</a></p>
-      </div>
-
-      <div class="work">
-        <div id="send-link-error" class="alert error" role="alert" hidden>
-          <p><strong data-i18n="send.linkError.title">This link seems to be damaged.</strong></p>
-          <p data-i18n="send.linkError.text">Ask the recipient to send the link again, or paste the complete link or key below.</p>
+      <!-- ============================== Decrypt ============================== -->
+      <section
+        id="panel-decrypt"
+        class="card panel"
+        role="tabpanel"
+        aria-labelledby="tab-decrypt"
+        hidden
+      >
+        <div class="intro">
+          <h1 data-i18n="decrypt.title">Decrypt information</h1>
+          <p class="lead" data-i18n="decrypt.intro">
+            Decrypt the information that was sent to you. Everything happens in your browser.
+          </p>
         </div>
 
-        <div id="send-manual" hidden>
+        <div class="work">
           <div class="field">
-            <label for="send-key" data-i18n="send.key.label">Link or public key of the recipient</label>
-            <textarea id="send-key" class="long mono" rows="3" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="send-key-hint"></textarea>
-            <p id="send-key-hint" class="hint" data-i18n="send.key.hint">Paste the link or key you received, or load it from a file.</p>
-          </div>
-          <div class="actions">
-            <label class="button file-button">
-              <span data-i18n="send.key.load">Load from file</span>
-              <input id="send-key-file" type="file" accept=".txt,text/plain">
+            <span class="label" id="decrypt-key-label" data-i18n="decrypt.key.label"
+              >Your key file</span
+            >
+            <label id="decrypt-drop" class="drop">
+              <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span data-i18n="decrypt.key.drop">Choose your key file, or drop it here.</span>
+              <input
+                id="decrypt-key-file"
+                type="file"
+                accept=".age,.txt"
+                aria-labelledby="decrypt-key-label"
+              />
             </label>
+            <p
+              id="decrypt-key-status"
+              class="status ok"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
           </div>
-          <p id="send-key-error" class="alert error" role="alert" hidden></p>
-        </div>
 
-        <div id="send-recipient" hidden>
-          <div class="code-box">
-            <div class="code-head">
-              <span class="code-label" data-i18n="send.code.label">Key fingerprint:</span>
-              <span class="badge">
-                <span class="sr-only" data-i18n="send.protection">Protection:</span>
-                <span id="send-protection"></span>
-              </span>
+          <div id="decrypt-pass-field" class="field" hidden>
+            <label for="decrypt-pass" data-i18n="decrypt.pass.label"
+              >Passphrase of the key file</label
+            >
+            <input
+              id="decrypt-pass"
+              type="password"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+          </div>
+
+          <div class="field">
+            <label for="decrypt-input" data-i18n="decrypt.input.label">Encrypted text</label>
+            <textarea
+              id="decrypt-input"
+              class="long mono"
+              rows="8"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              aria-describedby="decrypt-input-hint"
+            ></textarea>
+            <p id="decrypt-input-hint" class="hint" data-i18n="decrypt.input.hint">
+              Paste the encrypted text from the email, or load the attached .age file.
+            </p>
+          </div>
+          <div class="actions spread">
+            <label class="button file-button">
+              <span data-i18n="decrypt.input.load">Load .age file</span>
+              <input id="decrypt-input-file" type="file" accept=".age" />
+            </label>
+            <button id="decrypt-run" type="button" class="primary large" data-i18n="decrypt.run">
+              Decrypt
+            </button>
+          </div>
+          <p
+            id="decrypt-input-status"
+            class="status ok"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></p>
+          <p id="decrypt-status" class="status" role="status" aria-live="polite" hidden></p>
+          <p id="decrypt-error" class="alert error" role="alert" hidden></p>
+          <p id="decrypt-timeout" class="alert info" role="status" hidden></p>
+
+          <div id="decrypt-result" hidden>
+            <div class="field">
+              <label for="decrypt-output" data-i18n="decrypt.result.label"
+                >Decrypted information</label
+              >
+              <textarea
+                id="decrypt-output"
+                rows="5"
+                readonly
+                autocomplete="off"
+                spellcheck="false"
+              ></textarea>
             </div>
-            <strong id="send-code" class="code"></strong>
-            <p class="hint" data-i18n="send.code.hint">Confirm this fingerprint with the recipient by phone before sending sensitive information.</p>
+            <div class="actions">
+              <button id="decrypt-copy" type="button" class="primary" data-i18n="common.copy">
+                Copy
+              </button>
+              <button id="decrypt-hide" type="button" data-i18n="decrypt.hide">Hide</button>
+            </div>
+            <p id="decrypt-copy-status" class="status" role="status" aria-live="polite" hidden></p>
+            <div class="alert info">
+              <p><strong data-i18n="decrypt.reminder.title">Done? Please clean up:</strong></p>
+              <p data-i18n="decrypt.reminder">
+                Store the information where it belongs, e.g. in a password manager.
+              </p>
+            </div>
           </div>
-
-          <div class="field">
-            <label for="send-secret" data-i18n="send.secret.label">Confidential information</label>
-            <textarea id="send-secret" rows="6" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-          </div>
-          <div class="actions">
-            <button id="send-encrypt" type="button" class="primary large" data-i18n="send.encrypt">Encrypt</button>
-          </div>
-          <p id="send-status" class="status" role="status" aria-live="polite" hidden></p>
-          <p id="send-error" class="alert error" role="alert" hidden></p>
         </div>
+      </section>
+    </main>
 
-        <div id="send-result" hidden>
-          <div class="field">
-            <label for="send-output" data-i18n="send.result.label">Encrypted text — safe to send by normal email:</label>
-            <textarea id="send-output" class="long mono" rows="9" readonly spellcheck="false"></textarea>
-          </div>
-          <div class="actions">
-            <button id="send-copy" type="button" class="primary" data-i18n="common.copy">Copy</button>
-            <button id="send-download" type="button" data-i18n="send.download">Download as file</button>
-            <a id="send-mail" class="button" href="mailto:" data-i18n="send.mail" hidden>Send by email</a>
-          </div>
-          <p id="send-copy-status" class="status" role="status" aria-live="polite" hidden></p>
-          <p class="hint" data-i18n="send.result.note">Paste the encrypted text into an email, or attach the downloaded file.</p>
-          <p id="send-bookmark" class="alert info" data-i18n="send.bookmark" hidden>Tip: once you have confirmed the key fingerprint, bookmark this page.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================== Decrypt ============================== -->
-    <section id="panel-decrypt" class="card panel" role="tabpanel" aria-labelledby="tab-decrypt" hidden>
-      <div class="intro">
-        <h1 data-i18n="decrypt.title">Decrypt information</h1>
-        <p class="lead" data-i18n="decrypt.intro">Decrypt the information that was sent to you. Everything happens in your browser.</p>
-      </div>
-
-      <div class="work">
-        <div class="field">
-          <span class="label" id="decrypt-key-label" data-i18n="decrypt.key.label">Your key file</span>
-          <label id="decrypt-drop" class="drop">
-            <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span data-i18n="decrypt.key.drop">Choose your key file, or drop it here.</span>
-            <input id="decrypt-key-file" type="file" accept=".age,.txt" aria-labelledby="decrypt-key-label">
-          </label>
-          <p id="decrypt-key-status" class="status ok" role="status" aria-live="polite" hidden></p>
-        </div>
-
-        <div id="decrypt-pass-field" class="field" hidden>
-          <label for="decrypt-pass" data-i18n="decrypt.pass.label">Passphrase of the key file</label>
-          <input id="decrypt-pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
-        </div>
-
-        <div class="field">
-          <label for="decrypt-input" data-i18n="decrypt.input.label">Encrypted text</label>
-          <textarea id="decrypt-input" class="long mono" rows="8" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="decrypt-input-hint"></textarea>
-          <p id="decrypt-input-hint" class="hint" data-i18n="decrypt.input.hint">Paste the encrypted text from the email, or load the attached .age file.</p>
-        </div>
-        <div class="actions spread">
-          <label class="button file-button">
-            <span data-i18n="decrypt.input.load">Load .age file</span>
-            <input id="decrypt-input-file" type="file" accept=".age">
-          </label>
-          <button id="decrypt-run" type="button" class="primary large" data-i18n="decrypt.run">Decrypt</button>
-        </div>
-        <p id="decrypt-input-status" class="status ok" role="status" aria-live="polite" hidden></p>
-        <p id="decrypt-status" class="status" role="status" aria-live="polite" hidden></p>
-        <p id="decrypt-error" class="alert error" role="alert" hidden></p>
-        <p id="decrypt-timeout" class="alert info" role="status" hidden></p>
-
-        <div id="decrypt-result" hidden>
-          <div class="field">
-            <label for="decrypt-output" data-i18n="decrypt.result.label">Decrypted information</label>
-            <textarea id="decrypt-output" rows="5" readonly autocomplete="off" spellcheck="false"></textarea>
-          </div>
-          <div class="actions">
-            <button id="decrypt-copy" type="button" class="primary" data-i18n="common.copy">Copy</button>
-            <button id="decrypt-hide" type="button" data-i18n="decrypt.hide">Hide</button>
-          </div>
-          <p id="decrypt-copy-status" class="status" role="status" aria-live="polite" hidden></p>
-          <div class="alert info">
-            <p><strong data-i18n="decrypt.reminder.title">Done? Please clean up:</strong></p>
-            <p data-i18n="decrypt.reminder">Store the information where it belongs, e.g. in a password manager.</p>
-          </div>
+    <footer class="site-footer">
+      <p data-i18n="footer.about">
+        Sealback encrypts in your browser and sends nothing to any server.
+      </p>
+      <div class="footer-links">
+        <a href="https://github.com/sealback/sealback" data-i18n="footer.source">Source code</a>
+        <div class="lang">
+          <label for="lang" class="sr-only" data-i18n="lang.label">Language</label>
+          <select id="lang">
+            <option value="en" lang="en">English</option>
+            <option value="de" lang="de">Deutsch</option>
+          </select>
         </div>
       </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p data-i18n="footer.about">Sealback encrypts in your browser and sends nothing to any server.</p>
-    <div class="footer-links">
-      <a href="https://github.com/sealback/sealback" data-i18n="footer.source">Source code</a>
-      <div class="lang">
-        <label for="lang" class="sr-only" data-i18n="lang.label">Language</label>
-        <select id="lang">
-          <option value="en" lang="en">English</option>
-          <option value="de" lang="de">Deutsch</option>
-        </select>
-      </div>
-    </div>
-  </footer>
-</body>
+    </footer>
+  </body>
 </html>

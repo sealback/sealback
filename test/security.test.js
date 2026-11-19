@@ -47,13 +47,42 @@ test("every source file has an SPDX header", () => {
   }
 });
 
-test("index.html has the required CSP and referrer policy", () => {
-  assert.ok(
-    html.includes(
-      `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">`,
+/**
+ * Attributes of every <tag> in index.html, independent of formatting
+ * (attribute order, line breaks, self-closing slash).
+ *
+ * @param {string} name tag name
+ * @returns {Record<string, string>[]}
+ */
+function tags(name) {
+  return [...html.matchAll(new RegExp(`<${name}\\b([^>]*)>`, "g"))].map((m) =>
+    Object.fromEntries(
+      [...(m[1] ?? "").matchAll(/([a-z-]+)(?:="([^"]*)")?/g)].map((a) => [a[1], a[2] ?? ""]),
     ),
   );
-  assert.ok(html.includes(`<meta name="referrer" content="no-referrer">`));
+}
+
+/**
+ * @param {string} name tag name
+ * @param {string} id
+ */
+function tagById(name, id) {
+  const tag = tags(name).find((t) => t["id"] === id);
+  assert.ok(tag, `<${name} id="${id}"> not found`);
+  return tag;
+}
+
+test("index.html has the required CSP and referrer policy", () => {
+  const meta = tags("meta");
+  assert.ok(
+    meta.some(
+      (t) =>
+        t["http-equiv"] === "Content-Security-Policy" &&
+        t["content"] ===
+          "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'",
+    ),
+  );
+  assert.ok(meta.some((t) => t["name"] === "referrer" && t["content"] === "no-referrer"));
 });
 
 test("index.html has no inline scripts, styles, event handlers or forms", () => {
@@ -70,22 +99,24 @@ test("index.html has no inline scripts, styles, event handlers or forms", () => 
 
 test("secret fields disable spellcheck and autocorrection", () => {
   for (const id of ["send-secret", "send-key", "decrypt-input"]) {
-    const tag = html.match(new RegExp(`<textarea id="${id}"[^>]*>`))?.[0] ?? "";
-    for (const attr of ['autocomplete="off"', 'autocorrect="off"', 'autocapitalize="off"', 'spellcheck="false"']) {
-      assert.ok(tag.includes(attr), `${id} lacks ${attr}`);
-    }
+    const tag = tagById("textarea", id);
+    assert.equal(tag["autocomplete"], "off", id);
+    assert.equal(tag["autocorrect"], "off", id);
+    assert.equal(tag["autocapitalize"], "off", id);
+    assert.equal(tag["spellcheck"], "false", id);
   }
-  for (const id of ["request-pass", "request-pass2", "decrypt-pass"]) {
-    const tag = html.match(new RegExp(`<input id="${id}"[^>]*>`))?.[0] ?? "";
-    assert.ok(tag.includes('type="password"'), id);
-    assert.ok(tag.includes('spellcheck="false"'), id);
+  for (const id of ["request-pass", "request-pass2", "decrypt-pass", "request-existing-pass"]) {
+    const tag = tagById("input", id);
+    assert.equal(tag["type"], "password", id);
+    assert.equal(tag["spellcheck"], "false", id);
   }
 });
 
 test("only local resources are referenced", () => {
   for (const m of html.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
     const url = m[1] ?? "";
-    if (url === "https://github.com/sealback/sealback" || url.startsWith("#") || url === "mailto:") continue;
+    if (url === "https://github.com/sealback/sealback" || url.startsWith("#") || url === "mailto:")
+      continue;
     assert.doesNotMatch(url, /^[a-z]+:|^\/\//i, `external resource: ${url}`);
   }
 });

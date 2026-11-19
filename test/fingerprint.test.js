@@ -35,7 +35,10 @@ test("keeps leading zeros", async () => {
 });
 
 test("different keys give different codes", async () => {
-  assert.notEqual(await fingerprint(fixtureRecipient("x25519")), await fingerprint(fixtureRecipient("mlkem768x25519")));
+  assert.notEqual(
+    await fingerprint(fixtureRecipient("x25519")),
+    await fingerprint(fixtureRecipient("mlkem768x25519")),
+  );
 });
 
 test("groups as 4-4-4-4", () => {

@@ -7,7 +7,17 @@ import { encryptText } from "./crypto.js";
 import { fingerprint, formatFingerprint } from "./fingerprint.js";
 import { setText, t } from "./i18n.js";
 import { normalizeRecipientInput } from "./keys.js";
-import { baseUrl, busy, byId, copyWithStatus, download, mailtoUrl, message, readFile, show } from "./ui.js";
+import {
+  baseUrl,
+  busy,
+  byId,
+  copyWithStatus,
+  download,
+  mailtoUrl,
+  message,
+  readFile,
+  show,
+} from "./ui.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 /** @typedef {import("./link.js").Route} Route */
@@ -54,10 +64,17 @@ export function init() {
   e.key.addEventListener("input", () => void checkManualKey(false));
   e.keyFile.addEventListener("change", () => void loadKeyFile());
   e.encrypt.addEventListener("click", () => void encrypt());
-  e.copy.addEventListener("click", () => void copyWithStatus(e.output.value, e.output, e.copyStatus));
+  e.copy.addEventListener(
+    "click",
+    () => void copyWithStatus(e.output.value, e.output, e.copyStatus),
+  );
   e.download.addEventListener("click", () => {
     if (!ciphertext || !current) return;
-    download(ciphertext, `sealback-message-${formatFingerprint(current.code, "-")}.age`, "application/octet-stream");
+    download(
+      ciphertext,
+      `sealback-message-${formatFingerprint(current.code, "-")}.age`,
+      "application/octet-stream",
+    );
   });
 }
 
@@ -148,7 +165,9 @@ async function encrypt() {
   }
   const recipient = current.recipient;
   try {
-    const result = await busy(e.encrypt, e.status, "send.working", () => encryptText(recipient, text));
+    const result = await busy(e.encrypt, e.status, "send.working", () =>
+      encryptText(recipient, text),
+    );
     e.secret.value = "";
     e.output.value = result.armored;
     ciphertext = result.binary;

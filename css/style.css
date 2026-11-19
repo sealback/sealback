@@ -74,7 +74,15 @@
 }
 
 html {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
   line-height: 1.6;
   color: var(--fg);
   background-color: var(--page);
@@ -459,7 +467,10 @@ button,
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 button:hover,
@@ -537,7 +548,9 @@ button:disabled {
   border: 2px dashed var(--input);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 
 .drop:hover,
@@ -704,7 +717,9 @@ textarea:focus-visible {
   text-decoration: none;
   border: 1px solid var(--input);
   border-radius: var(--radius-lg);
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 
 .choice:hover {

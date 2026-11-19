@@ -7,7 +7,17 @@ import { createKeyFile, generateKey, readKeyFile, recipientOf, unlockKeyFile } f
 import { fingerprint, formatFingerprint } from "./fingerprint.js";
 import { setText, t } from "./i18n.js";
 import { buildLink } from "./link.js";
-import { baseUrl, busy, byId, copyWithStatus, download, mailtoUrl, message, readFile, show } from "./ui.js";
+import {
+  baseUrl,
+  busy,
+  byId,
+  copyWithStatus,
+  download,
+  mailtoUrl,
+  message,
+  readFile,
+  show,
+} from "./ui.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 
@@ -90,10 +100,20 @@ export function init() {
   e.downloadAgain.addEventListener("click", () => {
     if (keyFile) download(keyFile.bytes, keyFile.name, keyFile.type);
   });
-  e.copyLink.addEventListener("click", () => void copyWithStatus(e.link.value, e.link, e.copyStatus));
-  e.copyPubkey.addEventListener("click", () => void copyWithStatus(e.pubkey.value, e.pubkey, e.copyStatus));
+  e.copyLink.addEventListener(
+    "click",
+    () => void copyWithStatus(e.link.value, e.link, e.copyStatus),
+  );
+  e.copyPubkey.addEventListener(
+    "click",
+    () => void copyWithStatus(e.pubkey.value, e.pubkey, e.copyStatus),
+  );
   e.downloadPubkey.addEventListener("click", () => {
-    download(`${shown.recipient}\n`, `sealback-pubkey-${formatFingerprint(shown.code, "-")}.txt`, "text/plain");
+    download(
+      `${shown.recipient}\n`,
+      `sealback-pubkey-${formatFingerprint(shown.code, "-")}.txt`,
+      "text/plain",
+    );
   });
   e.newKey.addEventListener("click", () => {
     reset();
@@ -211,14 +231,19 @@ async function unlockExisting() {
   const loaded = existing;
   const passphrase = e.existingPass.value;
   e.existingPass.value = "";
-  const recipient = await busy(e.existingUnlock, e.existingWorking, "request.existing.working", async () => {
-    const unlocked = await unlockKeyFile(loaded.bytes, passphrase);
-    if ("error" in unlocked) {
-      message(e.existingError, `error.crypto.${unlocked.error}`);
-      return null;
-    }
-    return await recipientOf(unlocked.identity);
-  });
+  const recipient = await busy(
+    e.existingUnlock,
+    e.existingWorking,
+    "request.existing.working",
+    async () => {
+      const unlocked = await unlockKeyFile(loaded.bytes, passphrase);
+      if ("error" in unlocked) {
+        message(e.existingError, `error.crypto.${unlocked.error}`);
+        return null;
+      }
+      return await recipientOf(unlocked.identity);
+    },
+  );
   if (recipient === null) {
     e.existingPass.focus();
     return;
@@ -292,7 +317,14 @@ export function clear() {
   e.existingPass.value = "";
   show(e.existingPassField, false);
   show(e.downloadAgain, false);
-  for (const el of [e.error, e.status, e.copyStatus, e.existingStatus, e.existingError, e.existingWorking]) {
+  for (const el of [
+    e.error,
+    e.status,
+    e.copyStatus,
+    e.existingStatus,
+    e.existingError,
+    e.existingWorking,
+  ]) {
     message(el, null);
   }
 }

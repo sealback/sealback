@@ -96,7 +96,9 @@ function updateLanguage() {
 }
 
 function initLanguage() {
-  setLanguage(detectLanguage(navigator.languages.length > 0 ? navigator.languages : [navigator.language]));
+  setLanguage(
+    detectLanguage(navigator.languages.length > 0 ? navigator.languages : [navigator.language]),
+  );
   langSelect.addEventListener("change", () => {
     const lang = LANGS.find((l) => l === langSelect.value);
     if (lang === undefined) return;
