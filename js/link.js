@@ -11,7 +11,7 @@ import { normalizeRecipientInput } from "./keys.js";
 
 /** @typedef {import("./keys.js").KeyType} KeyType */
 /** @typedef {import("./keys.js").KeyError} KeyError */
-/** @typedef {"request" | "send" | "decrypt"} View */
+/** @typedef {"home" | "request" | "send" | "decrypt"} View */
 
 /**
  * @typedef {{ mode: "link", recipient: string, type: KeyType }
@@ -19,6 +19,7 @@ import { normalizeRecipientInput } from "./keys.js";
  *   | { mode: "view", view: View }} Route
  */
 
+/** Views that have their own fragment; everything else opens "home". */
 /** @type {readonly View[]} */
 export const VIEWS = ["request", "send", "decrypt"];
 
@@ -42,7 +43,7 @@ export function parseFragment(hash) {
 
   const params = new URLSearchParams(fragment);
   const pubkey = params.get("pubkey");
-  if (pubkey === null) return { mode: "view", view: "request" };
+  if (pubkey === null) return { mode: "view", view: "home" };
 
   const key = normalizeRecipientInput(pubkey);
   if ("error" in key) return { mode: "link", error: key.error };

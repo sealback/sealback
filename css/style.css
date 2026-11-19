@@ -660,8 +660,73 @@ textarea:focus-visible {
   color: var(--fg);
 }
 
+/* Request view: opening an existing key file, below the create form. */
 .existing {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.existing h2 {
+  margin-top: 0;
+}
+
+/* ---------- Landing page ---------- */
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 999px;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.choice {
+  display: block;
+  padding: 1.75rem 2rem;
+  color: var(--fg);
+  text-decoration: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.choice:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.choice-title {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.choice-title::after {
+  content: "\00a0→"; /* non-breaking space keeps the arrow on the line */
+}
+
+.choice-hint {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
 }
 
 details {
@@ -700,6 +765,16 @@ details p {
   .intro {
     border-right: none;
     border-bottom: 1px solid var(--border);
+  }
+
+  /* Landing page: the two choices first, the explanation below. */
+  .choices {
+    order: -1;
+  }
+
+  #panel-home .intro {
+    border-bottom: none;
+    border-top: 1px solid var(--border);
   }
 }
 

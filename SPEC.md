@@ -105,11 +105,13 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 | `#pubkey=…` (valid) | Sender page with the key preset, no tabs |
 | `#pubkey=…` (invalid or truncated) | Sender page with an error explaining that the link may have been damaged, and the manual key input (6.4), no tabs |
 | `#send` | Sender page with the manual key input, no tabs |
+| `#request` | Tabs, "Request" active |
 | `#decrypt` | Tabs, "Decrypt" active |
-| `#request`, empty, or anything else | Tabs, "Request" active |
+| Empty, or anything else | Landing page, no tabs |
 
 - The **sender page** (send view) shows nothing but the sender's task. Senders only ever arrive through a link: the share link (`#pubkey=…`) or the fallback address `https://sealback.org/#send`, which the recipient gives out when a link does not survive email. A link "Request information yourself" navigates to `#request`.
-- The **recipient** uses two tabs in the header: "Request" (preparing to receive information: creating the key and the link) and "Decrypt". There is no "Send" tab, so the recipient's interface stays focused on the recipient's tasks. The active tab is reflected in the fragment, so each tab can be bookmarked and linked.
+- The **landing page** is the start page (`https://sealback.org/`). Left column: a heading, a short description of what Sealback does, the three steps ("How it works": create a key and get a link; send the link, the other person encrypts and emails the information back; open Sealback again, choose "Decrypt information" and open the key file), and short facts (nothing stored or sent to a server; no account, no installation; Quantum Safe encryption; open source). Right column: two large choices, "Request information" (→ `#request`) and "Decrypt information" (→ `#decrypt`). On small screens the two choices come first. Recipients who come back days later without any link find "Decrypt information" here; the logo always leads back to this page.
+- The **recipient** uses two tabs in the header: "Request" (preparing to receive information: creating the key and the link) and "Decrypt". There is no "Send" tab, so the recipient's interface stays focused on the recipient's tasks. The tabs are shown only on these two views, not on the landing page or the sender page. The active tab is reflected in the fragment, so each tab can be bookmarked and linked (the email from the sender links to `#decrypt`).
 - Changing the fragment (`hashchange`) re-evaluates the view. Tabs are accessible tab controls (`role="tablist"`, `role="tab"`, `role="tabpanel"`, arrow-key navigation). Leaving a view clears all its secret-bearing fields.
 
 ### 6.2 Layout
@@ -149,7 +151,7 @@ The left column only explains: "Send confidential information", a one-sentence e
 
 The recipient prepares to receive information: a key pair and a share link are created.
 
-1. Explain in two or three sentences what will happen: a key file is saved on the user's computer ("your computer", not "this computer", since users don't think of a website as running on their computer), and a link is created to send to the person who has the information.
+1. Explain in one or two sentences what will happen: a key file is saved on the user's computer ("your computer", not "this computer", since users don't think of a website as running on their computer), and a link is created to send to the person who has the information. The general explanation of the process is on the landing page.
 2. (No title or name field: the link carries only the key, see 6.6.)
 3. Encryption type selection (drop-down labelled "Encryption"), **quantum-safe selected by default**. Each option names the category first and the exact algorithm in parentheses; below the drop-down, only the description of the selected option is shown:
    - "Quantum Safe (ML-KEM-768 + X25519)": hybrid, age type `mlkem768x25519`. Description: recommended; stays secure even against future quantum computers, so it suits long-lived or highly sensitive information; the link is about 2,000 characters long. "Quantum Safe" is used in German as well.
@@ -173,7 +175,7 @@ The recipient prepares to receive information: a key pair and a share link are c
    - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and key fingerprint are not secret and stay visible.
    - A "Create another key" button that returns to the empty form.
 8. Key reuse: the UI says that a new key per request is safest, and that for recurring exchanges with the same person the key can be kept and used again. Trade-off: reuse saves the repeated phone check, but a later compromise of the key file exposes every message ever encrypted to it, and the passphrase must be remembered for as long as the key is used. There is no revocation.
-9. "Use an existing key file instead" (collapsible section below the form): the user loads a key file created earlier (file picker; passphrase if protected), and "Show link" shows the same result as in step 7 for that key (link, key fingerprint, fallback section), headed "Link for your existing key" and without a key file download. The identity is only used to derive the public key and is not kept. "Create another key" collapses the section again.
+9. "Already have a key file?" (a visible section below the form, separated by a line, not collapsed): an "Open key file" button opens the file picker. A plain key file shows its result immediately; a passphrase-protected one first shows the passphrase field with an "Unlock" button (Enter also works). The result is the same as in step 7 for that key (link, key fingerprint, fallback section), headed "Link for your existing key" and without a key file download. The identity is only used to derive the public key and is not kept.
 
 ### 6.4 Send view (encrypt)
 
@@ -204,6 +206,7 @@ Version 1 supports text only. File encryption is a possible later extension.
 3. Button "Decrypt". Decrypt locally and show the plaintext in a read-only field with a "Copy" button and a "Hide" button that clears it.
 4. After successful decryption, show the reminder: store the information where it belongs (e.g. a password manager), delete the email, change the information if possible (e.g. the password), and delete the key file when no more information is expected with it.
 5. Error messages must distinguish: invalid key file, wrong passphrase, ciphertext not encrypted for this key, malformed ciphertext.
+6. Inactivity timeout: after 10 minutes without user input (pointer, keyboard, input, file selection, drop) while the view holds a key file, passphrase, ciphertext or decrypted text, all of it is cleared and a notice explains why ("For your safety, … cleared after 10 minutes of inactivity"). Any input restarts the timer. This covers a tab left open; the timeout is based on inactivity so it never interrupts someone who is still working, e.g. copying the result into a password manager.
    - typage throws generic errors, so `crypto.js` must not classify them by message text. Instead:
      - Key file: `crypto.js` reads the age header itself (version line and `-> <type>` stanza lines, after removing armor if present). A header with a single `scrypt` stanza means passphrase-protected; plain text containing exactly one `AGE-SECRET-KEY-1…` or `AGE-SECRET-KEY-PQ-1…` line (besides comments and blank lines) means plain; anything else is an invalid key file.
      - Decryption: after the real identity (or passphrase), a "sentinel" identity is added through typage's public `Identity` interface. It never matches and only records that it was called. typage tries identities in order and stops at the first match, so a failed decryption that reached the sentinel means the key did not match (not encrypted for this key, or wrong passphrase for a key file). A failure without reaching the sentinel means the file is damaged (malformed ciphertext, or invalid key file). Missing armor, broken armor or an unparsable header is reported as malformed before decrypting.
@@ -260,7 +263,7 @@ Supported recipient types:
 - `<meta name="referrer" content="no-referrer">`.
 - No persistence of keys, passphrases, secrets or ciphertext: no localStorage, sessionStorage, IndexedDB, cookies or service worker.
 - Generated object URLs for downloads are revoked immediately after use.
-- Secret, passphrase and plaintext fields are cleared after use, on tab switch, and on `pagehide`.
+- Secret, passphrase and plaintext fields are cleared after use, on tab switch, on `pagehide`, and in the decrypt view after 10 minutes of inactivity (6.5). JavaScript cannot securely wipe memory; "cleared" means all references are dropped.
 - No `<form>` submissions; all actions via button click handlers.
 - Generated keys come exclusively from typage, which uses `crypto.getRandomValues`.
 - A test scans `index.html` and `js/` for forbidden constructs (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, `new Function`, `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `serviceWorker`, `fetch`, `XMLHttpRequest`, inline `<script>` content, `style=` attributes) to guard against regressions.

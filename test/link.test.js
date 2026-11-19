@@ -56,8 +56,8 @@ test("view fragments", () => {
   assert.deepEqual(parseFragment("decrypt"), { mode: "view", view: "decrypt" });
 });
 
-test("empty and unknown fragments open the request view", () => {
-  for (const hash of ["", "#", "#foo", "#Send", "#send&x=1", "#title=Martin", "#receive", "#%%%"]) {
-    assert.deepEqual(parseFragment(hash), { mode: "view", view: "request" }, hash);
+test("empty and unknown fragments open the landing page", () => {
+  for (const hash of ["", "#", "#home", "#foo", "#Send", "#send&x=1", "#title=Martin", "#receive", "#%%%"]) {
+    assert.deepEqual(parseFragment(hash), { mode: "view", view: "home" }, hash);
   }
 });

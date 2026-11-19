@@ -2,12 +2,13 @@
 //
 // Entry point: language, fragment routing, tabs.
 //
-// The recipient uses two tabs, "Request" and "Decrypt". The send view is the
-// sender's page: it is reached only through a link (#pubkey=…) or the
-// fallback address #send, and is shown without tabs.
+// The landing page (empty fragment) explains Sealback and leads to the
+// recipient's two views, "Request" and "Decrypt", which are shown with tabs.
+// The send view is the sender's page: it is reached only through a link
+// (#pubkey=…) or the fallback address #send, and is shown without tabs.
 
 import { LANGS, applyTranslations, detectLanguage, getLanguage, setLanguage } from "./i18n.js";
-import { VIEWS, parseFragment } from "./link.js";
+import { parseFragment } from "./link.js";
 import { byId, show } from "./ui.js";
 import * as decrypt from "./view-decrypt.js";
 import * as request from "./view-request.js";
@@ -16,7 +17,13 @@ import * as send from "./view-send.js";
 /** @typedef {import("./link.js").View} View */
 /** @typedef {"request" | "decrypt"} Tab */
 
-const views = { request, send, decrypt };
+/** The landing page has no state. */
+const home = { clear() {}, refresh() {} };
+
+const views = { home, request, send, decrypt };
+
+/** @type {readonly View[]} */
+const PANELS = ["home", "request", "send", "decrypt"];
 
 /** @type {readonly Tab[]} */
 const TABS = ["request", "decrypt"];
@@ -39,14 +46,14 @@ function tabButton(tab) {
 function activate(view) {
   if (active !== null && active !== view) views[active].clear();
   active = view;
-  show(tablist, view !== "send");
+  show(tablist, view === "request" || view === "decrypt");
   for (const tab of TABS) {
     const selected = tab === view;
     const button = tabButton(tab);
     button.setAttribute("aria-selected", String(selected));
     button.tabIndex = selected ? 0 : -1;
   }
-  for (const v of VIEWS) show(byId(`panel-${v}`, HTMLElement), v === view);
+  for (const v of PANELS) show(byId(`panel-${v}`, HTMLElement), v === view);
 }
 
 function route() {

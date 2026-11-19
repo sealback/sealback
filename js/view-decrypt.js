@@ -21,6 +21,7 @@ function elements() {
     run: byId("decrypt-run", HTMLButtonElement),
     status: byId("decrypt-status", HTMLParagraphElement),
     error: byId("decrypt-error", HTMLParagraphElement),
+    timeoutNotice: byId("decrypt-timeout", HTMLParagraphElement),
     result: byId("decrypt-result", HTMLDivElement),
     output: byId("decrypt-output", HTMLTextAreaElement),
     copy: byId("decrypt-copy", HTMLButtonElement),
@@ -43,8 +44,41 @@ let key = null;
 /** @type {Uint8Array | null} */
 let loadedCiphertext = null;
 
+/**
+ * After this much time without user input, the view forgets the key file,
+ * passphrase, ciphertext and decrypted text, in case the tab is left open.
+ */
+const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000;
+
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let inactivityTimer;
+
+/** @returns {boolean} whether the view holds anything worth forgetting */
+function hasState() {
+  return key !== null || loadedCiphertext !== null || e.pass.value !== "" || e.input.value !== "" || !e.result.hidden;
+}
+
+/** Restarts the inactivity timer if the view holds state. */
+function touch() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = undefined;
+  if (e.timeoutNotice.hidden === false && hasState()) message(e.timeoutNotice, null);
+  if (hasState()) inactivityTimer = setTimeout(expire, INACTIVITY_TIMEOUT_MS);
+}
+
+function expire() {
+  clear();
+  message(e.timeoutNotice, "decrypt.timeout");
+}
+
 export function init() {
   e = elements();
+  // Any input counts as activity. Listening on the document also covers
+  // file pickers and drag and drop; touch() only arms the timer when the
+  // view holds state.
+  for (const type of ["pointerdown", "keydown", "input", "change", "drop"]) {
+    document.addEventListener(type, () => queueMicrotask(touch), { capture: true });
+  }
   e.keyFile.addEventListener("change", () => {
     const file = e.keyFile.files?.[0];
     e.keyFile.value = "";
@@ -100,6 +134,7 @@ async function loadKey(file) {
   message(e.keyStatus, "decrypt.key.loaded", { file: file.name });
   show(e.passField, key.kind === "protected");
   if (key.kind === "protected") e.pass.focus();
+  touch();
 }
 
 /** @param {File} file */
@@ -119,6 +154,7 @@ async function loadCiphertext(file) {
     loadedCiphertext = bytes;
   }
   message(e.inputStatus, "decrypt.input.loaded", { file: file.name });
+  touch();
 }
 
 async function run() {
@@ -168,6 +204,7 @@ async function run() {
   }
   e.pass.value = "";
   e.output.value = result.text;
+  queueMicrotask(touch);
   message(e.copyStatus, null);
   show(e.result, true);
   e.output.focus();
@@ -181,6 +218,9 @@ function hideResult() {
 
 /** Clears key, passphrase, ciphertext and plaintext. */
 export function clear() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = undefined;
+  message(e.timeoutNotice, null);
   key = null;
   loadedCiphertext = null;
   e.keyFile.value = "";

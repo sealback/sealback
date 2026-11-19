@@ -26,12 +26,11 @@ function elements() {
     create: byId("request-create", HTMLButtonElement),
     status: byId("request-status", HTMLParagraphElement),
     error: byId("request-error", HTMLParagraphElement),
-    existing: byId("request-existing", HTMLDetailsElement),
     existingFile: byId("request-existing-file", HTMLInputElement),
     existingStatus: byId("request-existing-status", HTMLParagraphElement),
     existingPassField: byId("request-existing-pass-field", HTMLDivElement),
     existingPass: byId("request-existing-pass", HTMLInputElement),
-    existingShow: byId("request-existing-show", HTMLButtonElement),
+    existingUnlock: byId("request-existing-unlock", HTMLButtonElement),
     existingWorking: byId("request-existing-working", HTMLParagraphElement),
     existingError: byId("request-existing-error", HTMLParagraphElement),
     result: byId("request-result", HTMLDivElement),
@@ -63,9 +62,9 @@ let e;
 let keyFile = null;
 
 /**
- * An existing key file loaded by the user, kept until the link is shown.
- * @type {{ name: string, bytes: Uint8Array, kind: "plain", identity: string }
- *   | { name: string, bytes: Uint8Array, kind: "protected" } | null}
+ * A passphrase-protected key file loaded by the user, kept until it is
+ * unlocked. (Plain key files show their link right away.)
+ * @type {{ name: string, bytes: Uint8Array } | null}
  */
 let existing = null;
 
@@ -84,7 +83,10 @@ export function init() {
     e.existingFile.value = "";
     if (file) void loadExisting(file);
   });
-  e.existingShow.addEventListener("click", () => void showExisting());
+  e.existingUnlock.addEventListener("click", () => void unlockExisting());
+  e.existingPass.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") void unlockExisting();
+  });
   e.downloadAgain.addEventListener("click", () => {
     if (keyFile) download(keyFile.bytes, keyFile.name, keyFile.type);
   });
@@ -187,22 +189,21 @@ async function loadExisting(file) {
     message(e.existingError, `error.crypto.${result.error}`);
     return;
   }
-  existing =
-    result.kind === "plain"
-      ? { name: file.name, bytes, kind: "plain", identity: result.identity }
-      : { name: file.name, bytes, kind: "protected" };
-  message(e.existingStatus, "decrypt.key.loaded", { file: file.name });
-  show(e.existingPassField, existing.kind === "protected");
-  if (existing.kind === "protected") e.existingPass.focus();
-}
-
-async function showExisting() {
-  message(e.existingError, null);
-  if (existing === null) {
-    message(e.existingError, "decrypt.error.noKey");
+  if (result.kind === "plain") {
+    message(e.existingStatus, null);
+    await showExisting(await recipientOf(result.identity), file.name);
     return;
   }
-  if (existing.kind === "protected" && e.existingPass.value === "") {
+  existing = { name: file.name, bytes };
+  message(e.existingStatus, "decrypt.key.loaded", { file: file.name });
+  show(e.existingPassField, true);
+  e.existingPass.focus();
+}
+
+async function unlockExisting() {
+  message(e.existingError, null);
+  if (existing === null) return;
+  if (e.existingPass.value === "") {
     message(e.existingError, "decrypt.error.noPass");
     e.existingPass.focus();
     return;
@@ -210,8 +211,7 @@ async function showExisting() {
   const loaded = existing;
   const passphrase = e.existingPass.value;
   e.existingPass.value = "";
-  const recipient = await busy(e.existingShow, e.existingWorking, "request.existing.working", async () => {
-    if (loaded.kind === "plain") return await recipientOf(loaded.identity);
+  const recipient = await busy(e.existingUnlock, e.existingWorking, "request.existing.working", async () => {
     const unlocked = await unlockKeyFile(loaded.bytes, passphrase);
     if ("error" in unlocked) {
       message(e.existingError, `error.crypto.${unlocked.error}`);
@@ -223,11 +223,21 @@ async function showExisting() {
     e.existingPass.focus();
     return;
   }
+  await showExisting(recipient, loaded.name);
+}
+
+/**
+ * Shows the result for an existing key: its link, without a download.
+ *
+ * @param {string} recipient
+ * @param {string} fileName
+ */
+async function showExisting(recipient, fileName) {
   shown = { recipient, code: await fingerprint(recipient) };
   existing = null;
   keyFile = null;
   setText(e.doneTitle, "request.existing.title");
-  setText(e.file, "request.existing.file", { file: loaded.name });
+  setText(e.file, "request.existing.file", { file: fileName });
   message(e.existingStatus, null);
   show(e.existingPassField, false);
   showResult();
@@ -262,7 +272,6 @@ function reset() {
   showTypeHint();
   e.protect.checked = true;
   showPassphraseFields();
-  e.existing.open = false;
   e.link.value = "";
   e.pubkey.value = "";
   e.code.textContent = "";

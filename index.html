@@ -41,17 +41,42 @@
       </div>
     </noscript>
 
+    <!-- ============================== Landing page ============================== -->
+    <section id="panel-home" class="card panel" aria-labelledby="home-title" hidden>
+      <div class="intro">
+        <h1 id="home-title" data-i18n="home.title">Get confidential information back, encrypted</h1>
+        <p class="lead" data-i18n="home.intro">Do you need a password, access data or other confidential information from someone? Sealback creates a key and a link for that person.</p>
+        <h2 data-i18n="home.how.title">How it works</h2>
+        <ol class="steps">
+          <li data-i18n="home.how.1">Create a key. The key file is saved on your computer, and you get a link.</li>
+          <li data-i18n="home.how.2">Send the link to the person who has the information. They encrypt it and email it back to you.</li>
+          <li data-i18n="home.how.3">Open Sealback again, choose “Decrypt information” and open your key file.</li>
+        </ol>
+        <ul class="facts">
+          <li data-i18n="home.fact.1">Nothing is stored or sent to a server</li>
+          <li data-i18n="home.fact.2">No account, no installation</li>
+          <li data-i18n="home.fact.3">Quantum Safe encryption</li>
+          <li data-i18n="home.fact.4">Open source</li>
+        </ul>
+      </div>
+
+      <div class="work choices">
+        <a class="choice" href="#request">
+          <span class="choice-title" data-i18n="home.request">Request information</span>
+          <span class="choice-hint" data-i18n="home.request.hint">Create a key and a link for the person who has the information.</span>
+        </a>
+        <a class="choice" href="#decrypt">
+          <span class="choice-title" data-i18n="home.decrypt">Decrypt information</span>
+          <span class="choice-hint" data-i18n="home.decrypt.hint">Received encrypted information? Open your key file and decrypt it.</span>
+        </a>
+      </div>
+    </section>
+
     <!-- ============================== Request ============================== -->
     <section id="panel-request" class="card panel" role="tabpanel" aria-labelledby="tab-request" hidden>
       <div class="intro">
         <h1 data-i18n="request.title">Request confidential information</h1>
-        <p class="lead" data-i18n="request.intro">Do you need a password, access data or other confidential information from someone? Create a key here.</p>
-        <h2 data-i18n="request.how.title">How it works</h2>
-        <ol class="steps">
-          <li data-i18n="request.how.1">Create a key. The key file is saved on your computer.</li>
-          <li data-i18n="request.how.2">Send the link to the person who has the information.</li>
-          <li data-i18n="request.how.3">They encrypt the information and email it to you. You decrypt it here.</li>
-        </ol>
+        <p class="lead" data-i18n="request.intro">Create a key for your request. The key file is saved on your computer, and you get a link for the person who has the information.</p>
         <p class="hint" data-i18n="request.oneKey">A new key for each request is safest. For recurring exchanges, you can keep the key and use it again.</p>
       </div>
 
@@ -95,26 +120,28 @@
           <p id="request-status" class="status" role="status" aria-live="polite" hidden></p>
           <p id="request-error" class="alert error" role="alert" hidden></p>
 
-          <details id="request-existing" class="existing">
-            <summary data-i18n="request.existing.summary">Use an existing key file instead</summary>
-            <p class="hint" data-i18n="request.existing.hint">Shows the link for a key file you created earlier. No new key is created.</p>
+          <div id="request-existing" class="existing">
+            <h2 data-i18n="request.existing.heading">Already have a key file?</h2>
+            <p class="hint" data-i18n="request.existing.hint">Open a key file you created earlier to show its link again. No new key is created.</p>
             <div class="actions">
               <label class="button file-button">
-                <span data-i18n="request.existing.choose">Choose key file</span>
+                <span data-i18n="request.existing.choose">Open key file</span>
                 <input id="request-existing-file" type="file" accept=".age,.txt">
               </label>
             </div>
             <p id="request-existing-status" class="status ok" role="status" aria-live="polite" hidden></p>
-            <div id="request-existing-pass-field" class="field" hidden>
-              <label for="request-existing-pass" data-i18n="decrypt.pass.label">Passphrase of the key file</label>
-              <input id="request-existing-pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
-            </div>
-            <div class="actions">
-              <button id="request-existing-show" type="button" data-i18n="request.existing.show">Show link</button>
+            <div id="request-existing-pass-field" hidden>
+              <div class="field">
+                <label for="request-existing-pass" data-i18n="decrypt.pass.label">Passphrase of the key file</label>
+                <input id="request-existing-pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+              </div>
+              <div class="actions">
+                <button id="request-existing-unlock" type="button" class="primary" data-i18n="request.existing.unlock">Unlock</button>
+              </div>
             </div>
             <p id="request-existing-working" class="status" role="status" aria-live="polite" hidden></p>
             <p id="request-existing-error" class="alert error" role="alert" hidden></p>
-          </details>
+          </div>
         </div>
 
         <div id="request-result" hidden>
@@ -282,6 +309,7 @@
         <p id="decrypt-input-status" class="status ok" role="status" aria-live="polite" hidden></p>
         <p id="decrypt-status" class="status" role="status" aria-live="polite" hidden></p>
         <p id="decrypt-error" class="alert error" role="alert" hidden></p>
+        <p id="decrypt-timeout" class="alert info" role="status" hidden></p>
 
         <div id="decrypt-result" hidden>
           <div class="field">
