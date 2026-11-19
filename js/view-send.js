@@ -149,7 +149,7 @@ async function setRecipient(key, fromLink) {
   if (gen !== generation) return;
   current = { ...key, code };
   show(e.bookmark, fromLink);
-  setText(e.protection, `send.protection.${key.type}`);
+  setText(e.protection, `request.type.${key.type}`);
   e.code.textContent = formatFingerprint(code);
   show(e.recipient, true);
 }

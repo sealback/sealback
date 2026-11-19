@@ -125,15 +125,17 @@ Sender page (right column):
 
 ```
 ┌────────────────────────────────────────────┐
-│ Key fingerprint:            [Quantum Safe] │
+│ Key fingerprint:                           │
 │ 7KQ9 M2XR T8N5 4HCW                        │
 │ Confirm this code with the recipient by    │
 │ phone before sending sensitive data.       │
+│ Tip: once confirmed, bookmark this page …  │
 └────────────────────────────────────────────┘
 Your secret
 ┌────────────────────────────────────────────┐
 │                                            │
 └────────────────────────────────────────────┘
+Encryption: Quantum Safe (ML-KEM-768 + X25519)
 [ Encrypt ]
 
 (after encryption)
@@ -146,7 +148,7 @@ Encrypted text — safe to send by normal email:
 * only shown if the content fits into a mailto: link
 ```
 
-The left column only explains: "Send confidential information", a one-sentence explanation, the "How does this work?" section and "Request information yourself →". After encryption, the right column also shows a tip to bookmark the page (see 6.4).
+The left column only explains: "Send confidential information", a one-sentence explanation, the "How does this work?" section and "Request information yourself →".
 
 ### 6.3 Request view (generate key)
 
@@ -154,7 +156,7 @@ The recipient prepares to receive information: a key pair and a share link are c
 
 1. Explain in one or two sentences what will happen: a key file is saved on the user's computer ("your computer", not "this computer", since users don't think of a website as running on their computer), and a link is created to send to the person who has the information. The general explanation of the process is on the landing page.
 2. (No title or name field: the link carries only the key, see 6.6.)
-3. Encryption type selection (drop-down labelled "Encryption"), **quantum-safe selected by default**. Each option names the category first and the exact algorithm in parentheses; below the drop-down, only the description of the selected option is shown:
+3. Below the heading "Create new key file" (the file holds the private key of the pair; the link carries the public key): encryption type selection (drop-down labelled "Encryption"), **quantum-safe selected by default**. Each option names the category first and the exact algorithm in parentheses; below the drop-down, only the description of the selected option is shown:
    - "Quantum Safe (ML-KEM-768 + X25519)": hybrid, age type `mlkem768x25519`. Description: recommended; stays secure even against future quantum computers, so it suits long-lived or highly sensitive information; the link is about 2,000 characters long. "Quantum Safe" is used in German as well.
    - "Elliptic curve (X25519)" ("Elliptische Kurven"): age type X25519. Description: shorter link (about 100 characters); secure today, but archived messages could become readable to future quantum computers; suitable for information that is changed soon after the handover.
    - The word "standard" is deliberately not used: it is ambiguous for readers who know cryptography, and would wrongly suggest the default.
@@ -170,7 +172,7 @@ The recipient prepares to receive information: a key pair and a share link are c
 7. Show the following only after the download was triggered:
    - The share link with a "Copy link" button.
    - A "Compose email" button (`mailto:` with prefilled subject and localized body containing the link and short instructions for the sender), only if the complete `mailto:` URL is at most 1,800 characters. Otherwise a note that the link must be copied into an email manually.
-   - The key fingerprint ("Key fingerprint" / "Schlüssel-Fingerabdruck").
+   - A success box at the top: "Your key file has been downloaded", the file name, the "Download key file again" button, and the key fingerprint ("Key fingerprint" / "Schlüssel-Fingerabdruck").
    - A collapsible "If the link doesn't work" section with the bare public key, a "Copy public key" button, a "Download public key" button (`sealback-pubkey-<fingerprint>.txt`, containing only the recipient string and a trailing newline), and the instruction that the sender can open `https://sealback.org/#send` and paste or load the key there.
    - Instructions: send the link; when the sender reads out the key fingerprint, compare it; keep the key file and passphrase, and open "Decrypt" when the information arrives; delete the key file when no more information is expected with it.
    - A "Download key file again" button, in case the browser blocked the first download. The (passphrase-encrypted, unless opted out) key file bytes are kept in memory only while the request view stays active; leaving the tab or the page discards them and hides the button. The link and key fingerprint are not secret and stay visible.
@@ -183,8 +185,8 @@ The recipient prepares to receive information: a key pair and a share link are c
 1. Determine the recipient:
    - From the share link's fragment (6.6).
    - At `#send`, or for a damaged share link: from a manual input that accepts pasted text or a loaded text file. The input accepts either a bare public key or a complete Sealback link; `keys.js` normalizes it (section 6.7). Invalid input shows a specific error (not a key, damaged key / checksum mismatch, unsupported key type).
-2. Detect the key type automatically (6.7) and display it as "Protection: Quantum Safe" or "Protection: Elliptic curve". The sender never chooses the type.
-3. Display the key fingerprint ("Key fingerprint"), with the instruction to confirm it with the recipient by phone or another channel before sending sensitive information.
+2. Detect the key type automatically (6.7) and show it as plain text right below the information field, with the same label as in the request view's drop-down, e.g. "Encryption: Quantum Safe (ML-KEM-768 + X25519)". The sender never chooses the type.
+3. Display the key fingerprint ("Key fingerprint") in a box at the top, with the instruction to confirm it with the recipient by phone or another channel before sending sensitive information. If the key came from a share link (not from the manual input at `#send`), the same box shows a short tip: "Tip: once confirmed, bookmark this page to send again later without a new check." The bookmark keeps the verified key; Sealback itself stores nothing.
 4. A textarea for the secret with `autocomplete="off"`, `autocorrect="off"`, `autocapitalize="off"` and `spellcheck="false"`.
 5. Button "Encrypt". On click:
    - Encrypt the UTF-8 text to the recipient with typage.
@@ -194,7 +196,6 @@ The recipient prepares to receive information: a key pair and a share link are c
    - "Copy" button (Clipboard API, with a fallback that selects the text). This is the primary action.
    - "Download as file" button producing `sealback-message-<fingerprint>.age` (binary age format), so the recipient can see which key file it needs.
    - "Send by email" button: a `mailto:` link with subject and body containing the armored ciphertext, without a preset recipient address. Only shown if the complete `mailto:` URL is at most 1,800 characters (in practice mainly for short information with X25519 keys).
-   - If the key came from a share link (not from the manual input at `#send`): a tip to bookmark the page after confirming the fingerprint. The bookmark keeps the verified key, so the sender can send to the same recipient again later without a new check; Sealback itself stores nothing.
 7. A note that the encrypted text is safe to send by normal email, either pasted into the message or as the downloaded file attached.
 8. A collapsible "How does this work?" section with a short technical explanation (age, key types, nothing leaves the browser except what the user sends).
 
@@ -278,7 +279,7 @@ Supported recipient types:
 - Usable on mobile screens.
 - Accessible: proper labels for all inputs, visible focus states, sufficient contrast, status and error messages announced via `aria-live`.
 - Languages: English and German. German uses the informal "du" (lowercase "du", "dein"). The chosen language is not stored (section 7); it is kept within the page, including when the logo resets it. Default from `navigator.language`, with a visible language drop-down in the footer (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
-- Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label); such details appear only in the "How does this work?" section.
+- Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label and in the encryption line below the information field, which names the algorithm as in the request view); such details appear only in the "How does this work?" section.
 - **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, centred, 232 × 64 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
 - **Slogan:** "Request confidential information, end-to-end encrypted." (German: "Vertrauliche Informationen anfordern, Ende-zu-Ende-verschlüsselt."). It is the main heading (h1) of the landing page and part of the page title ("Sealback – Request confidential information, end-to-end encrypted"); it is not repeated elsewhere. Both are localized.
 - **Wording:** the UI speaks of "confidential information" ("vertrauliche Informationen"), not "secret", to cover passwords, access data and similar.

@@ -56,6 +56,7 @@ const en = {
     "Create a key for your request. The key file is saved on your computer, and you get a link for the person who has the information.",
   "request.oneKey":
     "A new key for each request is safest. For recurring exchanges with the same person, you can keep the key and use it again.",
+  "request.new.heading": "Create new key file",
   "request.type.label": "Encryption",
   "request.type.mlkem768x25519": "Quantum Safe (ML-KEM-768 + X25519)",
   "request.type.mlkem768x25519.hint":
@@ -120,9 +121,7 @@ const en = {
   "send.key.label": "Link or public key of the recipient",
   "send.key.hint": "Paste the link or key you received, or load it from a file.",
   "send.key.load": "Load from file",
-  "send.protection": "Protection:",
-  "send.protection.mlkem768x25519": "Quantum Safe",
-  "send.protection.x25519": "Elliptic curve",
+  "send.protection": "Encryption:",
   "send.code.label": "Key fingerprint:",
   "send.code.hint":
     "Confirm this fingerprint with the recipient by phone before sending sensitive information.",
@@ -137,7 +136,7 @@ const en = {
   "send.result.note":
     "Paste the encrypted text into an email, or attach the downloaded file. Only the recipient can decrypt it.",
   "send.bookmark":
-    "Tip: once you have confirmed the key fingerprint, bookmark this page. You can then send information to the same recipient again later without a new check.",
+    "Tip: once confirmed, bookmark this page to send again later without a new check.",
   "send.mail.subject": "Encrypted information",
   "send.mail.body":
     "Hello,\n\nhere is the encrypted information. You can decrypt it with your key file at {url}\n\n{ciphertext}",
@@ -244,6 +243,7 @@ const de = {
     "Erstelle einen Schlüssel für deine Anfrage. Die Schlüsseldatei wird auf deinem Computer gespeichert, und du erhältst einen Link für die Person, die die Informationen hat.",
   "request.oneKey":
     "Ein neuer Schlüssel für jede Anfrage ist am sichersten. Bei wiederkehrendem Austausch mit derselben Person kannst du den Schlüssel behalten und erneut verwenden.",
+  "request.new.heading": "Neue Schlüsseldatei erstellen",
   "request.type.label": "Verschlüsselung",
   "request.type.mlkem768x25519": "Quantum Safe (ML-KEM-768 + X25519)",
   "request.type.mlkem768x25519.hint":
@@ -308,9 +308,7 @@ const de = {
   "send.key.label": "Link oder öffentlicher Schlüssel des Empfängers",
   "send.key.hint": "Füge den erhaltenen Link oder Schlüssel ein, oder lade ihn aus einer Datei.",
   "send.key.load": "Aus Datei laden",
-  "send.protection": "Schutz:",
-  "send.protection.mlkem768x25519": "Quantum Safe",
-  "send.protection.x25519": "Elliptische Kurven",
+  "send.protection": "Verschlüsselung:",
   "send.code.label": "Schlüssel-Fingerabdruck:",
   "send.code.hint":
     "Bestätige diesen Fingerabdruck telefonisch mit dem Empfänger, bevor du sensible Informationen sendest.",
@@ -325,7 +323,7 @@ const de = {
   "send.result.note":
     "Füge den verschlüsselten Text in eine E-Mail ein, oder hänge die heruntergeladene Datei an. Nur der Empfänger kann ihn entschlüsseln.",
   "send.bookmark":
-    "Tipp: Wenn du den Schlüssel-Fingerabdruck bestätigt hast, setz ein Lesezeichen für diese Seite. Dann kannst du später erneut Informationen an denselben Empfänger senden, ohne erneute Prüfung.",
+    "Tipp: Setz nach der Bestätigung ein Lesezeichen, um später ohne neue Prüfung erneut zu senden.",
   "send.mail.subject": "Verschlüsselte Informationen",
   "send.mail.body":
     "Hallo,\n\nhier sind die verschlüsselten Informationen. Du kannst sie mit deiner Schlüsseldatei unter {url} entschlüsseln.\n\n{ciphertext}",

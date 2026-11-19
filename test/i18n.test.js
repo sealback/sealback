@@ -63,7 +63,7 @@ test("keys built from error codes exist", () => {
     assert.ok(`error.crypto.${code}` in STRINGS.en, code);
   }
   for (const type of ["mlkem768x25519", "x25519"])
-    assert.ok(`send.protection.${type}` in STRINGS.en, type);
+    assert.ok(`request.type.${type}` in STRINGS.en, type);
 });
 
 test("language detection", () => {
