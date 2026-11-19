@@ -146,13 +146,6 @@ a {
   border-radius: var(--radius);
 }
 
-.slogan {
-  margin: -0.75rem 0 0;
-  text-align: center;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
 .brand img {
   display: block;
   width: auto;
@@ -208,19 +201,22 @@ main {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.75rem 1.5rem;
   padding: 1.5rem clamp(1rem, 3vw, 2.5rem);
   font-size: 0.85rem;
   color: var(--subtle);
 }
 
-.site-footer p {
-  margin: 0;
+.github {
+  display: flex;
+  padding: 0.25rem;
+  color: var(--muted);
+  border-radius: var(--radius);
 }
 
-.site-footer a {
-  color: inherit;
+.github:hover {
+  color: var(--accent);
 }
 
 .footer-links {

@@ -21,16 +21,14 @@ const en = {
   "tabs.label": "Mode",
   "tab.request": "Request",
   "tab.decrypt": "Decrypt",
-  "footer.about": "Sealback encrypts in your browser and sends nothing to any server.",
-  "footer.source": "Source code",
-  "home.title": "Get confidential information back, encrypted",
+  "footer.source": "Source code on GitHub",
   "home.intro":
     "Do you need a password, access data or other confidential information from someone? Sealback creates a key and a link for that person. They encrypt the information in their browser, and only your key file can open it again.",
   "home.how.title": "How it works",
   "home.how.1": "Create a key. The key file is saved on your computer, and you get a link.",
   "home.how.2":
     "Send the link to the person who has the information. They encrypt it and email it back to you.",
-  "home.how.3": "Open Sealback again, choose “Decrypt information” and open your key file.",
+  "home.how.3": "Open Sealback again, provide your stored key file and decrypt the information.",
   "home.features.title": "Why Sealback?",
   "home.feature.1": "Nothing leaves your browser",
   "home.feature.1.text":
@@ -40,7 +38,7 @@ const en = {
     "Works in any modern browser, for you and for the person who sends you the information.",
   "home.feature.3": "Quantum Safe",
   "home.feature.3.text":
-    "Optional hybrid encryption with ML-KEM-768 and X25519 protects the information even against future quantum computers.",
+    "Hybrid encryption with ML-KEM-768 and X25519 protects the information even against future quantum computers.",
   "home.feature.4": "Open standard",
   "home.feature.4.text":
     "Messages use the age encryption format, so they can also be decrypted with the age command-line tool.",
@@ -207,9 +205,7 @@ const de = {
   "tabs.label": "Modus",
   "tab.request": "Anfordern",
   "tab.decrypt": "Entschlüsseln",
-  "footer.about": "Sealback verschlüsselt in Ihrem Browser und sendet nichts an einen Server.",
-  "footer.source": "Quellcode",
-  "home.title": "Vertrauliche Informationen verschlüsselt zurückbekommen",
+  "footer.source": "Quellcode auf GitHub",
   "home.intro":
     "Sie benötigen von jemandem ein Passwort, Zugangsdaten oder andere vertrauliche Informationen? Sealback erstellt einen Schlüssel und einen Link für diese Person. Sie verschlüsselt die Informationen in ihrem Browser, und nur Ihre Schlüsseldatei kann sie wieder öffnen.",
   "home.how.title": "So funktioniert es",
@@ -228,7 +224,7 @@ const de = {
     "Funktioniert in jedem aktuellen Browser, für Sie und für die Person, die Ihnen die Informationen schickt.",
   "home.feature.3": "Quantum Safe",
   "home.feature.3.text":
-    "Optionale hybride Verschlüsselung mit ML-KEM-768 und X25519 schützt die Informationen auch vor zukünftigen Quantencomputern.",
+    "Hybride Verschlüsselung mit ML-KEM-768 und X25519 schützt die Informationen auch vor zukünftigen Quantencomputern.",
   "home.feature.4": "Offener Standard",
   "home.feature.4.text":
     "Nachrichten verwenden das Verschlüsselungsformat age und lassen sich daher auch mit dem Kommandozeilenwerkzeug age entschlüsseln.",
