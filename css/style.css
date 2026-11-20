@@ -221,8 +221,50 @@ main {
 
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.footer-links > a:not(.github) {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-links > a:not(.github):hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ---------- Legal pages (imprint, privacy policy) ---------- */
+
+.legal {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  overflow-wrap: break-word;
+}
+
+.legal h2 {
+  margin-top: 2rem;
+}
+
+.legal h3 {
+  font-size: 1rem;
+  font-weight: 650;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.legal ul {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.legal .updated {
+  margin-top: 2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 /* ---------- Tabs (segmented control) ---------- */

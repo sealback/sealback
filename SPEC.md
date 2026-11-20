@@ -54,6 +54,8 @@ Repository: `github.com/sealback/sealback`.
 ```
 /
 ├── index.html          The single application page
+├── imprint.html        Legal notice (English); impressum.html is the German version
+├── privacy.html        Privacy policy (English); datenschutz.html is the German version
 ├── CNAME               "sealback.org"
 ├── css/
 │   └── style.css       Hand-written stylesheet (Tailwind-like look, no framework)
@@ -117,7 +119,9 @@ Logic that does not need the DOM lives in `crypto.js`, `keys.js`, `fingerprint.j
 
 ### 6.2 Layout
 
-All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens; a link to the start page `./`; a click resets all views and shows the landing page without reloading, so all state is discarded but the chosen language is kept) and, for the recipient's views, the tabs centred below it; a large card; and a centred footer with the GitHub mark linking to the repository (inline SVG of the Octicons "mark-github" icon, MIT License; accessible name "Source code on GitHub") and the language drop-down.
+All views share one layout on a plain background in a single colour from the style guide (Paper; Ink in dark mode): a header with the logo centred (64 px high, 48 px on small screens; a link to the start page `./`; a click resets all views and shows the landing page without reloading, so all state is discarded but the chosen language is kept) and, for the recipient's views, the tabs centred below it; a large card; and a centred footer with the GitHub mark linking to the repository (inline SVG of the Octicons "mark-github" icon, MIT License; accessible name "Source code on GitHub") the links "Imprint" and "Privacy" (German "Impressum" and "Datenschutz"; they open the page in the current language in a new tab, so no state of the app is lost) and the language drop-down.
+
+**Legal pages.** German law requires a legal notice (§ 5 DDG, § 18 MStV) and a privacy policy (Art. 13 GDPR). They are four static pages without JavaScript: `imprint.html` and `privacy.html` in English, `impressum.html` and `datenschutz.html` in German. Each uses the same CSP, stylesheet and logo (linking to `./`) as the app, shows the text in a single card and has a footer with links to both legal pages and to the same page in the other language. Operator: Libre Solar Technologies GmbH, Hamburg (as for spinvert.org). The privacy policy states what Sealback does not do (no transmission, storage, cookies, tracking or third-party content), the processing by GitHub Pages as host (Art. 6 (1) (f) GDPR, EU–U.S. Data Privacy Framework), contact by email or phone, the rights of data subjects and the supervisory authority in Hamburg.
 
 On wide screens, the card spans most of the window width (up to ~90rem) and has two columns: an introduction on the left (heading, short explanation, "How it works" steps or the "How does this work?" section) and the task on the right (form, results). Below ~56rem the columns stack, introduction first.
 
@@ -268,7 +272,7 @@ Supported recipient types:
 - Secret, passphrase and plaintext fields are cleared after use, on tab switch, when the logo is clicked (6.2), on `pagehide`, and in the decrypt view after 10 minutes of inactivity (6.5). JavaScript cannot securely wipe memory; "cleared" means all references are dropped.
 - No `<form>` submissions; all actions via button click handlers.
 - Generated keys come exclusively from typage, which uses `crypto.getRandomValues`.
-- A test scans `index.html` and `js/` for forbidden constructs (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, `new Function`, `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `serviceWorker`, `fetch`, `XMLHttpRequest`, inline `<script>` content, `style=` attributes) to guard against regressions.
+- A test scans all HTML pages and `js/` for forbidden constructs (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, `new Function`, `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `serviceWorker`, `fetch`, `XMLHttpRequest`, inline `<script>` content, `style=` attributes) to guard against regressions. It also checks that every HTML page has the CSP and referrer policy, that the legal pages contain no scripts, that only local resources are loaded (external URLs only as `https:` links), and that links to local pages point to existing files.
 - Because `style-src 'self'` forbids style attributes, all elements exist in the static HTML; JavaScript only toggles the `hidden` attribute and CSS classes and sets `textContent`.
 
 ## 8. User interface
@@ -309,7 +313,7 @@ Supported recipient types:
 - `ci.yml` on every push and pull request, on Node.js 24 and 26: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `prettier --check .`, `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`). It can also be called by other workflows (`workflow_call`).
 - `deploy.yml`, when a version tag `v*` is pushed, runs four jobs in order:
   1. **CI:** the complete `ci.yml`; nothing is deployed if it fails.
-  2. **Build:** copies exactly `index.html`, `CNAME`, `css/`, `js/`, `img/` and `third_party/age-encryption.js` into `_site/`, computes `SHA256SUMS` (paths relative to the site root, sorted), and uploads the Pages artifact (`actions/upload-pages-artifact`).
+  2. **Build:** copies exactly the HTML pages (`*.html`), `CNAME`, `css/`, `js/`, `img/` and `third_party/age-encryption.js` into `_site/`, computes `SHA256SUMS` (paths relative to the site root, sorted), and uploads the Pages artifact (`actions/upload-pages-artifact`).
   3. **Deploy:** publishes the artifact to GitHub Pages (`actions/deploy-pages`, environment `github-pages`).
   4. **Release:** only after a successful deployment, creates the GitHub release for the tag with `SHA256SUMS` attached (or replaces the file if the release already exists).
 - Each job gets only the permissions it needs (`contents: read` for CI and build, `pages: write` and `id-token: write` for the deployment, `contents: write` for the release). Checkouts do not persist credentials.

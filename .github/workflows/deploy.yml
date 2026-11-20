@@ -45,7 +45,7 @@ jobs:
       - name: Assemble the deployed files
         run: |
           mkdir -p _site/third_party
-          cp -R index.html CNAME css js img _site/
+          cp -R *.html CNAME css js img _site/
           cp third_party/age-encryption.js _site/third_party/
 
       - name: Compute SHA-256 hashes

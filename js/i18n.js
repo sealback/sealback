@@ -22,6 +22,10 @@ const en = {
   "tab.request": "Request",
   "tab.decrypt": "Decrypt",
   "footer.source": "Source code on GitHub",
+  "footer.imprint": "Imprint",
+  "footer.imprint.href": "imprint.html",
+  "footer.privacy": "Privacy",
+  "footer.privacy.href": "privacy.html",
   "home.intro":
     "Do you need a password, access data or other confidential information from someone? Sealback creates a key and a link for that person. They encrypt the information in their browser, and only your key file can open it again.",
   "home.how.title": "How it works",
@@ -203,6 +207,10 @@ const de = {
   "tab.request": "Anfordern",
   "tab.decrypt": "Entschlüsseln",
   "footer.source": "Quellcode auf GitHub",
+  "footer.imprint": "Impressum",
+  "footer.imprint.href": "impressum.html",
+  "footer.privacy": "Datenschutz",
+  "footer.privacy.href": "datenschutz.html",
   "home.intro":
     "Du brauchst von jemandem ein Passwort, Zugangsdaten oder andere vertrauliche Informationen? Sealback erstellt einen Schlüssel und einen Link für diese Person. Sie verschlüsselt die Informationen in ihrem Browser, und nur deine Schlüsseldatei kann sie wieder öffnen.",
   "home.how.title": "So funktioniert es",

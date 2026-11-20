@@ -9,10 +9,16 @@ import { readFileSync, readdirSync } from "node:fs";
 
 const root = new URL("../", import.meta.url);
 const html = readFileSync(new URL("index.html", root), "utf8");
+/** Legal pages: static HTML without scripts. */
+const LEGAL = ["imprint.html", "privacy.html", "impressum.html", "datenschutz.html"];
+const pages = ["index.html", ...LEGAL].map((name) => ({
+  name,
+  text: readFileSync(new URL(name, root), "utf8"),
+}));
 const jsFiles = readdirSync(new URL("js/", root))
   .filter((f) => f.endsWith(".js"))
   .map((f) => ({ name: `js/${f}`, text: readFileSync(new URL(`js/${f}`, root), "utf8") }));
-const sources = [{ name: "index.html", text: html }, ...jsFiles];
+const sources = [...pages, ...jsFiles];
 
 const FORBIDDEN = [
   /\binnerHTML\b/,
@@ -48,14 +54,15 @@ test("every source file has an SPDX header", () => {
 });
 
 /**
- * Attributes of every <tag> in index.html, independent of formatting
+ * Attributes of every <tag> in a page, independent of formatting
  * (attribute order, line breaks, self-closing slash).
  *
  * @param {string} name tag name
+ * @param {string} [page] HTML text, index.html by default
  * @returns {Record<string, string>[]}
  */
-function tags(name) {
-  return [...html.matchAll(new RegExp(`<${name}\\b([^>]*)>`, "g"))].map((m) =>
+function tags(name, page = html) {
+  return [...page.matchAll(new RegExp(`<${name}\\b([^>]*)>`, "g"))].map((m) =>
     Object.fromEntries(
       [...(m[1] ?? "").matchAll(/([a-z-]+)(?:="([^"]*)")?/g)].map((a) => [a[1], a[2] ?? ""]),
     ),
@@ -72,29 +79,41 @@ function tagById(name, id) {
   return tag;
 }
 
-test("index.html has the required CSP and referrer policy", () => {
-  const meta = tags("meta");
-  assert.ok(
-    meta.some(
-      (t) =>
-        t["http-equiv"] === "Content-Security-Policy" &&
-        t["content"] ===
-          "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'",
-    ),
-  );
-  assert.ok(meta.some((t) => t["name"] === "referrer" && t["content"] === "no-referrer"));
+const CSP =
+  "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'";
+
+test("every page has the required CSP and referrer policy", () => {
+  for (const { name, text } of pages) {
+    const meta = tags("meta", text);
+    assert.ok(
+      meta.some((t) => t["http-equiv"] === "Content-Security-Policy" && t["content"] === CSP),
+      name,
+    );
+    assert.ok(
+      meta.some((t) => t["name"] === "referrer" && t["content"] === "no-referrer"),
+      name,
+    );
+  }
 });
 
-test("index.html has no inline scripts, styles, event handlers or forms", () => {
-  for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
-    assert.match(m[1] ?? "", /\bsrc=/, "script without src");
-    assert.equal((m[2] ?? "").trim(), "", "inline script content");
+test("no inline scripts, styles, event handlers or forms", () => {
+  for (const { name, text } of pages) {
+    for (const m of text.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
+      assert.match(m[1] ?? "", /\bsrc=/, `${name}: script without src`);
+      assert.equal((m[2] ?? "").trim(), "", `${name}: inline script content`);
+    }
+    assert.doesNotMatch(text, /<style\b/, name);
+    assert.doesNotMatch(text, /\sstyle=/, name);
+    assert.doesNotMatch(text, /\son[a-z]+=/, name);
+    assert.doesNotMatch(text, /<form\b/, name);
+    assert.doesNotMatch(text, /javascript:/, name);
   }
-  assert.doesNotMatch(html, /<style\b/);
-  assert.doesNotMatch(html, /\sstyle=/);
-  assert.doesNotMatch(html, /\son[a-z]+=/);
-  assert.doesNotMatch(html, /<form\b/);
-  assert.doesNotMatch(html, /javascript:/);
+});
+
+test("legal pages contain no scripts", () => {
+  for (const { name, text } of pages.filter((p) => LEGAL.includes(p.name))) {
+    assert.doesNotMatch(text, /<script\b/, name);
+  }
 });
 
 test("secret fields disable spellcheck and autocorrection", () => {
@@ -112,11 +131,24 @@ test("secret fields disable spellcheck and autocorrection", () => {
   }
 });
 
-test("only local resources are referenced", () => {
-  for (const m of html.matchAll(/\s(?:src|href)="([^"]+)"/g)) {
-    const url = m[1] ?? "";
-    if (url === "https://github.com/sealback/sealback" || url.startsWith("#") || url === "mailto:")
-      continue;
-    assert.doesNotMatch(url, /^[a-z]+:|^\/\//i, `external resource: ${url}`);
+test("only local resources are loaded; external links use https", () => {
+  for (const { name, text } of pages) {
+    for (const m of text.matchAll(/<([a-z]+)\b[^>]*\s(?:src|srcset|href)="([^"]+)"/g)) {
+      const [, tag, url = ""] = m;
+      if (tag === "a") {
+        assert.ok(!/^[a-z]+:/i.test(url) || /^https:\/\/|^mailto:$/.test(url), `${name}: ${url}`);
+        continue;
+      }
+      assert.doesNotMatch(url, /^[a-z]+:|^\/\//i, `${name}: external resource: ${url}`);
+    }
+  }
+});
+
+test("links to local pages point to existing files", () => {
+  for (const { name, text } of pages) {
+    for (const m of text.matchAll(/\shref="([^"#:]+\.html)"/g)) {
+      const target = m[1] ?? "";
+      assert.ok(LEGAL.includes(target) || target === "index.html", `${name}: ${target}`);
+    }
   }
 });
