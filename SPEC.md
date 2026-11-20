@@ -335,6 +335,7 @@ Supported recipient types:
 - How to decrypt with the `age` CLI instead of the browser (`age -d -i key.age message.age`), with the minimum `age` version that supports post-quantum keys (1.3.0).
 - How to verify that the deployed site matches a release (compare published hashes).
 - How to update the bundled typage file: bump the exact version in `package.json`, `npm install --ignore-scripts`, run `scripts/update-third-party.sh`, review the diff of `third_party/`, check that the API listed in section 4 is unchanged, and run the tests.
+- Self-hosting: which files to copy, replacing the legal pages, HTTPS requirement (Web Crypto needs a secure context, ES modules do not load from `file://`), recommended HTTP headers including `frame-ancestors`.
 - Comparison with link-based secret tools (e.g. Yopass, PrivateBin): those store ciphertext on a server and put the key in the link; Sealback stores nothing and only the recipient's private key can decrypt.
 - Third-party licenses.
 

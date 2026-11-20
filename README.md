@@ -150,6 +150,57 @@ git clone --branch "$TAG" --depth 1 https://github.com/sealback/sealback.git src
 
 On macOS, use `shasum -a 256 -c` instead of `sha256sum -c`.
 
+## Self-hosting
+
+Sealback is a set of static files, so you can host your own instance on any web server, also in a
+subdirectory (all paths are relative). Links created on your instance point to your instance. Keys,
+links and messages are compatible between instances, since they all use the age format.
+
+**Files.** Copy these files from a release, after checking them against its `SHA256SUMS` (see
+[Verifying the deployed site](#verifying-the-deployed-site)):
+
+```sh
+git clone --branch v1.0.0 --depth 1 https://github.com/sealback/sealback.git
+cd sealback
+mkdir -p /var/www/sealback/third_party
+cp -R index.html css js img /var/www/sealback/
+cp third_party/age-encryption.js /var/www/sealback/third_party/
+```
+
+No build step and no `npm install` is needed. `CNAME` is only used by GitHub Pages.
+
+**Legal pages.** `imprint.html`, `privacy.html`, `impressum.html` and `datenschutz.html` contain the
+legal details of the operator of sealback.org and must not be used for your instance. Replace them
+with your own pages (the app footer links to these file names, set in `js/i18n.js`), or remove the
+links if your instance does not need them.
+
+**Requirements for the server:**
+
+- **HTTPS** (or `localhost` for testing). Browsers provide the Web Crypto API, which Sealback uses
+  for key fingerprints, only to secure origins. Opening `index.html` directly as a file does not
+  work either, because browsers do not load ES modules from `file://` URLs.
+- `.js` files must be served with a JavaScript MIME type (`text/javascript`); most servers do this
+  by default.
+
+**Recommended HTTP headers.** The Content Security Policy is set in a `<meta>` tag because GitHub
+Pages cannot set headers. If your server can, also send it as a header. Only the header form
+supports `frame-ancestors`, which prevents other sites from embedding Sealback in a frame
+(clickjacking). For nginx:
+
+```nginx
+add_header Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'" always;
+add_header Strict-Transport-Security "max-age=31536000" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "no-referrer" always;
+```
+
+Access logs contain the visitor's IP address and the requested file, but never the part of the link
+after `#`, so they do not contain public keys or messages.
+
+**Updates.** Watch the [releases](https://github.com/sealback/sealback/releases) and the
+[security advisories](https://github.com/sealback/sealback/security/advisories) of this repository,
+and update your instance when a new version is published.
+
 ## Development
 
 Requirements: Node.js 24 or later.
