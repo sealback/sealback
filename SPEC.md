@@ -92,6 +92,7 @@ Repository: `github.com/sealback/sealback`.
 ├── package-lock.json
 ├── jsconfig.json       Strict checkJs configuration
 ├── README.md
+├── SECURITY.md         How to report vulnerabilities (GitHub private reporting or email), scope
 └── LICENSE             Apache-2.0
 ```
 
@@ -320,6 +321,7 @@ Supported recipient types:
 - All third-party actions in both workflows are pinned to full commit SHAs, with the version in a comment.
 - One-time repository setup: Settings → Pages → Source "GitHub Actions"; Settings → Environments → `github-pages`: allow deployments from tags matching `v*` (by default only the default branch may deploy).
 - Repository settings (documented in README, not enforced by code): branch protection on `main`, required signed commits, 2FA required for all organization members.
+- Private vulnerability reporting enabled in the repository settings (Security → Private vulnerability reporting), as referenced by `SECURITY.md`.
 
 ## 11. License
 
