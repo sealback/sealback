@@ -174,6 +174,19 @@ legal details of the operator of sealback.org and must not be used for your inst
 with your own pages (the app footer links to these file names, set in `js/i18n.js`), or remove the
 links if your instance does not need them.
 
+**Name and logo.** The Apache License covers the code, but grants no rights to the Sealback name
+and logo (section 6 of the license). To avoid confusing users, we ask operators of other instances
+to:
+
+- make clear that their instance is independent and not operated by the Sealback project. The app
+  does this automatically: on any host other than sealback.org, the footer shows "Independent
+  instance, not operated by the Sealback project. Official site: sealback.org". Please keep this
+  notice;
+- describe their instance as "based on Sealback" rather than as "Sealback" alone, and link to this
+  project;
+- not use the name or logo in a way that suggests their instance is the official service, for
+  example in its domain name.
+
 **Requirements for the server:**
 
 - **HTTPS** (or `localhost` for testing). Browsers provide the Web Crypto API, which Sealback uses

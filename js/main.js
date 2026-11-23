@@ -8,7 +8,7 @@
 // (#pubkey=…) or the fallback address #send, and is shown without tabs.
 
 import { LANGS, applyTranslations, detectLanguage, getLanguage, setLanguage } from "./i18n.js";
-import { parseFragment } from "./link.js";
+import { isOfficialHost, parseFragment } from "./link.js";
 import { byId, show } from "./ui.js";
 import * as decrypt from "./view-decrypt.js";
 import * as request from "./view-request.js";
@@ -112,6 +112,10 @@ function initLanguage() {
 for (const type of ["dragover", "drop"]) {
   window.addEventListener(type, (ev) => ev.preventDefault());
 }
+
+// Instances hosted elsewhere say so, so that nobody mistakes them for
+// sealback.org (README, "Name and logo").
+show(byId("footer-instance", HTMLParagraphElement), !isOfficialHost(location.hostname));
 
 request.init();
 send.init();

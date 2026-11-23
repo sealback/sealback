@@ -19,6 +19,17 @@ import { normalizeRecipientInput } from "./keys.js";
  *   | { mode: "view", view: View }} Route
  */
 
+/** Host names of the official instance; the footer marks all others as independent. */
+export const OFFICIAL_HOSTS = ["sealback.org", "www.sealback.org"];
+
+/**
+ * @param {string} hostname e.g. location.hostname
+ * @returns {boolean}
+ */
+export function isOfficialHost(hostname) {
+  return OFFICIAL_HOSTS.includes(hostname.toLowerCase().replace(/\.$/, ""));
+}
+
 /** Views that have their own fragment; everything else opens "home". */
 /** @type {readonly View[]} */
 export const VIEWS = ["request", "send", "decrypt"];

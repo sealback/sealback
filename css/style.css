@@ -237,6 +237,13 @@ main {
   text-decoration: underline;
 }
 
+/* Shown on instances other than sealback.org. */
+.instance-note {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+}
+
 /* ---------- Legal pages (imprint, privacy policy) ---------- */
 
 .legal {

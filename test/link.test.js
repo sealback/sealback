@@ -2,7 +2,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildLink, parseFragment } from "../js/link.js";
+import { buildLink, isOfficialHost, parseFragment } from "../js/link.js";
 import { fixtureRecipient } from "./helpers.js";
 
 const X25519 = fixtureRecipient("x25519");
@@ -102,5 +102,22 @@ test("empty and unknown fragments open the landing page", () => {
     "#%%%",
   ]) {
     assert.deepEqual(parseFragment(hash), { mode: "view", view: "home" }, hash);
+  }
+});
+
+test("official host names", () => {
+  for (const host of ["sealback.org", "www.sealback.org", "SEALBACK.ORG", "sealback.org."]) {
+    assert.equal(isOfficialHost(host), true, host);
+  }
+  for (const host of [
+    "",
+    "localhost",
+    "127.0.0.1",
+    "sealback.github.io",
+    "evil-sealback.org",
+    "sealback.org.example.com",
+    "test.sealback.org",
+  ]) {
+    assert.equal(isOfficialHost(host), false, host);
   }
 });
