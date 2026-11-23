@@ -123,6 +123,7 @@ decrypt.init();
 initTabs();
 initLanguage();
 route();
+document.documentElement.classList.remove("routing"); // see early.js
 window.addEventListener("hashchange", route);
 
 // The logo leads to the landing page and discards all state, like a fresh

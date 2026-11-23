@@ -57,9 +57,12 @@ Repository: `github.com/sealback/sealback`.
 ├── imprint.html        Legal notice (English); impressum.html is the German version
 ├── privacy.html        Privacy policy (English); datenschutz.html is the German version
 ├── CNAME               "sealback.org"
+├── robots.txt          Allows all crawlers, points to the sitemap
+├── sitemap.xml         Start page and legal pages
 ├── css/
 │   └── style.css       Hand-written stylesheet (Tailwind-like look, no framework)
 ├── js/
+│   ├── early.js        Classic script in <head>: hides the landing page while a fragment is routed
 │   ├── main.js         Entry point: reads the fragment, selects mode/tab, wires views
 │   ├── crypto.js       Pure functions wrapping typage (no DOM access)
 │   ├── keys.js         Key type detection and public key normalization (no DOM access)
@@ -78,9 +81,11 @@ Repository: `github.com/sealback/sealback`.
 │   ├── sealback-lockup-dark.svg  Header logo, dark mode
 │   ├── favicon.svg               Adaptive favicon (switches colours in dark mode)
 │   ├── favicon.ico               Favicon 16/32/48 px
-│   └── apple-touch-icon.png      180 px
+│   ├── apple-touch-icon.png      180 px
+│   └── og-image.png              1200 × 630 link preview image (Open Graph)
 ├── scripts/
-│   └── update-third-party.sh  Regenerates both files in third_party/
+│   ├── update-third-party.sh  Regenerates both files in third_party/
+│   └── og-image.html          Template for img/og-image.png (command in the file)
 ├── test/
 │   ├── *.test.js       node:test suites (see section 9)
 │   └── fixtures/       Key files and ciphertexts created with the age CLI,
@@ -273,7 +278,7 @@ Supported recipient types:
 - Secret, passphrase and plaintext fields are cleared after use, on tab switch, when the logo is clicked (6.2), on `pagehide`, and in the decrypt view after 10 minutes of inactivity (6.5). JavaScript cannot securely wipe memory; "cleared" means all references are dropped.
 - No `<form>` submissions; all actions via button click handlers.
 - Generated keys come exclusively from typage, which uses `crypto.getRandomValues`.
-- A test scans all HTML pages and `js/` for forbidden constructs (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, `new Function`, `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `serviceWorker`, `fetch`, `XMLHttpRequest`, inline `<script>` content, `style=` attributes) to guard against regressions. It also checks that every HTML page has the CSP and referrer policy, that the legal pages contain no scripts, that only local resources are loaded (external URLs only as `https:` links), and that links to local pages point to existing files.
+- A test scans all HTML pages and `js/` for forbidden constructs (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, `new Function`, `localStorage`, `sessionStorage`, `indexedDB`, `document.cookie`, `serviceWorker`, `fetch`, `XMLHttpRequest`, inline `<script>` content, `style=` attributes) to guard against regressions. It also checks that every HTML page has the CSP, referrer policy and its canonical URL, that the landing page is not hidden in the static HTML, that the legal pages contain no scripts, that only local resources are loaded (external URLs only as `https:` links), and that links to local pages point to existing files.
 - Because `style-src 'self'` forbids style attributes, all elements exist in the static HTML; JavaScript only toggles the `hidden` attribute and CSS classes and sets `textContent`.
 
 ## 8. User interface
@@ -286,6 +291,7 @@ Supported recipient types:
 - Languages: English and German. German uses the informal "du" (lowercase "du", "dein"). The chosen language is not stored (section 7); it is kept within the page, including when the logo resets it. Default from `navigator.language`, with a visible language drop-down in the footer (options "English" and "Deutsch", each in its own language). All strings in `i18n.js`; no strings hard-coded in HTML except as fallback. The `mailto:` texts are localized too.
 - Tone of UI text: plain, short, no technical terms in primary text of the send view (no "age", "X25519", "ML-KEM", "public key" except in the manual key input label and in the encryption line below the information field, which names the algorithm as in the request view); such details appear only in the "How does this work?" section.
 - **Logo:** a seal sitting on a tilted ice floe (final design, logo kit `sealback-logo-kit/` with README, colour palette and usage rules). The header shows the lockup (icon and wordmark, centred, 232 × 64 px) in a `<picture>` element that switches to the dark variant with `prefers-color-scheme`. Favicons: `favicon.svg` (adaptive), `favicon.ico` and `apple-touch-icon.png`, referenced with relative paths in `img/`. The kit's web manifest is not used: Sealback is not an installable app, and the CSP (`default-src 'none'`) would block it.
+- **Search engines and link previews:** the landing page is visible in the static HTML, so crawlers and link-preview services that do not run JavaScript see it. To avoid flashing it when a fragment is opened (e.g. a `#pubkey=` link), `js/early.js`, a classic script in `<head>`, sets the class `routing` on `<html>` if there is a fragment; CSS hides the landing page while the class is set, and `main.js` removes it after selecting the view. `index.html` has a canonical URL (`https://sealback.org/`), Open Graph tags (title, description, `og:image` = `https://sealback.org/img/og-image.png`, 1200 × 630, created from `scripts/og-image.html`) and `twitter:card` `summary_large_image`; the legal pages have canonical URLs. Link previews of `#pubkey=` links only ever show the generic page, because the fragment is not sent to any server. The German version has no URL of its own and is therefore not indexed (possible later: `?lang=de` with `hreflang`).
 - **Slogan:** "Request confidential information, end-to-end encrypted." (German: "Vertrauliche Informationen anfordern, Ende-zu-Ende-verschlüsselt."). It is the main heading (h1) of the landing page and part of the page title ("Sealback – Request confidential information, end-to-end encrypted"); it is not repeated elsewhere. Both are localized.
 - **Wording:** the UI speaks of "confidential information" ("vertrauliche Informationen"), not "secret", to cover passwords, access data and similar.
 - **Drop-downs** (language, encryption type) are native `<select>` elements. Where the browser supports customizable selects (`appearance: base-select`), the opened menu is styled to match the page; other browsers show their native menu.
@@ -314,7 +320,7 @@ Supported recipient types:
 - `ci.yml` on every push and pull request, on Node.js 24 and 26: `npm ci --ignore-scripts`, `tsc --noEmit` (checkJs, strict), `prettier --check .`, `node --test`, and regeneration of both files in `third_party/` with a check that they match the committed files byte for byte (`git diff --exit-code third_party/`). It can also be called by other workflows (`workflow_call`).
 - `deploy.yml`, when a version tag `v*` is pushed, runs four jobs in order:
   1. **CI:** the complete `ci.yml`; nothing is deployed if it fails.
-  2. **Build:** copies exactly the HTML pages (`*.html`), `CNAME`, `css/`, `js/`, `img/` and `third_party/age-encryption.js` into `_site/`, computes `SHA256SUMS` (paths relative to the site root, sorted), and uploads the Pages artifact (`actions/upload-pages-artifact`).
+  2. **Build:** copies exactly the HTML pages (`*.html`), `CNAME`, `robots.txt`, `sitemap.xml`, `css/`, `js/`, `img/` and `third_party/age-encryption.js` into `_site/`, computes `SHA256SUMS` (paths relative to the site root, sorted), and uploads the Pages artifact (`actions/upload-pages-artifact`).
   3. **Deploy:** publishes the artifact to GitHub Pages (`actions/deploy-pages`, environment `github-pages`).
   4. **Release:** only after a successful deployment, creates the GitHub release for the tag with `SHA256SUMS` attached (or replaces the file if the release already exists).
 - Each job gets only the permissions it needs (`contents: read` for CI and build, `pages: write` and `id-token: write` for the deployment, `contents: write` for the release). Checkouts do not persist credentials.

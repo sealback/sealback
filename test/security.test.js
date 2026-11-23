@@ -5,7 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 
 const root = new URL("../", import.meta.url);
 const html = readFileSync(new URL("index.html", root), "utf8");
@@ -139,9 +139,36 @@ test("only local resources are loaded; external links use https", () => {
         assert.ok(!/^[a-z]+:/i.test(url) || /^https:\/\/|^mailto:$/.test(url), `${name}: ${url}`);
         continue;
       }
+      // The canonical URL is not loaded, only read by search engines.
+      if (tag === "link" && /\srel="canonical"/.test(m[0])) {
+        assert.ok(url.startsWith("https://sealback.org/"), `${name}: canonical ${url}`);
+        continue;
+      }
       assert.doesNotMatch(url, /^[a-z]+:|^\/\//i, `${name}: external resource: ${url}`);
     }
   }
+});
+
+test("canonical URLs and the preview image point to the deployed files", () => {
+  for (const { name, text } of pages) {
+    const canonical = tags("link", text).filter((t) => t["rel"] === "canonical");
+    assert.equal(canonical.length, 1, name);
+    const expected = name === "index.html" ? "" : name;
+    assert.equal(canonical[0]?.["href"], `https://sealback.org/${expected}`, name);
+  }
+  const og = Object.fromEntries(
+    tags("meta")
+      .filter((t) => t["property"]?.startsWith("og:"))
+      .map((t) => [t["property"], t["content"]]),
+  );
+  assert.equal(og["og:url"], "https://sealback.org/");
+  assert.equal(og["og:image"], "https://sealback.org/img/og-image.png");
+  assert.ok(existsSync(new URL("img/og-image.png", root)), "img/og-image.png");
+});
+
+test("the landing page is visible without JavaScript", () => {
+  const home = tagById("section", "panel-home");
+  assert.ok(!("hidden" in home), "panel-home must not be hidden in the static HTML");
 });
 
 test("links to local pages point to existing files", () => {

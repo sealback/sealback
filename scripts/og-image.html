@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!--
+  Template for img/og-image.png, the 1200 × 630 preview image for links to
+  sealback.org (Open Graph). Not deployed. Regenerate with:
+
+    chromium --headless --hide-scrollbars --force-device-scale-factor=1 \
+      --window-size=1200,630 --screenshot=img/og-image.png scripts/og-image.html
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 56px;
+        background: #f6f3ec;
+        color: #10293a;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        text-align: center;
+      }
+      img {
+        height: 150px;
+      }
+      h1 {
+        max-width: 960px;
+        margin: 0;
+        font-size: 58px;
+        line-height: 1.2;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: -24px 0 0;
+        font-size: 30px;
+        font-weight: 600;
+        color: #2b7a7e;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="../img/sealback-lockup.svg" alt="Sealback" />
+    <h1>Request confidential information, end-to-end encrypted.</h1>
+    <p>sealback.org</p>
+  </body>
+</html>

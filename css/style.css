@@ -130,6 +130,11 @@ a {
 
 /* ---------- Page layout ---------- */
 
+/* Set by early.js until main.js has selected the view. */
+.routing #panel-home {
+  display: none;
+}
+
 /* Centered logo, tabs below it. */
 .site-header {
   display: flex;

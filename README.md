@@ -170,7 +170,10 @@ cp -R index.html css js img /var/www/sealback/
 cp third_party/age-encryption.js /var/www/sealback/third_party/
 ```
 
-No build step and no `npm install` is needed. `CNAME` is only used by GitHub Pages.
+No build step and no `npm install` is needed. `CNAME`, `robots.txt` and `sitemap.xml` are only for
+sealback.org. `index.html` and the legal pages contain a canonical URL and link-preview tags pointing
+to sealback.org, so search engines do not list your instance separately; change them if you want it
+indexed under its own address.
 
 **Legal pages.** `imprint.html`, `privacy.html`, `impressum.html` and `datenschutz.html` contain the
 legal details of the operator of sealback.org and must not be used for your instance. Replace them
