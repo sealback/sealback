@@ -133,7 +133,9 @@ Each release has a `SHA256SUMS` file with the hashes of all deployed files. The 
 in the repository, so you can check both the website and the source code against it:
 
 ```sh
-TAG=v1.0.0   # the release to check
+# The latest release (or set TAG to a specific release, e.g. TAG=v0.1.0):
+TAG=$(git ls-remote --tags --refs --sort=-version:refname \
+  https://github.com/sealback/sealback.git 'v*' | head -n 1 | sed 's|.*refs/tags/||')
 curl -fsSLO "https://github.com/sealback/sealback/releases/download/$TAG/SHA256SUMS"
 
 # 1. The website serves exactly these files:
@@ -160,7 +162,8 @@ links and messages are compatible between instances, since they all use the age 
 [Verifying the deployed site](#verifying-the-deployed-site)):
 
 ```sh
-git clone --branch v1.0.0 --depth 1 https://github.com/sealback/sealback.git
+# TAG: the release to install, determined as in "Verifying the deployed site"
+git clone --branch "$TAG" --depth 1 https://github.com/sealback/sealback.git
 cd sealback
 mkdir -p /var/www/sealback/third_party
 cp -R index.html css js img /var/www/sealback/
@@ -240,7 +243,7 @@ The full specification is in [SPEC.md](SPEC.md).
 
 ### Releasing
 
-Pushing a version tag (`git tag -s v1.0.0 && git push origin v1.0.0`) runs all checks, deploys the
+Pushing a version tag `v<major>.<minor>.<patch>` (e.g. `git tag -s v0.1.0 && git push origin v0.1.0`) runs all checks, deploys the
 site to GitHub Pages and creates a GitHub release with the `SHA256SUMS` file.
 
 ## License
